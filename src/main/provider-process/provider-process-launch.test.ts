@@ -6,6 +6,16 @@ describe('resolveProviderChildEnv', () => {
     vi.restoreAllMocks()
   })
 
+  it('removes a differently cased inherited key on Windows', () => {
+    expect(
+      resolveProviderChildEnv(
+        { envToDelete: ['ORCA_CHAT_TEMP_DIR'] },
+        { orca_chat_temp_dir: '/other-chat/build', Path: 'C:\\bin' },
+        'win32'
+      )
+    ).toEqual({ Path: 'C:\\bin' })
+  })
+
   // zsh honors exported ARGV0, so agent tool shells ran host commands as `orca-ide` (#49649).
   it('keeps the AppImage runtime out of Linux provider children', () => {
     vi.spyOn(process, 'platform', 'get').mockReturnValue('linux')

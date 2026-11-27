@@ -164,7 +164,7 @@ export type CodexSession = Pick<CodexBotLaunchOptions, 'readOnly'> & {
     acquiredSandbox?: CodexSandboxPolicy
     launchSandboxIntact: boolean
     cwd: string
-    visualsFolder?: string
+    storageFolders?: readonly string[]
     preparedMode?: AgentChatPermissionChoice
     preparedAuto?: CodexSandboxPolicy
   }
