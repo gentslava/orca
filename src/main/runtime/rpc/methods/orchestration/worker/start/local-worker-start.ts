@@ -1,6 +1,4 @@
 import { createLocalWorkerStartDispatch } from './local-worker-start-dispatch'
-import { probeWorkerOpenCodeModelLaunchSupport } from './launch/worker-opencode-model-preflight'
-import { resolveWorkerConfiguredAgentParams } from './launch/worker-configured-agent-preflight'
 import type { OrcaRuntimeService } from '../../../../../orca-runtime'
 import type { OrchestrationDb } from '../../../../../orchestration/db/orchestration-db'
 import type {
@@ -39,7 +37,6 @@ import {
   releaseRetriedWorkerTerminal
 } from '../release/retried-worker-terminal-release'
 import { requireWorkerAuthority } from './placement/worker-placement-topology'
-import { prepareLocalWorkerStart } from './launch/worker-start-validation'
 import { deliverAndSettleWorkerStartReadiness } from './readiness/worker-start-readiness-settlement'
 import { handOverWhenReady, wakeReusedSleptAgent } from './readiness/placed-worker-readiness'
 import type { WorkerStartMutation } from './worker-start-mutation'
@@ -49,6 +46,10 @@ import {
 } from '../../../../../orchestration/workers/launch/worker-start-card'
 import { rebindReusedStructuredWorker } from '../../structured-workers/orchestration-structured-worker-session'
 import { placedWorkerParty, type WorkerFollowUp } from '../follow-up/worker-follow-up-placement'
+import {
+  preflightLocalWorkerStartLaunch,
+  preflightWorkerLaunchPreferencesOnHost
+} from '../worker-start-launch-preflight'
 
 export async function startLocalWorker(args: {
   params: WorkerStartInput
@@ -93,34 +94,26 @@ export async function startLocalWorker(args: {
   const existingWorktree =
     requestedWorktree === 'current' ? `id:${coordinatorWorktreeId}` : requestedWorktree
   const targetLabel = workerStartTargetLabel({ ...args.params, createsWorktree, requestedWorktree })
-  const launchParams = await refuseUnmatchedWorkerSelector(targetLabel, () =>
-    resolveWorkerConfiguredAgentParams(runtime, params, async () =>
-      createsWorktree
-        ? { repo: (await creationTargetFor(coordinatorWorktreeId)).repoSelector }
-        : { worktree: existingWorktree }
-    )
-  )
-  let openCodeModelLaunchSupported = false
-  if (!createsWorktree && launchParams.agent === 'opencode' && launchParams.model) {
-    openCodeModelLaunchSupported = await refuseUnmatchedWorkerSelector(targetLabel, () =>
-      probeWorkerOpenCodeModelLaunchSupport(runtime, launchParams, { worktree: existingWorktree })
-    )
-  }
-
-  const { agent, launch } = prepareLocalWorkerStart({
-    params: launchParams,
-    createsWorktree,
+  const launchStart = await preflightLocalWorkerStartLaunch({
     runtime,
-    openCodeModelLaunchSupported
+    params,
+    existingWorktree,
+    targetLabel,
+    createsWorktree,
+    creationTargetFor: () => creationTargetFor(coordinatorWorktreeId),
+    mode: args.mode,
+    chatLineage: args.chatLineage
   })
+  const { agent, launch, fastWorkspace, fastWorkerMode } = launchStart
 
   const creationTarget = createsWorktree
     ? await creationTargetFor(coordinatorWorktreeId)
     : undefined
   let resolvedWorktree: Awaited<ReturnType<typeof placeWorkerAgent>>['worktree'] | undefined =
-    await refuseUnmatchedWorkerSelector(targetLabel, () =>
+    fastWorkspace ??
+    (await refuseUnmatchedWorkerSelector(targetLabel, () =>
       resolveExistingWorkerWorkspace(runtime, creationTarget, existingWorktree)
-    )
+    ))
   if (terminal) {
     await assertExplicitWorkerUsable({
       runtime,
@@ -133,7 +126,11 @@ export async function startLocalWorker(args: {
   }
   const decided = lineageModeForResolvedAgent(runtime, args.mode, { ...args, params, agent })
   const host = { runtime, agent, resolvedWorktree, creationTarget, terminal: params.terminal }
-  let mode = chatWorkerMode(await preflightWorkerAgentOnHost({ ...host, mode: decided }), chat)
+  let mode = chatWorkerMode(
+    fastWorkerMode ?? (await preflightWorkerAgentOnHost({ ...host, mode: decided })),
+    chat
+  )
+  await preflightWorkerLaunchPreferencesOnHost({ ...host, mode, createsWorktree }, launchStart)
 
   const followUp = args.followUp
   if (followUp?.retainedChat) {
