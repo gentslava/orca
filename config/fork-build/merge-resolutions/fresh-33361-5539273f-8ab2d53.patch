@@ -89,7 +89,7 @@ diff --git a/src/main/ai-vault/scanners/claude/session-scanner-primary-parsers.t
 +    if (!isMetaUserTurn) {
 +      state.conversationContent = 'present'
 +      const prompt = extractFullFirstUserPromptText(content)
-+      state.firstUserTitle ??= prompt ? normalizeTitleText(prompt) : title
++      state.firstUserTitle ??= prompt ? normalizeTitleText(prompt) : null
 +      return
 +    }
      if (!title) {

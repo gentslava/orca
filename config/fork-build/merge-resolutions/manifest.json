@@ -2647,8 +2647,8 @@
       "74d7dcb08276cddca83703fe859c3a3c319647eb"
     ],
     "patch": "fresh-33361-5539273f-8ab2d53.patch",
-    "patchSha256": "43507bc52073986c7fabbe8d72ebe7ab06ad15adcc5ce7388ba41aeaa4fa9667",
-    "resultSha256": "cb9c086ae597167ec24497dfbe3354cb068353aa5906403fbe8607231ef24312",
+    "patchSha256": "4f04f7e0c2fc24fac0832ab1b3f741bfcf40cc1ce8df687d69750bdac44ee743",
+    "resultSha256": "87ec7d7608a27f2deab241fb5efcba41b12091505bed62ffc09709295f384d2b",
     "reason": "Preserve upstream filtering and fallback titles for Claude harness turns alongside the conversation-content and first-prompt detection in PR 33361."
   },
   {
