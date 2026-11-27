@@ -4,12 +4,13 @@ import {
   isValidAppVersion
 } from '../../../src/shared/app-lifecycle/identity/app-version'
 
-export type AppUpdateCheckResult =
-  | { kind: 'available'; version: string; url: string }
-  | { kind: 'current' }
+import type { KnownAppUpdate } from '../storage/app-update-preferences'
+
+export type AppUpdateCheckResult = ({ kind: 'available' } & KnownAppUpdate) | { kind: 'current' }
 
 /** One install channel. Rejects when the channel could not be asked; never retries itself. */
 export type AppUpdateSource = {
+  isApplicable?(update: KnownAppUpdate): boolean
   check(installedVersion: string, signal: AbortSignal): Promise<AppUpdateCheckResult>
 }
 
