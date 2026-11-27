@@ -1,3 +1,5 @@
+import { scheduleSessionLinkDelivery } from '../../session-links/session-link-delivery'
+import { pauseSessionLinkForSession } from '../../session-links/session-link-lifecycle'
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../../shared/workspace-layout/layout-owner-switch'
 import type { TerminalIdentityReadContext } from '../../../terminal/query/terminal-identity-read-context'
 import { ptyRecordForPaneKey } from '../../../terminal/query/pty-pane-record'
@@ -181,6 +183,15 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends RuntimeSlept
     this.orchestrationMailboxNotifications.deliverForHandle(handle, reservedTypes)
   }
 
+  private sessionLinkDb(): OrchestrationDb | null {
+    try {
+      return this.getExistingOrchestrationDb()
+    } catch (error) {
+      console.warn('[session-link] orchestration database unavailable', error)
+      return null
+    }
+  }
+
   /** The structured idle edge: any journal movement is a chance to redrive parked mail. */
   /** Chat workers whose model is not answering: one watch per working chat worker. A chat that
    *  never orchestrated must not create the database. */
@@ -194,6 +205,7 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends RuntimeSlept
 
   notifyStructuredSessionJournalActivity(sessionId: string): void {
     this.orchestrationStructuredMailboxPointerDelivery.onJournalActivity(sessionId)
+    scheduleSessionLinkDelivery(this.sessionLinkDb(), sessionId)
   }
 
   /** Retry parked mail on working/idle edges; at idle re-derive owned mailboxes for workers and chats. */
@@ -244,6 +256,7 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends RuntimeSlept
   onStructuredSessionTabHidden(sessionId: string): void {
     try {
       const db = this.getExistingOrchestrationDb()
+      void pauseSessionLinkForSession(db, sessionId)
       for (const worker of db ? closedChatWorkersForSession(sessionId, db) : []) {
         this.failActiveDispatchOnExit(worker.handle, worker.paneKey, OPERATOR_CLOSE_EXIT_CAUSE)
       }
@@ -257,6 +270,7 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends RuntimeSlept
   /** Settlement drops anything parked for the session; nothing will ever redrive it again. */
   forgetStructuredSessionMail(sessionId: string): void {
     this.orchestrationStructuredMailboxPointerDelivery.forgetSession(sessionId)
+    void pauseSessionLinkForSession(this.sessionLinkDb(), sessionId)
     this.chatWorkerModelWaitWatch?.end(sessionId)
   }
 
@@ -304,6 +318,7 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends RuntimeSlept
   }
 
   protected scheduleRestoredMessageRepoints(): void {
+    scheduleSessionLinkDelivery(this.sessionLinkDb())
     let handles: Set<string>
     try {
       const db = this._orchestrationDb

@@ -26,7 +26,7 @@ import { useStructuredNativeChatSubmitReveal as useSubmitReveal } from './pane/a
 import { useStructuredPromptResponseHold } from './prompts/use-structured-prompt-response-hold'
 import { useBotLinkPrompt } from '@/lib/agent-session/open/bot-link-item-target'
 import { useStructuredChatLiveSession } from './session/structured/use-structured-chat-live-session'
-import { nativeChatStructuredAsyncQuestion } from './prompts/NativeChatStructuredAsyncQuestion'
+import { nativeChatStructuredQuestions } from './prompts/NativeChatStructuredAsyncQuestion'
 import { NativeChatStructuredPromptCard } from './prompts/NativeChatStructuredPromptCard'
 import {
   selectNativeChatViewState,
@@ -348,7 +348,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                   answerInputRef={questionAnswerInputRef}
                 />
               )}
-              {nativeChatStructuredAsyncQuestion(props, controller, session, transport, submits)}
+              {nativeChatStructuredQuestions(props, controller, session, transport, submits)}
               <NativeChatQueuedMessageList
                 controller={submits.queuedMessages}
                 chatWorktreeId={ownerWorktreeId ?? null}
