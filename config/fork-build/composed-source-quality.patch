@@ -2269,3 +2269,909 @@ index a4bc3416ef7f9bb548971c03b75951b1ca9d6bb0..32adfadc107b88f7c52ef6c8ec73ee1d
  import { stripLeadingAgentTitleDecoration } from '../../../../../shared/agent-status/title/agent-title-decoration'
  import { getAgentLabel } from '@/lib/agent-catalog/agent-catalog'
  import { basename } from '@/lib/path'
+diff --git a/config/zod-prefer-lazy-baseline.txt b/config/zod-prefer-lazy-baseline.txt
+index 36a77bf9a5..e1c370fe71 100644
+--- a/config/zod-prefer-lazy-baseline.txt
++++ b/config/zod-prefer-lazy-baseline.txt
+@@ -338,7 +338,7 @@
+ 70 src/shared/rpc-contract/source-control/git-params.ts
+ 2 src/shared/rpc-contract/structured-agent-session/agent-session-attachment-params.ts
+ 2 src/shared/rpc-contract/structured-agent-session/structured-agent-session-create-tab-params.ts
+-37 src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts
++36 src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts
+ 47 src/shared/rpc-contract/terminal/terminal-unary-params.ts
+ 36 src/shared/rpc-contract/workspace-layout/workspace-layout-params.ts
+ 2 src/shared/rpc-contract/workspace-layout/workspace-layout-sleep-wake-params.ts
+diff --git a/src/main/runtime/orchestration/session-links/session-link-store.ts b/src/main/runtime/orchestration/session-links/session-link-store.ts
+index d5f8ff82b5..0cd62dc66a 100644
+--- a/src/main/runtime/orchestration/session-links/session-link-store.ts
++++ b/src/main/runtime/orchestration/session-links/session-link-store.ts
+@@ -2,6 +2,7 @@ import { appendSessionLinkMessage, type SessionLinkAppend } from './session-link
+ import { mintAgentSessionOperationId } from '../mailbox/structured-pointer/structured-pointer-operation-id'
+ import { randomUUID } from 'node:crypto'
+ import { z } from 'zod'
++import { lazyZodSchema } from '../../../../shared/schema/lazy-zod-schema'
+ import {
+   SessionLink,
+   SessionLinkEvent,
+@@ -11,8 +12,8 @@ import type Database from '../../../sqlite/sync-database'
+ import type { MessageInsert } from '../db/messages/message-insert'
+ import { runLifecycleWriteTransaction } from '../db/lifecycle-write-transaction-runner'
+
+-const storedDocument = z.object({ document: z.string() })
+-const storedId = z.object({ link_id: z.string() })
++const storedDocument = lazyZodSchema(() => z.object({ document: z.string() }))
++const storedId = lazyZodSchema(() => z.object({ link_id: z.string() }))
+
+ /** The orchestration database connection the store runs on: the worker's own, or a test's. */
+ export type SessionLinkDatabase = {
+diff --git a/src/main/runtime/orchestration/structured-session-child-metadata.ts b/src/main/runtime/orchestration/structured-session-child-metadata.ts
+index 467e9216c0..0ce5f65d58 100644
+--- a/src/main/runtime/orchestration/structured-session-child-metadata.ts
++++ b/src/main/runtime/orchestration/structured-session-child-metadata.ts
+@@ -1,4 +1,5 @@
+ import type { AgentSessionConversationView } from '../../../shared/agent-session/lifecycle/leases/agent-session-conversation-view'
++import { lazyZodSchema } from '../../../shared/schema/lazy-zod-schema'
+ import { isStructuredAgentId } from '../../../shared/agent-session/lifecycle/provider-handles/agent-session-provider-handle-encoding'
+ import { parseRoutableExecutionHostId } from '../../../shared/execution-host/execution-host'
+ import { isTuiAgent } from '../../../shared/agent-launch/catalog/tui-agent-config'
+@@ -18,7 +19,7 @@ import type {
+ } from './db/orchestration-records'
+ import type { WorkerTerminalResourceRow } from './terminal-authority/release/worker-terminal-ownership'
+
+-const launchAgent = FederationAttachStartParams.pick({ agent: true })
++const launchAgent = lazyZodSchema(() => FederationAttachStartParams.pick({ agent: true }))
+
+ export function structuredSessionChildMetadata(args: {
+   dispatch: DispatchContextRow
+diff --git a/src/main/runtime/orchestration/structured-session-child-workers.ts b/src/main/runtime/orchestration/structured-session-child-workers.ts
+index b2ddc670de..6e021624f3 100644
+--- a/src/main/runtime/orchestration/structured-session-child-workers.ts
++++ b/src/main/runtime/orchestration/structured-session-child-workers.ts
+@@ -1,4 +1,5 @@
+ import { z } from 'zod'
++import { lazyZodSchema } from '../../../shared/schema/lazy-zod-schema'
+ import type { OrcaSessionId } from '../../../shared/agent-session/identity/orca-session-address'
+ import type {
+   OrchestrationChildConversation,
+@@ -22,8 +23,8 @@ import {
+ import { readWorkerTerminalHostScope } from '../../../shared/orchestration/workers/worker-terminal-host-scope'
+ import { structuredSessionChildMetadata } from './structured-session-child-metadata'
+
+-const dispatchIds = z.array(
+-  z.object({ id: z.string(), startedAt: z.number(), settledAt: z.number().nullable() })
++const dispatchIds = lazyZodSchema(() =>
++  z.array(z.object({ id: z.string(), startedAt: z.number(), settledAt: z.number().nullable() }))
+ )
+ const PAGE_SIZE = 100
+
+diff --git a/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts b/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts
+index 4a1caed07c..f125e688c7 100644
+--- a/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts
++++ b/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts
+@@ -10,6 +10,7 @@ import type { OrcaRuntimeService } from '../../../../../../orca-runtime'
+ import type { AgentMessageSender } from '../../../../../../../../shared/agent-session/journal/agent-session-message-source'
+ import { OrchestrationError } from '../../../../../../orchestration/orchestration-error'
+ import { z } from 'zod'
++import { lazyZodSchema } from '../../../../../../../../shared/schema/lazy-zod-schema'
+
+ export type OrchestrationWorkerLaunchSelection = {
+   agent: TuiAgent | null
+@@ -26,13 +27,15 @@ export type OrchestrationWorkerLaunchReceipt = {
+   effective: OrchestrationWorkerLaunchSelection | null
+ }
+
+-const PreflightSelection = z.object({
+-  agent: z.custom<TuiAgent>((value) => typeof value === 'string' && isTuiAgent(value)),
+-  model: z.string().nullable(),
+-  effort: z.string().nullable(),
+-  fastMode: z.boolean().optional(),
+-  serviceTier: z.string().optional()
+-})
++const PreflightSelection = lazyZodSchema(() =>
++  z.object({
++    agent: z.custom<TuiAgent>((value) => typeof value === 'string' && isTuiAgent(value)),
++    model: z.string().nullable(),
++    effort: z.string().nullable(),
++    fastMode: z.boolean().optional(),
++    serviceTier: z.string().optional()
++  })
++)
+
+ export function parseWorkerLaunchPreflight(value: unknown): OrchestrationWorkerLaunchReceipt {
+   const parsed = z
+diff --git a/src/shared/agent-session/agent-session-foreground-task.ts b/src/shared/agent-session/agent-session-foreground-task.ts
+index 21c607f9da..a620e5a9aa 100644
+--- a/src/shared/agent-session/agent-session-foreground-task.ts
++++ b/src/shared/agent-session/agent-session-foreground-task.ts
+@@ -1,14 +1,17 @@
+ import * as z from 'zod'
++import { lazyZodSchema } from '../schema/lazy-zod-schema'
+ import { Identifier } from '../rpc-contract/structured-agent-session/structured-agent-session-identifiers'
+
+-export const AgentSessionForegroundTaskSchema = z
+-  .object({
+-    toolUseId: Identifier('Invalid tool call id'),
+-    turnId: Identifier('Invalid turn id'),
+-    generation: Identifier('Invalid acquisition generation'),
+-    taskId: Identifier('Invalid task id').optional()
+-  })
+-  .strict()
++export const AgentSessionForegroundTaskSchema = lazyZodSchema(() =>
++  z
++    .object({
++      toolUseId: Identifier('Invalid tool call id'),
++      turnId: Identifier('Invalid turn id'),
++      generation: Identifier('Invalid acquisition generation'),
++      taskId: Identifier('Invalid task id').optional()
++    })
++    .strict()
++)
+
+ /** Captured by the executing host; a later process or turn cannot inherit this action. */
+ export type AgentSessionForegroundTask = z.infer<typeof AgentSessionForegroundTaskSchema>
+diff --git a/src/shared/conversation-navigation-preferences.ts b/src/shared/conversation-navigation-preferences.ts
+index 6dc3637913..bb44fefdb4 100644
+--- a/src/shared/conversation-navigation-preferences.ts
++++ b/src/shared/conversation-navigation-preferences.ts
+@@ -1,37 +1,45 @@
+ import * as z from 'zod'
++import { lazyZodSchema } from './schema/lazy-zod-schema'
+ import type { AiVaultSession } from './ai-vault/contracts/ai-vault-types'
+ import { sessionFileExecutionNamespace } from './ai-vault/scanning/ai-vault-scope-cwd-match'
+ import { antigravitySessionOrigin } from './agent-session/lifecycle/provider-handles/antigravity-session-origin'
+
+ export const CONVERSATION_NAVIGATION_CAPABILITY = 'ui.conversationPreferences.v1'
+ export const CONVERSATION_PROJECT_VISIBILITY_CAPABILITY = 'ui.conversationProjectVisibility.v1'
+-const Preference = z.object({ pinned: z.boolean().optional(), archived: z.boolean().optional() })
+-export const ConversationPreferencesSchema = z.object({
+-  revision: z.number().int().nonnegative().catch(0),
+-  entries: z.record(z.string().max(2048), Preference.catch({})).catch({}),
+-  hiddenProjects: z.record(z.string().max(2048), z.string().max(1024)).optional().catch(undefined)
+-})
++const Preference = lazyZodSchema(() =>
++  z.object({ pinned: z.boolean().optional(), archived: z.boolean().optional() })
++)
++export const ConversationPreferencesSchema = lazyZodSchema(() =>
++  z.object({
++    revision: z.number().int().nonnegative().catch(0),
++    entries: z.record(z.string().max(2048), Preference.catch({})).catch({}),
++    hiddenProjects: z.record(z.string().max(2048), z.string().max(1024)).optional().catch(undefined)
++  })
++)
+ export type ConversationPreferences = z.infer<typeof ConversationPreferencesSchema>
+ export type ConversationPreference = z.infer<typeof Preference>
+-const SetChatPreferenceParams = z
+-  .object({
+-    key: z.string().min(1).max(2048),
+-    pinned: z.boolean().optional(),
+-    archived: z.boolean().optional()
+-  })
+-  .strict()
+-  .refine((value) => value.pinned !== undefined || value.archived !== undefined)
+-export const SetConversationProjectVisibilityParams = z
+-  .object({
+-    projectKey: z.string().min(1).max(2048),
+-    label: z.string().min(1).max(1024),
+-    hidden: z.boolean()
+-  })
+-  .strict()
+-export const SetConversationPreferenceParams = z.union([
+-  SetChatPreferenceParams,
+-  SetConversationProjectVisibilityParams
+-])
++const SetChatPreferenceParams = lazyZodSchema(() =>
++  z
++    .object({
++      key: z.string().min(1).max(2048),
++      pinned: z.boolean().optional(),
++      archived: z.boolean().optional()
++    })
++    .strict()
++    .refine((value) => value.pinned !== undefined || value.archived !== undefined)
++)
++export const SetConversationProjectVisibilityParams = lazyZodSchema(() =>
++  z
++    .object({
++      projectKey: z.string().min(1).max(2048),
++      label: z.string().min(1).max(1024),
++      hidden: z.boolean()
++    })
++    .strict()
++)
++export const SetConversationPreferenceParams = lazyZodSchema(() =>
++  z.union([SetChatPreferenceParams, SetConversationProjectVisibilityParams])
++)
+
+ export function conversationProjectVisibilityKey(host: string, projectKey: string): string {
+   return JSON.stringify([host, projectKey])
+diff --git a/src/shared/orchestration-worker-roles.ts b/src/shared/orchestration-worker-roles.ts
+index 090399d344..59a7bdc3fb 100644
+--- a/src/shared/orchestration-worker-roles.ts
++++ b/src/shared/orchestration-worker-roles.ts
+@@ -1,33 +1,45 @@
+ import { z } from 'zod'
++import { lazyZodSchema } from './schema/lazy-zod-schema'
+
+ export const INITIAL_WORKER_ROLE_NAMES = ['research', 'implementation', 'review'] as const
+
+-export const WorkerRoleName = z
+-  .string()
+-  .regex(/^[a-z][a-z0-9-]{0,47}$/, 'Invalid worker role name')
+-  .refine(
+-    (name) => !['constructor', 'prototype', '__proto__'].includes(name),
+-    'Invalid worker role name'
+-  )
++export const WorkerRoleName = lazyZodSchema(() =>
++  z
++    .string()
++    .regex(/^[a-z][a-z0-9-]{0,47}$/, 'Invalid worker role name')
++    .refine(
++      (name) => !['constructor', 'prototype', '__proto__'].includes(name),
++      'Invalid worker role name'
++    )
++)
+
+-const ProfileString = z
+-  .string()
+-  .min(1)
+-  .max(512)
+-  .refine((value) => value === value.trim(), 'Surrounding whitespace is invalid')
++const ProfileString = lazyZodSchema(() =>
++  z
++    .string()
++    .min(1)
++    .max(512)
++    .refine((value) => value === value.trim(), 'Surrounding whitespace is invalid')
++)
+
+-export const WorkerRoleProfileSchema = z
+-  .object({
+-    agent: ProfileString,
+-    model: ProfileString.optional(),
+-    effort: ProfileString.optional(),
+-    fastMode: z.boolean().optional()
+-  })
+-  .strict()
++export const WorkerRoleProfileSchema = lazyZodSchema(() =>
++  z
++    .object({
++      agent: ProfileString,
++      model: ProfileString.optional(),
++      effort: ProfileString.optional(),
++      fastMode: z.boolean().optional()
++    })
++    .strict()
++)
+
+-const WorkerRoleProfilesSchema = z
+-  .record(WorkerRoleName, WorkerRoleProfileSchema)
+-  .refine((profiles) => Object.keys(profiles).length <= 24, 'At most 24 worker roles are supported')
++const WorkerRoleProfilesSchema = lazyZodSchema(() =>
++  z
++    .record(WorkerRoleName, WorkerRoleProfileSchema)
++    .refine(
++      (profiles) => Object.keys(profiles).length <= 24,
++      'At most 24 worker roles are supported'
++    )
++)
+
+ export type WorkerRoleProfile = z.infer<typeof WorkerRoleProfileSchema>
+ export type WorkerRoleProfiles = Record<string, WorkerRoleProfile>
+diff --git a/src/shared/personal-project-order.ts b/src/shared/personal-project-order.ts
+index ac2bc6032c..a4b37fab17 100644
+--- a/src/shared/personal-project-order.ts
++++ b/src/shared/personal-project-order.ts
+@@ -1,23 +1,28 @@
+ import * as z from 'zod'
++import { lazyZodSchema } from './schema/lazy-zod-schema'
+
+ export const PERSONAL_PROJECT_ORDER_CAPABILITY = 'ui.personalProjectOrder.v1'
+
+-const safeInteger = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER)
+-export const ProjectPreferenceSchema = z.object({
+-  pinned: z.boolean().optional().catch(undefined),
+-  lastOpenedAt: safeInteger.optional().catch(undefined),
+-  openCount: safeInteger.optional().catch(undefined)
+-})
++const safeInteger = lazyZodSchema(() => z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER))
++export const ProjectPreferenceSchema = lazyZodSchema(() =>
++  z.object({
++    pinned: z.boolean().optional().catch(undefined),
++    lastOpenedAt: safeInteger.optional().catch(undefined),
++    openCount: safeInteger.optional().catch(undefined)
++  })
++)
+ export type ProjectPreference = z.infer<typeof ProjectPreferenceSchema>
+
+-export const PersonalProjectOrderSchema = z.object({
+-  revision: safeInteger.optional().catch(undefined),
+-  projects: z.record(z.string(), ProjectPreferenceSchema.catch({})).catch({}),
+-  settledOperations: z
+-    .array(z.string())
+-    .catch([])
+-    .transform((operations) => operations.slice(-4096))
+-})
++export const PersonalProjectOrderSchema = lazyZodSchema(() =>
++  z.object({
++    revision: safeInteger.optional().catch(undefined),
++    projects: z.record(z.string(), ProjectPreferenceSchema.catch({})).catch({}),
++    settledOperations: z
++      .array(z.string())
++      .catch([])
++      .transform((operations) => operations.slice(-4096))
++  })
++)
+ export type PersonalProjectOrder = z.infer<typeof PersonalProjectOrderSchema>
+
+ export function normalizePersonalProjectOrder(value: unknown): PersonalProjectOrder {
+diff --git a/src/shared/rpc-contract/personal-project-order-params.ts b/src/shared/rpc-contract/personal-project-order-params.ts
+index 1053f30945..015262c19a 100644
+--- a/src/shared/rpc-contract/personal-project-order-params.ts
++++ b/src/shared/rpc-contract/personal-project-order-params.ts
+@@ -1,27 +1,34 @@
+ import { z } from 'zod'
++import { lazyZodSchema } from '../schema/lazy-zod-schema'
+
+-const ProjectKey = z.string().min(1).max(2048)
+-const OperationId = z
+-  .object({
+-    writer: z.string().min(1).max(128),
+-    seq: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER)
+-  })
+-  .strict()
++const ProjectKey = lazyZodSchema(() => z.string().min(1).max(2048))
++const OperationId = lazyZodSchema(() =>
++  z
++    .object({
++      writer: z.string().min(1).max(128),
++      seq: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER)
++    })
++    .strict()
++)
+
+-export const RecordProjectOpenParams = z
+-  .object({
+-    projectKey: ProjectKey,
+-    previousProjectKey: ProjectKey.nullable(),
+-    opId: OperationId
+-  })
+-  .strict()
+-export const SetProjectPinnedParams = z
+-  .object({
+-    projectKey: ProjectKey,
+-    pinned: z.boolean(),
+-    opId: OperationId
+-  })
+-  .strict()
++export const RecordProjectOpenParams = lazyZodSchema(() =>
++  z
++    .object({
++      projectKey: ProjectKey,
++      previousProjectKey: ProjectKey.nullable(),
++      opId: OperationId
++    })
++    .strict()
++)
++export const SetProjectPinnedParams = lazyZodSchema(() =>
++  z
++    .object({
++      projectKey: ProjectKey,
++      pinned: z.boolean(),
++      opId: OperationId
++    })
++    .strict()
++)
+
+ export type RecordProjectOpenRequest = z.infer<typeof RecordProjectOpenParams>
+ export type SetProjectPinnedRequest = z.infer<typeof SetProjectPinnedParams>
+diff --git a/src/shared/rpc-contract/structured-agent-session-background-params.ts b/src/shared/rpc-contract/structured-agent-session-background-params.ts
+index c28ef740fd..870157d225 100644
+--- a/src/shared/rpc-contract/structured-agent-session-background-params.ts
++++ b/src/shared/rpc-contract/structured-agent-session-background-params.ts
+@@ -1,10 +1,13 @@
+ import { z } from 'zod'
++import { lazyZodSchema } from '../schema/lazy-zod-schema'
+ import { MutationEnvelope } from './structured-agent-session/structured-agent-session-mutation-envelope'
+ import { AgentSessionForegroundTaskSchema } from '../agent-session/agent-session-foreground-task'
+
+-export const BackgroundTaskParams = z
+-  .object({
+-    envelope: MutationEnvelope,
+-    target: AgentSessionForegroundTaskSchema
+-  })
+-  .strict()
++export const BackgroundTaskParams = lazyZodSchema(() =>
++  z
++    .object({
++      envelope: MutationEnvelope,
++      target: AgentSessionForegroundTaskSchema
++    })
++    .strict()
++)
+diff --git a/src/shared/rpc-contract/usage-history-params.ts b/src/shared/rpc-contract/usage-history-params.ts
+index 225f3990c3..58646bf68c 100644
+--- a/src/shared/rpc-contract/usage-history-params.ts
++++ b/src/shared/rpc-contract/usage-history-params.ts
+@@ -1,21 +1,28 @@
+ import { z } from 'zod'
++import { lazyZodSchema } from '../schema/lazy-zod-schema'
+
+-const UsageProvider = z.enum(['claude', 'codex', 'opencode', 'muse'])
++const UsageProvider = lazyZodSchema(() => z.enum(['claude', 'codex', 'opencode', 'muse']))
+
+-export const UsageSnapshotParams = z.strictObject({
+-  provider: UsageProvider,
+-  scope: z.enum(['orca', 'all']),
+-  range: z.enum(['7d', '30d', '90d', 'all']),
+-  limit: z.number().int().min(0).max(1000).optional(),
+-  includeHistory: z.boolean().optional()
+-})
++export const UsageSnapshotParams = lazyZodSchema(() =>
++  z.strictObject({
++    provider: UsageProvider,
++    scope: z.enum(['orca', 'all']),
++    range: z.enum(['7d', '30d', '90d', 'all']),
++    limit: z.number().int().min(0).max(1000).optional(),
++    includeHistory: z.boolean().optional()
++  })
++)
+
+-export const UsageRefreshParams = z.strictObject({
+-  provider: UsageProvider,
+-  force: z.boolean().optional()
+-})
++export const UsageRefreshParams = lazyZodSchema(() =>
++  z.strictObject({
++    provider: UsageProvider,
++    force: z.boolean().optional()
++  })
++)
+
+-export const UsageSetEnabledParams = z.strictObject({
+-  provider: UsageProvider,
+-  enabled: z.boolean()
+-})
++export const UsageSetEnabledParams = lazyZodSchema(() =>
++  z.strictObject({
++    provider: UsageProvider,
++    enabled: z.boolean()
++  })
++)
+diff --git a/src/shared/session-link.ts b/src/shared/session-link.ts
+index 2fd5d2997c..a1351a37a7 100644
+--- a/src/shared/session-link.ts
++++ b/src/shared/session-link.ts
+@@ -1,4 +1,5 @@
+ import { z } from 'zod'
++import { lazyZodSchema } from './schema/lazy-zod-schema'
+ import { isOrcaSessionId, type OrcaSessionId } from './agent-session/identity/orca-session-address'
+ import { isStructuredAgentId } from './agent-session/lifecycle/provider-handles/agent-session-provider-handle-encoding'
+
+@@ -11,209 +12,239 @@ export {
+ } from './orchestration/orchestration-runtime-capabilities'
+ export const SESSION_LINK_TURN_LIMIT = 6
+ export const SESSION_LINK_DEFAULT_TURN_LIMIT = 20
+-export const SessionLinkPolicy = z
+-  .object({ turnLimit: z.number().int().min(1).max(10000).nullable() })
+-  .strict()
++export const SessionLinkPolicy = lazyZodSchema(() =>
++  z.object({ turnLimit: z.number().int().min(1).max(10000).nullable() }).strict()
++)
+ export type SessionLinkPolicy = z.infer<typeof SessionLinkPolicy>
+ export const SESSION_LINK_MESSAGE_LIMIT = 12
+ export const SESSION_LINK_MESSAGE_BYTES = 8 * 1024
+
+-const identifier = z.string().min(1).max(128)
+-const sessionId = identifier.pipe(
+-  z.custom<OrcaSessionId>((value) => typeof value === 'string' && isOrcaSessionId(value))
+-)
+-export const SessionLinkRole = z.enum(['reviewer', 'implementer'])
+-export const SessionLinkParticipant = z.object({
+-  sessionId,
+-  conversationId: sessionId,
+-  name: z.string().min(1).max(256),
+-  agent: z.string().refine(isStructuredAgentId),
+-  workspaceId: z.string().min(1).max(4096),
+-  directory: z.string().min(1).max(4096),
+-  branch: z.string().max(512),
+-  task: z.string().max(2048),
+-  context: z.string().max(256),
+-  role: SessionLinkRole
+-})
+-export type SessionLinkParticipant = z.infer<typeof SessionLinkParticipant>
+-export const SessionLink = z.object({
+-  id: identifier,
+-  story: z.string().trim().min(1).max(8192),
+-  policy: SessionLinkPolicy.optional(),
+-  initialParticipantSessionIds: z.array(sessionId).min(2).optional(),
+-  participants: z
+-    .array(SessionLinkParticipant)
+-    .min(2)
+-    .refine(
+-      (items) =>
+-        new Set(items.map((p) => p.conversationId)).size === items.length &&
+-        new Set(items.map((p) => p.sessionId)).size === items.length,
+-      'Choose distinct conversations.'
+-    ),
+-  state: z.enum(['active', 'paused', 'ended']),
+-  reason: z.string().max(512),
+-  version: z.number().int().positive(),
+-  turns: z.number().int().nonnegative(),
+-  messages: z.number().int().nonnegative(),
+-  createdAt: z.number(),
+-  updatedAt: z.number()
+-})
+-export type SessionLink = z.infer<typeof SessionLink>
+-export const SessionLinkMessageKind = z.enum([
+-  'introduction',
+-  'message',
+-  'question',
+-  'checkpoint',
+-  'reply',
+-  'owner-request',
+-  'owner-note'
+-])
+-export type SessionLinkMessageKind = z.infer<typeof SessionLinkMessageKind>
+-export const SessionLinkOwnerChoices = z
+-  .array(
+-    z
+-      .object({
+-        label: z.string().trim().min(1).max(80),
+-        description: z.string().trim().max(200).optional()
+-      })
+-      .strict()
+-  )
+-  .min(2)
+-  .max(4)
+-  .refine(
+-    (choices) => new Set(choices.map((choice) => choice.label)).size === choices.length,
+-    'Owner choices must have distinct labels.'
+-  )
+-export const SessionLinkOwnerQuestionOptions = z
+-  .object({
+-    choices: SessionLinkOwnerChoices.optional(),
+-    allowOther: z.boolean().optional()
+-  })
+-  .refine(
+-    (value) => value.allowOther !== false || value.choices !== undefined,
+-    'A question without choices must allow a free-text answer.'
++const identifier = lazyZodSchema(() => z.string().min(1).max(128))
++const sessionId = lazyZodSchema(() =>
++  identifier.pipe(
++    z.custom<OrcaSessionId>((value) => typeof value === 'string' && isOrcaSessionId(value))
+   )
+-export type SessionLinkOwnerQuestionOptions = z.infer<typeof SessionLinkOwnerQuestionOptions>
+-export const SessionLinkEvent = z.object({
+-  choices: SessionLinkOwnerChoices.optional(),
+-  allowOther: z.boolean().optional(),
+-  id: identifier,
+-  linkId: identifier,
+-  actor: z.string(),
+-  recipient: sessionId.nullable(),
+-  kind: z.enum(['control', ...SessionLinkMessageKind.options]),
+-  messageId: identifier.nullable(),
+-  replyTo: identifier.nullable(),
+-  state: z.enum(['recorded', 'queued', 'dispatching', 'accepted', 'blocked', 'cancelled']),
+-  operationId: z.string(),
+-  requestId: identifier.optional(),
+-  participantSessionIds: z.array(sessionId).optional(),
+-  policy: SessionLinkPolicy.optional(),
+-  retryable: z.boolean().optional(),
+-  targetTurnId: identifier.optional(),
+-  createdAt: z.number(),
+-  detail: z.string(),
+-  body: z.string()
+-})
+-export type SessionLinkEvent = z.infer<typeof SessionLinkEvent>
+-export const SessionLinkSnapshot = z.object({
+-  link: SessionLink,
+-  events: z.array(SessionLinkEvent)
+-})
+-export type SessionLinkSnapshot = z.infer<typeof SessionLinkSnapshot>
+-
+-const groupSupport = z.literal(true).optional()
+-export const LinkListParams = z.object({ sessionId, groupSupport }).strict()
+-export const LinkShowParams = z.object({ id: identifier, groupSupport }).strict()
+-export const LinkCreateParams = z
+-  .object({
+-    id: identifier,
++)
++export const SessionLinkRole = lazyZodSchema(() => z.enum(['reviewer', 'implementer']))
++export const SessionLinkParticipant = lazyZodSchema(() =>
++  z.object({
+     sessionId,
+-    partnerSessionId: sessionId.optional(),
+-    partnerSessionIds: z.array(sessionId).min(1).optional(),
+-    groupSupport,
+-    policy: SessionLinkPolicy.optional(),
+-    story: z.string().trim().min(1).max(8192),
++    conversationId: sessionId,
++    name: z.string().min(1).max(256),
++    agent: z.string().refine(isStructuredAgentId),
++    workspaceId: z.string().min(1).max(4096),
++    directory: z.string().min(1).max(4096),
++    branch: z.string().max(512),
++    task: z.string().max(2048),
++    context: z.string().max(256),
+     role: SessionLinkRole
+   })
+-  .strict()
+-  .refine(
+-    (p) => Boolean(p.partnerSessionId) !== Boolean(p.partnerSessionIds),
+-    'Choose the partner chats.'
+-  )
+-export const LinkAddParticipantsParams = z
+-  .object({
++)
++export type SessionLinkParticipant = z.infer<typeof SessionLinkParticipant>
++export const SessionLink = lazyZodSchema(() =>
++  z.object({
+     id: identifier,
+-    operationId: identifier,
++    story: z.string().trim().min(1).max(8192),
++    policy: SessionLinkPolicy.optional(),
++    initialParticipantSessionIds: z.array(sessionId).min(2).optional(),
++    participants: z
++      .array(SessionLinkParticipant)
++      .min(2)
++      .refine(
++        (items) =>
++          new Set(items.map((p) => p.conversationId)).size === items.length &&
++          new Set(items.map((p) => p.sessionId)).size === items.length,
++        'Choose distinct conversations.'
++      ),
++    state: z.enum(['active', 'paused', 'ended']),
++    reason: z.string().max(512),
+     version: z.number().int().positive(),
+-    sessionIds: z.array(sessionId).min(1),
+-    groupSupport: z.literal(true)
++    turns: z.number().int().nonnegative(),
++    messages: z.number().int().nonnegative(),
++    createdAt: z.number(),
++    updatedAt: z.number()
+   })
+-  .strict()
+-export const LinkControlParams = z
+-  .object({
+-    id: identifier,
+-    operationId: identifier,
+-    groupSupport,
+-    action: z.enum(['pause', 'resume', 'stop', 'end']),
+-    callerOperationId: identifier.optional(),
+-    ownerMessage: z.string().trim().min(1).max(8192).optional(),
+-    summary: z.string().trim().min(1).max(2048).optional(),
+-    version: z.number().int().positive()
+-  })
+-  .strict()
+-  .refine(
+-    (value) => !value.ownerMessage || value.action === 'resume',
+-    'Owner answers require resume.'
+-  )
+-  .refine((value) => !value.summary || value.action === 'end', 'A closing summary requires end.')
+-export const LinkSetPolicyParams = z
+-  .object({
++)
++export type SessionLink = z.infer<typeof SessionLink>
++export const SessionLinkMessageKind = lazyZodSchema(() =>
++  z.enum([
++    'introduction',
++    'message',
++    'question',
++    'checkpoint',
++    'reply',
++    'owner-request',
++    'owner-note'
++  ])
++)
++export type SessionLinkMessageKind = z.infer<typeof SessionLinkMessageKind>
++export const SessionLinkOwnerChoices = lazyZodSchema(() =>
++  z
++    .array(
++      z
++        .object({
++          label: z.string().trim().min(1).max(80),
++          description: z.string().trim().max(200).optional()
++        })
++        .strict()
++    )
++    .min(2)
++    .max(4)
++    .refine(
++      (choices) => new Set(choices.map((choice) => choice.label)).size === choices.length,
++      'Owner choices must have distinct labels.'
++    )
++)
++export const SessionLinkOwnerQuestionOptions = lazyZodSchema(() =>
++  z
++    .object({
++      choices: SessionLinkOwnerChoices.optional(),
++      allowOther: z.boolean().optional()
++    })
++    .refine(
++      (value) => value.allowOther !== false || value.choices !== undefined,
++      'A question without choices must allow a free-text answer.'
++    )
++)
++export type SessionLinkOwnerQuestionOptions = z.infer<typeof SessionLinkOwnerQuestionOptions>
++export const SessionLinkEvent = lazyZodSchema(() =>
++  z.object({
++    choices: SessionLinkOwnerChoices.optional(),
++    allowOther: z.boolean().optional(),
+     id: identifier,
+-    operationId: identifier,
+-    groupSupport,
+-    version: z.number().int().positive(),
+-    policy: SessionLinkPolicy,
+-    resume: z.boolean().default(false)
++    linkId: identifier,
++    actor: z.string(),
++    recipient: sessionId.nullable(),
++    kind: z.enum(['control', ...SessionLinkMessageKind.options]),
++    messageId: identifier.nullable(),
++    replyTo: identifier.nullable(),
++    state: z.enum(['recorded', 'queued', 'dispatching', 'accepted', 'blocked', 'cancelled']),
++    operationId: z.string(),
++    requestId: identifier.optional(),
++    participantSessionIds: z.array(sessionId).optional(),
++    policy: SessionLinkPolicy.optional(),
++    retryable: z.boolean().optional(),
++    targetTurnId: identifier.optional(),
++    createdAt: z.number(),
++    detail: z.string(),
++    body: z.string()
+   })
+-  .strict()
+-export const LinkResolveParams = z
+-  .object({
+-    id: identifier,
+-    eventId: identifier,
+-    operationId: identifier,
+-    groupSupport,
+-    version: z.number().int().positive()
++)
++export type SessionLinkEvent = z.infer<typeof SessionLinkEvent>
++export const SessionLinkSnapshot = lazyZodSchema(() =>
++  z.object({
++    link: SessionLink,
++    events: z.array(SessionLinkEvent)
+   })
+-  .strict()
++)
++export type SessionLinkSnapshot = z.infer<typeof SessionLinkSnapshot>
++
++const groupSupport = lazyZodSchema(() => z.literal(true).optional())
++export const LinkListParams = lazyZodSchema(() => z.object({ sessionId, groupSupport }).strict())
++export const LinkShowParams = lazyZodSchema(() =>
++  z.object({ id: identifier, groupSupport }).strict()
++)
++export const LinkCreateParams = lazyZodSchema(() =>
++  z
++    .object({
++      id: identifier,
++      sessionId,
++      partnerSessionId: sessionId.optional(),
++      partnerSessionIds: z.array(sessionId).min(1).optional(),
++      groupSupport,
++      policy: SessionLinkPolicy.optional(),
++      story: z.string().trim().min(1).max(8192),
++      role: SessionLinkRole
++    })
++    .strict()
++    .refine(
++      (p) => Boolean(p.partnerSessionId) !== Boolean(p.partnerSessionIds),
++      'Choose the partner chats.'
++    )
++)
++export const LinkAddParticipantsParams = lazyZodSchema(() =>
++  z
++    .object({
++      id: identifier,
++      operationId: identifier,
++      version: z.number().int().positive(),
++      sessionIds: z.array(sessionId).min(1),
++      groupSupport: z.literal(true)
++    })
++    .strict()
++)
++export const LinkControlParams = lazyZodSchema(() =>
++  z
++    .object({
++      id: identifier,
++      operationId: identifier,
++      groupSupport,
++      action: z.enum(['pause', 'resume', 'stop', 'end']),
++      callerOperationId: identifier.optional(),
++      ownerMessage: z.string().trim().min(1).max(8192).optional(),
++      summary: z.string().trim().min(1).max(2048).optional(),
++      version: z.number().int().positive()
++    })
++    .strict()
++    .refine(
++      (value) => !value.ownerMessage || value.action === 'resume',
++      'Owner answers require resume.'
++    )
++    .refine((value) => !value.summary || value.action === 'end', 'A closing summary requires end.')
++)
++export const LinkSetPolicyParams = lazyZodSchema(() =>
++  z
++    .object({
++      id: identifier,
++      operationId: identifier,
++      groupSupport,
++      version: z.number().int().positive(),
++      policy: SessionLinkPolicy,
++      resume: z.boolean().default(false)
++    })
++    .strict()
++)
++export const LinkResolveParams = lazyZodSchema(() =>
++  z
++    .object({
++      id: identifier,
++      eventId: identifier,
++      operationId: identifier,
++      groupSupport,
++      version: z.number().int().positive()
++    })
++    .strict()
++)
+ export type SessionLinkDeliveryResolution = z.infer<typeof LinkResolveParams>
+
+-export const LinkSendParams = z
+-  .object({
+-    id: identifier,
+-    operationId: identifier,
+-    groupSupport,
+-    to: sessionId.optional(),
+-    body: z.string().trim().min(1).max(8192),
+-    kind: SessionLinkMessageKind.exclude(['introduction']),
+-    replyTo: identifier.optional(),
+-    ...SessionLinkOwnerQuestionOptions.shape
+-  })
+-  .strict()
+-  .refine(
+-    (value) => value.kind !== 'reply' || value.replyTo !== undefined,
+-    'A reply must identify the partner message.'
+-  )
+-  .refine(
+-    (value) =>
+-      value.kind === 'owner-request' ||
+-      (value.choices === undefined && value.allowOther === undefined),
+-    'Choices are only supported for owner requests.'
+-  )
+-  .refine(
+-    (value) => value.allowOther !== false || value.choices !== undefined,
+-    'A question without choices must allow a free-text answer.'
+-  )
++export const LinkSendParams = lazyZodSchema(() =>
++  z
++    .object({
++      id: identifier,
++      operationId: identifier,
++      groupSupport,
++      to: sessionId.optional(),
++      body: z.string().trim().min(1).max(8192),
++      kind: SessionLinkMessageKind.exclude(['introduction']),
++      replyTo: identifier.optional(),
++      ...SessionLinkOwnerQuestionOptions.shape
++    })
++    .strict()
++    .refine(
++      (value) => value.kind !== 'reply' || value.replyTo !== undefined,
++      'A reply must identify the partner message.'
++    )
++    .refine(
++      (value) =>
++        value.kind === 'owner-request' ||
++        (value.choices === undefined && value.allowOther === undefined),
++      'Choices are only supported for owner requests.'
++    )
++    .refine(
++      (value) => value.allowOther !== false || value.choices !== undefined,
++      'A question without choices must allow a free-text answer.'
++    )
++)
+
+ export function sessionLinkPeers(link: SessionLink, id: string): SessionLinkParticipant[] {
+   const own = link.participants.find((p) => p.sessionId === id)
