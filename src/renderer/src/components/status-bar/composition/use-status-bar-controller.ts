@@ -19,6 +19,8 @@ import {
 } from '../usage/use-owner-usage-rate-limits'
 import { isOwnerNotSetUpPlaceholder } from '../usage/owner-usage-rate-limits'
 import { useTranslate } from '@/i18n/use-translate'
+import { refreshAntigravityQuota } from '@/runtime/provider-accounts/sign-in/runtime-antigravity-accounts-client'
+import { toast } from 'sonner'
 
 export function useStatusBarController(floatingTerminalOpen: boolean) {
   const t = useTranslate()
@@ -80,7 +82,8 @@ export function useStatusBarController(floatingTerminalOpen: boolean) {
 
   const refreshDetectedAgents = useAppStore((s) => s.refreshDetectedAgents)
   const handleRefresh = useCallback(async () => {
-    if (isRefreshing || getUsageOwnerHostScope(remoteOwner) === null) {
+    const hostScope = getUsageOwnerHostScope(remoteOwner)
+    if (isRefreshing || !hostScope) {
       return
     }
     setIsRefreshing(true)
@@ -88,20 +91,46 @@ export function useStatusBarController(floatingTerminalOpen: boolean) {
       // Why: re-run PATH detection so a freshly-installed/removed CLI's bar appears/hides without restarting Orca.
       await Promise.all([
         (refreshRemote ?? refreshRateLimits)(),
-        refreshDetectedAgents(undefined, { wakeWslDistro: true, userInitiated: true })
+        refreshDetectedAgents(undefined, { wakeWslDistro: true, userInitiated: true }),
+        rateLimits.antigravityCliQuotaEnabled
+          ? refreshAntigravityQuota(
+              hostScope,
+              remoteOwner?.wslDistro
+                ? { runtime: 'wsl', wslDistro: remoteOwner.wslDistro }
+                : undefined
+            ).catch((error: unknown) =>
+              toast.error(
+                error instanceof Error
+                  ? error.message
+                  : t(
+                      'accounts.antigravity.quotaRefreshFailed',
+                      'Antigravity quota could not be refreshed.'
+                    )
+              )
+            )
+          : undefined
       ])
     } finally {
       if (mountedRef.current) {
         setIsRefreshing(false)
       }
     }
-  }, [isRefreshing, remoteOwner, refreshRemote, refreshRateLimits, refreshDetectedAgents])
+  }, [
+    isRefreshing,
+    remoteOwner,
+    refreshRemote,
+    refreshRateLimits,
+    refreshDetectedAgents,
+    rateLimits.antigravityCliQuotaEnabled,
+    t
+  ])
 
   if (!statusBarVisible) {
     return null
   }
 
-  const { claude, codex, opencodeGo, kimi, minimax, grok, cursor, zcode } = rateLimits
+  const { claude, codex, antigravityCli, opencodeGo, kimi, minimax, grok, cursor, zcode } =
+    rateLimits
   const muse = rateLimits.muse
 
   // Use owner-specific durable setup flags; viewer credentials cannot establish remote configuration.
@@ -116,6 +145,7 @@ export function useStatusBarController(floatingTerminalOpen: boolean) {
   }
   const visibleClaude = getVisibleUsageProvider('claude', claude, usageSettings)
   const visibleCodex = getVisibleUsageProvider('codex', codex, usageSettings)
+  const visibleAntigravity = getVisibleUsageProvider('antigravity', antigravityCli, usageSettings)
   const visibleKimi = getVisibleUsageProvider('kimi', kimi, usageSettings)
   const visibleMiniMax = getVisibleUsageProvider('minimax', minimax, usageSettings)
   const visibleGrok = getVisibleUsageProvider('grok', grok, usageSettings)
@@ -164,6 +194,7 @@ export function useStatusBarController(floatingTerminalOpen: boolean) {
   const hasVisibleUsageMeters =
     showClaude ||
     showCodex ||
+    visibleAntigravity !== null ||
     showOpencodeGo ||
     showKimi ||
     showMiniMax ||
@@ -196,6 +227,7 @@ export function useStatusBarController(floatingTerminalOpen: boolean) {
   const rosterProviders = [
     showClaude ? visibleClaude : null,
     showCodex ? visibleCodex : null,
+    visibleAntigravity,
     showOpencodeGo ? visibleOpencodeGo : null,
     showKimi ? visibleKimi : null,
     showMiniMax ? visibleMiniMax : null,

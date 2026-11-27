@@ -149,6 +149,8 @@ export function isUsageUrgent(p: ProviderRateLimits): boolean {
 
 function getProviderLetter(provider: ProviderRateLimits['provider']): string {
   switch (provider) {
+    case 'antigravity':
+      return 'A'
     case 'claude':
       return 'C'
     case 'opencode-go':

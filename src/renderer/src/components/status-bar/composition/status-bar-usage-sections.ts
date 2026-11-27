@@ -47,7 +47,9 @@ export function getStatusBarUsageSections(
     ]
   }
   if (p.buckets?.length) {
-    const buckets = p.buckets.filter((bucket) => isCursorUsageBucket(bucket.name))
+    const buckets = p.buckets.filter(
+      (bucket) => p.provider === 'antigravity' || isCursorUsageBucket(bucket.name)
+    )
     if (buckets.length > 0) {
       return buckets.map((bucket) => ({
         key: bucket.name,

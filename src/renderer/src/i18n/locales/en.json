@@ -25635,7 +25635,10 @@
       "chatOtherWindow": "Sign-in is in progress in another window.",
       "chatPageDidntOpen": "Page didn't open?",
       "chatPasteCode": "Paste the code",
-      "chatPasteCodeLabel": "The code Google shows after you sign in, or that page's address"
+      "chatPasteCodeLabel": "The code Google shows after you sign in, or that page's address",
+      "quotaAutoRefresh": "Refresh Antigravity quota in the background",
+      "quotaAutoRefreshDescription": "Show Gemini and other Antigravity quotas in the status bar. Orca checks the current CLI account every 15 minutes.",
+      "quotaRefreshFailed": "Antigravity quota could not be refreshed."
     },
     "claude": {
       "added": "Account added. Select it to use it for the next Claude you start.",

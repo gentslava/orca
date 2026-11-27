@@ -1,3 +1,8 @@
+export type AntigravityCliQuotaSettings = {
+  /** Fork opt-in for Antigravity CLI quota refresh on this execution host. */
+  antigravityCliQuotaEnabled?: boolean
+}
+
 export type AntigravityAccountSummary = {
   id: string
   email: string | null
@@ -17,6 +22,7 @@ export type AntigravityAccountState = {
     identityKnown: boolean
   } | null
   selectedAccountId: string | null
+  quotaAutoRefresh?: boolean
   /** Host only: new chats run on agy and its signed-in account; false runs them elsewhere, or on a
    *  signed-out agy (`chatAgySignedOut`). Absent from older hosts and WSL. */
   chatUsesAgy?: boolean

@@ -8,7 +8,13 @@ import { Button } from '../../../ui/button'
 import { AntigravityChatSignInFlowPanel } from '../../../provider-accounts/AntigravityChatSignInFlowPanel'
 import type { AntigravityChatSignInControls } from '../../../provider-accounts/use-antigravity-chat-sign-in'
 
-export type AntigravityAccountAction = 'List' | 'AddCurrent' | 'Select' | 'Remove'
+export type AntigravityAccountAction =
+  | 'List'
+  | 'AddCurrent'
+  | 'Select'
+  | 'Remove'
+  | 'EnableQuota'
+  | 'DisableQuota'
 
 /** agy's Google logins, which agy in the terminal and Google-account chats share: the current
  *  login, then saved accounts. With `signIn`, signing in and adding an account run in Orca. */

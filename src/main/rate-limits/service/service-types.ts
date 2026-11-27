@@ -68,7 +68,7 @@ export type ZcodePlanResolvedConfig = {
 
 export type ClaudeOAuthUsageEnabledResolver = () => boolean
 export type MuseUsageEnabledResolver = () => boolean
-export type ActiveRateLimitProvider = ProviderRateLimits['provider']
+export type ActiveRateLimitProvider = Exclude<ProviderRateLimits['provider'], 'antigravity'>
 export type ActiveProviderState = {
   provider: ActiveRateLimitProvider
   limits: ProviderRateLimits | null
