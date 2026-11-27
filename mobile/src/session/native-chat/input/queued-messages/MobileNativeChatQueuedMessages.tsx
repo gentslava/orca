@@ -17,7 +17,7 @@ import {
   useMobileQueuedCardActions,
   type MobileQueuedCardActions
 } from './mobile-queued-card-actions'
-import { headSteerableQueuedMessageCard } from '../../../../../../src/shared/agent-session/view/structured-agent-session-queued-cards'
+import { headSteerableQueuedMessageCard, lastSteerableQueuedMessageCard } from '../../../../../../src/shared/agent-session/view/structured-agent-session-queued-cards'
 import type { AgentSessionQueuePause } from '../../../../../../src/shared/agent-session/requests/agent-session-queued-message-wire'
 import type { MobileQueuedMessageEdit } from './use-mobile-structured-queued-message-controls'
 import type { MobileQueuedMessageInlineEditor } from './mobile-queued-message-edit-draft'
@@ -35,6 +35,12 @@ import {
 const QUEUE_KEY = '\u0000queue'
 const MOVE_KEY = '\u0000move'
 
+function mobileNativeChatShortcutCard(cards: readonly MobileQueuedMessageCard[]) {
+  return cards[0]?.from
+    ? headSteerableQueuedMessageCard(cards)
+    : lastSteerableQueuedMessageCard(cards)
+}
+
 /** The card an empty Cmd/Ctrl+Enter presses, or null where it presses none. */
 export function mobileNativeChatChordHeadId(
   {
@@ -50,7 +56,7 @@ export function mobileNativeChatChordHeadId(
   // Mid-turn only where the chord's other way is steer, or a second press would steer the card
   // the first one just queued; with no turn running the card's own Send (a paused queue after Stop).
   const steers = !steerHeld && (alternateSteers || !agentWorking)
-  const head = cards && steers ? headSteerableQueuedMessageCard(cards) : null
+  const head = cards && steers ? mobileNativeChatShortcutCard(cards) : null
   return head && editor?.messageId !== head.messageId ? head.messageId : null
 }
 
@@ -72,7 +78,7 @@ export type MobileNativeChatQueuedMessagesProps = {
   pause?: AgentSessionQueuePause | null
   onResume?: () => Promise<boolean>
   steerHeld?: boolean
-  /** Lights the head card while the composer previews sending it (Steer queued). */
+  /** Lights the newest card while the composer previews sending it (Steer queued). */
   headLight?: MobileQueuedHeadLight
   /** The agent is working: a steerable card's action reads Steer, otherwise Send. */
   agentWorking?: boolean
@@ -179,8 +185,7 @@ export function MobileNativeChatQueuedMessages({
   const showAll = open || cards.length === 1 || editingHidden
   const shownCards = showAll ? cards : cards.slice(0, 1)
   const queueBusy = busyIds.has(QUEUE_KEY)
-  // The shortcut's own head, which is waiting agent mail (no card) when that is first in line.
-  const headId = headSteerableQueuedMessageCard(steerOrder ?? cards)?.messageId
+  const headId = mobileNativeChatShortcutCard(steerOrder ?? cards)?.messageId
   const messageIds = cards.map((card) => card.messageId)
   const clearIds = heldIds ? [...heldIds] : messageIds
   // Clear all takes every held message, so it waits for any one's own action rather than skip it.
