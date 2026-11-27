@@ -1,0 +1,80 @@
+diff --git a/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockGlyph.tsx b/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockGlyph.tsx
+--- a/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockGlyph.tsx
++++ b/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockGlyph.tsx
+@@ -5,6 +5,8 @@
+ import { handleDotWaveAnimationStart } from '@/components/ui/shared-animation-clock'
+ import { cn } from '@/lib/class-names'
+ import { observeOffscreenAnimation } from '@/lib/window-activity/offscreen-animation-pause'
++import type { WorkerDockEntry } from '../../../../../../../shared/orchestration/dock/worker-dock'
++import { KIND_ICONS } from '../background-task-kind-icons'
+ import type { WorkerDockGlyph as Glyph } from './worker-dock-card-order'
+
+ // A 3×3 wave lit along diagonals, top-left first: each diagonal (row + column, 0..4) starts 2s/7.5
+@@ -35,38 +37,47 @@
+  *  draws running as a quiet dot grid instead of the spinner, for the always-visible chip. */
+ export function WorkerDockGlyph({
+   glyph,
++  kind,
+   chip = false,
+   terminal = false
+ }: {
+   glyph: Glyph
++  kind?: WorkerDockEntry['kind']
+   chip?: boolean
+   /** The chip lists only background commands: running draws a terminal instead of the worker grid. */
+   terminal?: boolean
+ }) {
++  const runningTerminal = glyph === 'running' && chip && terminal
++  const KindIcon = kind && !runningTerminal ? KIND_ICONS[kind === 'worker' ? 'agent' : kind] : null
+   return (
+     <span
+       aria-hidden="true"
+-      data-worker-dock-glyph={glyph}
+-      className="inline-flex size-3 shrink-0 items-center justify-center"
++      className="inline-flex shrink-0 items-center gap-1 text-muted-foreground"
+     >
+-      {glyph === 'ask' ? (
+-        <AgentQuestionIcon className="size-3" />
+-      ) : glyph === 'running' && chip && terminal ? (
+-        <SquareTerminal data-worker-dock-terminal="" className="size-3 text-agent-working" />
+-      ) : glyph === 'running' && chip ? (
+-        <WorkerDockDotGrid />
+-      ) : glyph === 'running' ? (
+-        <AgentWorkingSpinner className="size-2.5" />
+-      ) : (
+-        <span
+-          className={cn(
+-            'block size-2 rounded-full',
+-            glyph === 'failed' && 'bg-destructive',
+-            glyph === 'done' && 'bg-status-success',
+-            glyph === 'queued' && 'border-[1.5px] border-muted-foreground'
+-          )}
+-        />
+-      )}
++      {KindIcon ? <KindIcon className="size-3.5" /> : null}
++      <span
++        data-worker-dock-glyph={glyph}
++        className="inline-flex size-3 shrink-0 items-center justify-center"
++      >
++        {glyph === 'ask' ? (
++          <AgentQuestionIcon className="size-3" />
++        ) : runningTerminal ? (
++          <SquareTerminal data-worker-dock-terminal="" className="size-3 text-agent-working" />
++        ) : glyph === 'running' && chip ? (
++          <WorkerDockDotGrid />
++        ) : glyph === 'running' ? (
++          <AgentWorkingSpinner className="size-2.5" />
++        ) : (
++          <span
++            className={cn(
++              'block size-2 rounded-full',
++              glyph === 'failed' && 'bg-destructive',
++              glyph === 'done' && 'bg-status-success',
++              glyph === 'queued' && 'border-[1.5px] border-muted-foreground'
++            )}
++          />
++        )}
++      </span>
+     </span>
+   )
+ }

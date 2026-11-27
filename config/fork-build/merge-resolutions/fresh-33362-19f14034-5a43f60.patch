@@ -1,0 +1,19 @@
+diff --git a/src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts b/src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts
+--- a/src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts
++++ b/src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts
+@@ -24,7 +24,6 @@
+   AccountHome,
+   AttachParams,
+   CreateSupportParams,
+-  SendParams,
+   CreateIntentParams,
+   CreateParams,
+   CancelParams,
+@@ -34,6 +33,7 @@
+   SetOptionParams,
+   OptionsParams
+ } from './structured-agent-session-core-params'
++export { SendParams } from './structured-agent-session-message-params'
+
+ /** One relaunch cannot offer more chats than a profile plausibly holds. */
+ export const MAX_RESTART_RESUME_SESSIONS = 512

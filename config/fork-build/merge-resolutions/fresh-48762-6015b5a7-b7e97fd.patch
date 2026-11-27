@@ -1,0 +1,36 @@
+diff --git a/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockPill.tsx b/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockPill.tsx
+--- a/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockPill.tsx
++++ b/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockPill.tsx
+@@ -4,6 +4,7 @@
+ import { cn } from '@/lib/class-names'
+ import { ChevronUp } from 'lucide-react'
+ import { WorkerDockGlyph } from './WorkerDockGlyph'
++import type { WorkerDockEntry } from '../../../../../../../shared/orchestration/dock/worker-dock'
+ import type { WorkerDockGlyph as Glyph } from './worker-dock-card-order'
+
+ // Where Jump to latest rests while the open panel rises over the transcript: 8px above it.
+@@ -21,6 +22,7 @@
+ export function WorkerDockPill({
+   pill,
+   glyph,
++  kind,
+   label,
+   spokenLabel = label,
+   latest,
+@@ -34,6 +36,7 @@
+ }: {
+   pill: RefObject<HTMLButtonElement | null>
+   glyph: Glyph
++  kind?: WorkerDockEntry['kind']
+   /** The chip's text: how many workers, or what is known when none are listed. */
+   label: string
+   /** The chip's count for assistive technology, both groups in full. */
+@@ -97,7 +100,7 @@
+           </>
+         ) : (
+           <>
+-            <WorkerDockGlyph glyph={glyph} chip terminal={commandsOnly} />
++            <WorkerDockGlyph glyph={glyph} kind={kind} chip terminal={commandsOnly} />
+             <span data-worker-dock-pill-title="" className="min-w-0 truncate">
+               {label}
+             </span>

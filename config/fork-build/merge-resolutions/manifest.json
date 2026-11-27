@@ -2866,5 +2866,125 @@
     "patchSha256": "71b10d7ea36ceefb67ed257ea7e0b571a501ad24292b8cfa31af24f1d9610ae0",
     "resultSha256": "e8fee5a83087cda90febe301dc126382cafb52bc6492c0fe2cd0e1755f0a111e",
     "reason": "Keep linked-chat metadata in the lazy upstream agent-message schema."
+  },
+  {
+    "path": "src/shared/rpc-contract/rpc-params-catalog.generated.ts",
+    "blobs": [
+      "89907bae5a93d1ca58773d920d626f266d2ea29d",
+      "f010bcc54920af1c2180d1b7bd75eafb515ec560",
+      "9c3ab414f446a4fd1785f61e8de013d6d7a18d71"
+    ],
+    "patch": "fresh-33362-63d5310a-51b0b29.patch",
+    "patchSha256": "9deb1ee5ca7aecfe74d26b26d26523c88f4752621692a8fe7d5925306c868be2",
+    "resultSha256": "2cca22fdaffe5fcc5568afeafd052b47f6cabb7b83e8be205c5dfb5a8887cc70",
+    "reason": "Keep the selected steer-capable send schema behind the host registry and generated client catalog after upstream split the lazy RPC modules."
+  },
+  {
+    "path": "src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts",
+    "blobs": [
+      "f3d8b43811b46c4f514ed9ebd7c4fdcf0755f271",
+      "1967b8bd388798eaa51e42fb595764d2c6be42b9",
+      "caeb424b97f309ca55c7a69cc11a5b86722ae720"
+    ],
+    "patch": "fresh-33362-19f14034-5a43f60.patch",
+    "patchSha256": "d8cf9d718e5a0ae90f9a5fc665196fd9dc4ca7a3bb5c0feb3bb31fec5be4877d",
+    "resultSha256": "26ba9495ee58d83a0329bb5f136f00c09e93f65f53e490b0b7f8bbdfd3821cb2",
+    "reason": "Keep the selected steer-capable send schema behind the host registry and generated client catalog after upstream split the lazy RPC modules."
+  },
+  {
+    "path": "src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts",
+    "blobs": [
+      "f3d8b43811b46c4f514ed9ebd7c4fdcf0755f271",
+      "05b805f58aac71e6347fe14b1a7f6112a1ea34e8",
+      "47af8d7d01964a81fc58548280243223d3fbd0d7"
+    ],
+    "patch": "fresh-44451-19f14034-d0bf49a.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "26ba9495ee58d83a0329bb5f136f00c09e93f65f53e490b0b7f8bbdfd3821cb2",
+    "reason": "Keep the new lazy core re-export. The existing contract correction puts the model-only null reset in that core module."
+  },
+  {
+    "path": "src/shared/rpc-contract/rpc-params-catalog.generated.ts",
+    "blobs": [
+      "89907bae5a93d1ca58773d920d626f266d2ea29d",
+      "a22a9ae9eb628b3cde754cccaa1b6845f66b085f",
+      "9c3ab414f446a4fd1785f61e8de013d6d7a18d71"
+    ],
+    "patch": "fresh-33395-63d5310a-73d6e09.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "b2cb91f249af29c314e841d94c564de72ffdee825b1b5ad556e4042ae02ab496",
+    "reason": "Keep the provider Default choice, fenced model-reset writes and queued delivery beside the lazy RPC split."
+  },
+  {
+    "path": "src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts",
+    "blobs": [
+      "f3d8b43811b46c4f514ed9ebd7c4fdcf0755f271",
+      "05b805f58aac71e6347fe14b1a7f6112a1ea34e8",
+      "ac1dd4ba20b6d23da87c70f49c465144ceebba60"
+    ],
+    "patch": "fresh-33395-19f14034-1c4144b.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "26ba9495ee58d83a0329bb5f136f00c09e93f65f53e490b0b7f8bbdfd3821cb2",
+    "reason": "Keep the provider Default choice, fenced model-reset writes and queued delivery beside the lazy RPC split."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockGlyph.tsx",
+    "blobs": [
+      "1de7ae4c359d182cc3dfeae9f49268f79478603d",
+      "3ded13b9eb5f3ece00a2807928fd294b8dee5ffa",
+      "d009333dde2dbcaea46ed579400e45ad2626e65c"
+    ],
+    "patch": "fresh-48762-362317b2-958b4ae.patch",
+    "patchSha256": "97e3b0104322875b9351b3216558926fa2269ab77f8a49c026559386e1aeea43",
+    "resultSha256": "7c89f4442de12e7f21e9ba1cf2d5c8d9d6e70e1f47c8aa33a874480e415cac2e",
+    "reason": "Keep the visible terminal and agent icons and retain upstream grouping, action labels, keyboard navigation and status animation."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockPill.tsx",
+    "blobs": [
+      "d04e5478a40ca3fb6caf0e852c34615fbcabdae1",
+      "9655611313739f6cf24cf752da62668c5f46f5c8",
+      "43c44e10e2ace34f9bc350de8bae9b9a672ca991"
+    ],
+    "patch": "fresh-48762-6015b5a7-b7e97fd.patch",
+    "patchSha256": "5c0140052131509c15f3a85e18ce79c26c0f8714d3766f814faf9510f46044db",
+    "resultSha256": "2112512449e2577b6d9d4dad76cf3be151669c0124de41afeef69d3b3856ba2f",
+    "reason": "Keep the visible terminal and agent icons and retain upstream grouping, action labels, keyboard navigation and status animation."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockRow.tsx",
+    "blobs": [
+      "90b69cee09a0ed731876cf6c4c758d230cbeab6d",
+      "d2548b41cd8a596a348600a19a09af9cd19b9556",
+      "406fe51fb0f2a2b95bb582cdc370355ba72d25e3"
+    ],
+    "patch": "fresh-48762-439c7a02-d4f3e3f.patch",
+    "patchSha256": "3acf86fd0560c1c48183f6ec227a51d11412978ace47734e71e8d1103c66bc11",
+    "resultSha256": "addb8af68f2cd4e0cddc8c62441a9140e2622316df7219ac4d83f007ecc46c2c",
+    "reason": "Keep the visible terminal and agent icons and retain upstream grouping, action labels, keyboard navigation and status animation."
+  },
+  {
+    "path": "src/main/claude/child-work/claude-child-work-decoder.ts",
+    "blobs": [
+      "b9f3c3b369c472d52eb00bd620f9f4e80ca60a1c",
+      "d40e63771a6ddb803593b46a42c6872e9c4b13d7",
+      "d73408e9bd2220c1b98ad92ba2560a670ceb74bd"
+    ],
+    "patch": "fresh-49959-e787e801-1df23fc.patch",
+    "patchSha256": "89040e455826cc0a64c3c3d75e87a96209cde6eab8daf0d239ca784120ad95ae",
+    "resultSha256": "1358c1fc19163a60b9dac7a48a89a5caca59f2181030c1d29cf79b388702f842",
+    "reason": "Pair the bounded wake lease with upstream background-command promotion and preserve explicit provider completion evidence."
+  },
+  {
+    "path": "src/main/claude/child-work/claude-child-work-evidence.ts",
+    "blobs": [
+      "a6f774a4787034e9b90d676273fa4c5438611e41",
+      "0b54989bfcbd184419c35f6a167a40dc6bfc5d7d",
+      "c73234ca4e6d510ebe3d0c1c5abc646472c5a910"
+    ],
+    "patch": "fresh-49959-9a41345b-f038f87.patch",
+    "patchSha256": "c35d5450b522eb957830c1d95839681d4e958649add7909466178dd6c5c17973",
+    "resultSha256": "922e78bc7f14092d47531d83bb6cbacfb8235b94f7a4ea151b132a0e3b2371be",
+    "reason": "Pair the bounded wake lease with upstream background-command promotion and preserve explicit provider completion evidence."
   }
 ]

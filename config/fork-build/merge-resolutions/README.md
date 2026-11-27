@@ -29,3 +29,12 @@ On upstream `19dd83585e81`, the newer lazy schemas retain the model-only null
 reset, personal project order and linked-chat metadata. The previous message
 contract and model reset are present before applying PR 33395, so its overlapping
 contract path keeps those exact combined inputs.
+
+On upstream `c3d47dca326b`, the send RPC still reaches the selected steer schema
+after upstream split the lazy contract modules. The reset stays restricted to
+the model option in the new core module. The worker tray retains the terminal
+and agent icons with upstream's separate command group. The Claude decoder
+keeps bounded wake leases and the upstream command-survivor logic. Russian
+translation PR 46107 now supplies the catalog directly. Its current head and
+upstream cover every translated key from the previous adaptation with the same
+English source.

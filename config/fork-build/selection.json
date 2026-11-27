@@ -80,7 +80,7 @@
     },
     {
       "number": 46107,
-      "reason": "Preserve the reviewed Russian translations while matching current upstream English keys, terminology and interpolation."
+      "reason": "Use the original Russian translation PR directly. Its current catalog and upstream preserve every translated key from the older fork adaptation with matching English source."
     },
     {
       "number": 34899,
@@ -365,10 +365,6 @@
     "43124": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-a7a-file-changes-43124"
-    },
-    "46107": {
-      "repository": "gentslava/orca",
-      "ref": "refs/heads/integration/refresh-508d-russian-46107"
     },
     "33371": {
       "repository": "gentslava/orca",

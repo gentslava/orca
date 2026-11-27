@@ -2251,19 +2251,6 @@ index a4bc3416ef7f9bb548971c03b75951b1ca9d6bb0..32adfadc107b88f7c52ef6c8ec73ee1d
  import { stripLeadingAgentTitleDecoration } from '../../../../../shared/agent-status/title/agent-title-decoration'
  import { getAgentLabel } from '@/lib/agent-catalog/agent-catalog'
  import { basename } from '@/lib/path'
-diff --git a/config/zod-prefer-lazy-baseline.txt b/config/zod-prefer-lazy-baseline.txt
-index 4b127b6932af732b44e8eb4509d9f0739890cb09..db257524210c98c5e2727454c5a232f89fd3e597 100644
---- a/config/zod-prefer-lazy-baseline.txt
-+++ b/config/zod-prefer-lazy-baseline.txt
-@@ -317,7 +317,7 @@
- 1 src/shared/rpc-contract/session-tabs/session-terminal-scrollback-params.ts
- 2 src/shared/rpc-contract/structured-agent-session/agent-session-attachment-params.ts
- 2 src/shared/rpc-contract/structured-agent-session/structured-agent-session-create-tab-params.ts
--29 src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts
-+28 src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts
- 2 src/shared/rpc-contract/workspace-layout/workspace-layout-sleep-wake-params.ts
- 9 src/shared/rpc-contract/workspaces/folder-workspace-params.ts
- 2 src/shared/settings/host-owned-settings.ts
 diff --git a/src/main/runtime/orchestration/session-links/session-link-store.ts b/src/main/runtime/orchestration/session-links/session-link-store.ts
 index d5f8ff82b5..0cd62dc66a 100644
 --- a/src/main/runtime/orchestration/session-links/session-link-store.ts
