@@ -65,6 +65,13 @@ export const CheckParams = lazyZodSchema(() =>
     })
 )
 
+export const SessionChildrenParams = lazyZodSchema(() =>
+  SessionAddressParams.extend({
+    dispatchId: z.string().min(1).optional(),
+    cursor: z.string().min(1).optional()
+  })
+)
+
 export const ReplyParams = lazyZodSchema(() =>
   z.object({
     id: requiredString('Missing --id'),
