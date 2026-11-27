@@ -93,10 +93,7 @@ import {
 import { callRuntimeSessionSearch } from '../../ai-vault/runtime-hosts/runtime-session-search-call'
 import { aiVaultOrchestrationChildSessionIds } from '../../ai-vault/structured-conversation-navigation'
 import { configureRuntimeAiVaultSessionDelete } from '../ai-vault/ai-vault-delete'
-import {
-  ensurePersistedStructuredAgentSessionHostUnlessRefused,
-  ensureStructuredAgentSessionHostUnlessRefused
-} from '../../runtime/agent-session/installation/structured-agent-session-host-refusal'
+import { ensurePersistedStructuredAgentSessionHostUnlessRefused } from '../../runtime/agent-session/installation/structured-agent-session-host-refusal'
 import { getAgentSessionAttachmentStore } from '../../native-chat/agent-session-attachments/agent-session-attachment-store-registry'
 import type { PluginService } from '../../plugins/plugin-service'
 import type { PluginMarketplaceHandlerServices } from '../plugins/plugin-marketplaces'

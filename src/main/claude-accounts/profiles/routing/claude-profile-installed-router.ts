@@ -1,3 +1,4 @@
+import { lstat } from 'node:fs/promises'
 import { basename, dirname, join } from 'node:path'
 import type { UsageAccountRoot } from '../../../usage/usage-account-attribution'
 import { isDirectory } from '../claude-profile-homes'
@@ -7,21 +8,25 @@ import type { ClaudeWslProfileRouter } from '../wsl/claude-profile-wsl-router'
 import type { ClaudeAccountSelectionTarget } from '../../selection/runtime-selection'
 import type { ClaudeObservedConfigDirs } from './claude-observed-config-dirs'
 
-export function claudeAccountHistoryRoots(): UsageAccountRoot[] {
+export async function claudeAccountHistoryRoots(): Promise<UsageAccountRoot[]> {
   const router = installed
-  return (router?.accountHomes() ?? []).flatMap((path) => {
-    const accountId = basename(dirname(path))
-    try {
-      return router?.accountHome(accountId) === path &&
-        isDirectory(path) &&
-        isDirectory(dirname(path)) &&
-        isDirectory(dirname(dirname(path)))
-        ? [{ path, accountId }]
-        : []
-    } catch {
-      return []
-    }
-  })
+  const roots = await Promise.all(
+    (router?.accountHomes() ?? []).map(async (path) => {
+      const accountId = basename(dirname(path))
+      try {
+        if (router?.accountHome(accountId) !== path) {
+          return null
+        }
+        const directories = await Promise.all(
+          [path, dirname(path), dirname(dirname(path))].map((entry) => lstat(entry))
+        )
+        return directories.every((entry) => entry.isDirectory()) ? { path, accountId } : null
+      } catch {
+        return null
+      }
+    })
+  )
+  return router === installed ? roots.filter((root) => root !== null) : []
 }
 
 let installed: ClaudeProfileRouter | undefined

@@ -111,20 +111,13 @@ describe('MobileNativeChatSessionOptionPickers', () => {
   }
 
   const rowByText = (text: string) => {
-    const label = findAllByHostType(findByHostType(renderer!.root, 'BottomDrawer'), 'Text').find(
-      (node) => node.props.children === text
+    const row = findAllByHostType(findByHostType(renderer!.root, 'BottomDrawer'), 'Pressable').find(
+      (node) => node.props.accessibilityLabel === text
     )
-    if (!label) {
+    if (!row) {
       throw new Error(`No row labeled ${text}`)
     }
-    let parent = label.parent
-    while (parent && String(parent.type) !== 'Pressable') {
-      parent = parent.parent
-    }
-    if (!parent) {
-      throw new Error(`No pressable row for ${text}`)
-    }
-    return parent
+    return row
   }
 
   beforeEach(() => {

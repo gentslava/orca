@@ -119,34 +119,25 @@ describe('account quotas', () => {
     expect(cards[2]).toHaveTextContent('Quota data unavailable')
   })
 
-  it('without an account list, shows reported Antigravity accounts and current accounts', () => {
-    const antigravity = (percent: number): ProviderRateLimits => ({
-      ...quota(percent, 'plus'),
-      provider: 'antigravity'
-    })
-    const saved = (email: string, active: boolean, rateLimits: ProviderRateLimits | null) => ({
-      accountId: email,
-      email,
-      active,
-      rateLimits
-    })
+  it('shows current Antigravity CLI quota in usage details', () => {
     renderQuotas(
       createEmptyRateLimitState({
-        codex: quota(27, 'plus'),
-        muse: { ...quota(12, 'plus'), provider: 'muse' },
-        antigravity: antigravity(31),
-        antigravityAccounts: [
-          saved('active@example.test', true, antigravity(31)),
-          saved('saved@example.test', false, antigravity(64)),
-          saved('unread@example.test', false, null)
-        ]
+        antigravityCli: { ...quota(31, 'plus'), provider: 'antigravity' }
       })
     )
-    const cards = screen.getAllByTestId('usage-quota-antigravity')
-    expect(cards).toHaveLength(3)
-    expect(cards[1]).toHaveTextContent('saved@example.test')
-    expect(cards[1]).toHaveTextContent('64% used')
-    expect(within(cards[2]).queryByRole('progressbar')).not.toBeInTheDocument()
+    expect(screen.getByTestId('usage-quota-antigravity')).toHaveTextContent('31% used')
+  })
+
+  it('shows current supported quotas without an account list and ignores a retired provider', () => {
+    const limitsFromOlderHost = {
+      ...createEmptyRateLimitState({
+        codex: quota(27, 'plus'),
+        muse: { ...quota(12, 'plus'), provider: 'muse' }
+      }),
+      antigravity: { ...quota(31, 'plus'), provider: 'antigravity' }
+    }
+    renderQuotas(limitsFromOlderHost)
+    expect(screen.queryByTestId('usage-quota-antigravity')).not.toBeInTheDocument()
     expect(screen.getByTestId('usage-quota-muse')).toHaveTextContent('12% used')
     expect(screen.getByTestId('usage-quota-codex')).toHaveTextContent('identity unavailable')
     expect(screen.getByTestId('usage-quota-coverage')).toHaveTextContent(

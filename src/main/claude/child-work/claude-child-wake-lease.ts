@@ -2,7 +2,12 @@
 // owner again when its surviving descendants end, so an unbounded wake left the row working for good.
 
 import type { AgentChildWorkEvidence } from '../../../shared/agent-status/child-work/agent-status-child-work-evidence'
-import type { DecodedClaudeTask, EndedClaudeTask } from './claude-child-work-evidence'
+import { liveClaudeTaskRunState, record } from '../background-tasks/claude-background-task-frames'
+import {
+  claudeRosterEntries,
+  type DecodedClaudeTask,
+  type EndedClaudeTask
+} from './claude-child-work-evidence'
 
 /** Long enough for a resumed owner's first frame, short enough that a wrong guess settles quickly. */
 export const CLAUDE_CHILD_WAKE_LEASE_MS = 60_000
@@ -65,6 +70,29 @@ export class ClaudeChildWake {
     this.wakes.delete(id)
     if (this.expired.delete(id)) {
       this.host.revive(id, runningFrame)
+    }
+  }
+
+  confirmRoster(tasks: unknown): void {
+    if (!Array.isArray(tasks)) {
+      return
+    }
+    for (const { id, task, live } of claudeRosterEntries(tasks)) {
+      if (live) {
+        this.confirmRunning(id, task)
+      }
+    }
+  }
+
+  confirmFrame(id: string, message: Record<string, unknown>): void {
+    const patch = record(message.patch)
+    if (patch && liveClaudeTaskRunState(patch.status) !== null) {
+      this.confirmRunning(id, patch)
+    } else if (
+      liveClaudeTaskRunState(message.status) !== null ||
+      message.subtype === 'task_progress'
+    ) {
+      this.confirmRunning(id, message)
     }
   }
 

@@ -190,27 +190,22 @@ export class CodexJournalItems {
     if (!translated.body) {
       return CODEX_JOURNAL_ADMITTED
     }
+    const { sink } = this.deps
     if (method === 'item/completed') {
-      const admission = appendCodexLifecycleItem(
-        this.deps.sink,
-        identity,
-        translated.body,
-        attribution
-      )
-      return admission.accepted ? publishCodexLifecycle(this.deps.sink) : admission
+      const admission = appendCodexLifecycleItem(sink, identity, translated.body, attribution)
+      return admission.accepted ? publishCodexLifecycle(sink) : admission
     }
     const options = requiresTerminalSettlement(translated.body) ? { lifecycle: true } : {}
     const appendOptions = { ...options, ...attribution }
-    const admission = this.deps.sink.tryAppendItem
-      ? this.deps.sink.tryAppendItem(identity, translated.body, appendOptions)
-      : (this.deps.sink.appendItem(identity, translated.body, appendOptions),
-        CODEX_JOURNAL_ADMITTED)
+    const admission = sink.tryAppendItem
+      ? sink.tryAppendItem(identity, translated.body, appendOptions)
+      : (sink.appendItem(identity, translated.body, appendOptions), CODEX_JOURNAL_ADMITTED)
     if (!admission.accepted) {
       return admission
     }
-    return this.deps.sink.tryPublish
-      ? this.deps.sink.tryPublish(options)
-      : (this.deps.sink.publish(options), CODEX_JOURNAL_ADMITTED)
+    return sink.tryPublish
+      ? sink.tryPublish(options)
+      : (sink.publish(options), CODEX_JOURNAL_ADMITTED)
   }
 
   /** A kept agent's running command: later output streams onto its row with its saved fields. */
@@ -286,30 +281,28 @@ export class CodexJournalItems {
     while (this.activeItems.size - this.streams.persistentCount > room) {
       const oldest = [...this.activeItems].find(
         ([, active]) => !codexCommandOutlivesTurn(active.item)
-      )?.[0]
-      if (typeof oldest !== 'string') {
+      )
+      if (!oldest) {
         break
       }
-      const evicted = this.activeItems.get(oldest)
-      if (evicted) {
-        const body = interruptedCodexItemBody(evicted, this.streams)
-        if (body) {
-          const admission = appendCodexLifecycleItem(this.deps.sink, evicted.identity, body, {
-            ...this.deps.attributionFor(evicted.threadId, evicted.turnId),
-            ...(evicted.startedAt === undefined ? {} : { observedAt: evicted.startedAt })
-          })
-          if (!admission.accepted) {
-            return admission
-          }
-          const published = publishCodexLifecycle(this.deps.sink)
-          if (!published.accepted) {
-            return published
-          }
+      const [key, evicted] = oldest
+      const body = interruptedCodexItemBody(evicted, this.streams)
+      if (body) {
+        const admission = appendCodexLifecycleItem(this.deps.sink, evicted.identity, body, {
+          ...this.deps.attributionFor(evicted.threadId, evicted.turnId),
+          ...(evicted.startedAt === undefined ? {} : { observedAt: evicted.startedAt })
+        })
+        if (!admission.accepted) {
+          return admission
         }
-        this.streams.forget(evicted.threadId, evicted.item.id)
-        this.suppress(evicted.threadId, evicted.turnId ?? 'outside-turn')
+        const published = publishCodexLifecycle(this.deps.sink)
+        if (!published.accepted) {
+          return published
+        }
       }
-      this.activeItems.delete(oldest)
+      this.streams.forget(evicted.threadId, evicted.item.id)
+      this.suppress(evicted.threadId, evicted.turnId ?? 'outside-turn')
+      this.activeItems.delete(key)
     }
     return CODEX_JOURNAL_ADMITTED
   }

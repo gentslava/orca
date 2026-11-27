@@ -5803,26 +5803,7 @@
           "trackingSince": "Seguimiento desde {{value0}}"
         },
         "UsageOverviewPane": {
-          "33f7b043d2": "Proveedores",
-          "70f36452d4": "Porcentaje de caché",
-          "327603fe8b": "Días activos",
-          "0eaf937335": "Est. costo",
-          "3887b94ce5": "Tokens totales",
-          "2d13e57f72": "Habilitar OpenCode",
-          "2f1ee2878b": "Habilitar Codex",
-          "0ea0cae435": "Habilitar Claude",
-          "6c00c46815": "Habilita un proveedor para escanear registros locales de agentes y crear el historial combinado de tokens.",
-          "49405ccc8d": "Empezar a rastrear tokens",
-          "ca6bc5fded": "Actualizar",
-          "e06d1baf5c": "Actualizar resumen de uso",
-          "c760c481c5": "Resumen de uso",
-          "55c910f4f1": "- algunos precios de modelos no están disponibles",
-          "enableMuse": "Activar Muse",
-          "noLocalUsageYet": "Aún no se encontró uso local de Claude, Codex, OpenCode ni Muse. El resumen se completará después de que la próxima sesión de agente escriba registros de tokens.",
-          "providersEnabledWithData": "Habilitados: {{enabled}} - con datos: {{withData}}",
-          "sessionCount_one": "{{formatted}} sesión",
-          "sessionCount_other": "{{formatted}} sesiones",
-          "sessionCount_many": "{{formatted}} sesiones"
+          "3887b94ce5": "Tokens totales"
         },
         "share": {
           "card": {
@@ -26181,6 +26162,12 @@
         "provisionFailed": "La VM no se creó o su creación se interrumpió. Abre Ajustes para destruirla o quitarla."
       },
       "suspendFailed": "No se pudo suspender el espacio de trabajo de la VM"
+    },
+    "start": {
+      "title": "¿Qué quieres abrir?",
+      "description": "Elige un agente o una herramienta para este proyecto.",
+      "agents": "Agentes",
+      "manageAgents": "Gestionar agentes"
     }
   },
   "tabHoverCard": {

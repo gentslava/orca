@@ -156,3 +156,8 @@ export function isRetryableNativeChatVisualFailure(
 ): boolean {
   return reason === 'unavailable' || reason === 'not_found'
 }
+
+export function clearNativeChatVisualCacheForTests(): void {
+  cache.clear()
+  inFlight.clear()
+}

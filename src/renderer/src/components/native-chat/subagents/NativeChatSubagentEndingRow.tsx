@@ -3,7 +3,7 @@ import { cn } from '@/lib/class-names'
 import type { NativeChatTextBlock } from '../../../../../shared/native-chat/native-chat-types'
 import { NativeChatMarkdown } from '../markdown/NativeChatMarkdown'
 import { NativeChatCodeBlock } from '../markdown/code/NativeChatCodeBlock'
-import { NATIVE_CHAT_SUBAGENT_FAILURE_PRESENTATION } from './native-chat-subagent-ending'
+import { NATIVE_CHAT_SUBAGENT_FAILURE_PRESENTATION } from '../../../../../shared/native-chat/transcript/subagents/native-chat-subagent-ending'
 
 /** A subagent's last word in its sheet: its reply under "Result", or its error under "Failed". */
 export function NativeChatSubagentEndingRow({

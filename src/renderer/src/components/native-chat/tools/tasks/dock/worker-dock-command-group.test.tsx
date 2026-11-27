@@ -165,6 +165,15 @@ describe('open tray', () => {
       expect.stringContaining('Explore sub-1')
     ])
     expect(within(commands).getByText('make target-shell-1')).toBeInTheDocument()
+    expect(
+      within(workers).getByText('Explore sub-1').closest('button')?.querySelector('svg.lucide-bot')
+    ).toBeInTheDocument()
+    expect(
+      within(commands)
+        .getByText('make target-shell-1')
+        .closest('button')
+        ?.querySelector('svg.lucide-square-terminal')
+    ).toBeInTheDocument()
     expect(document.querySelectorAll('[data-worker-dock-group-label]')).toHaveLength(1)
   })
 
@@ -175,7 +184,11 @@ describe('open tray', () => {
   })
 
   it('keeps a new agent in the agents group while the card is held', () => {
-    const view = renderTray({ expanded: true, workers: [worker('a')], tasks: [command('shell-1')] })
+    const view = renderTray({
+      expanded: true,
+      workers: [worker('a')],
+      tasks: [command('shell-1')]
+    })
     const region = screen.getByRole('region', { name: 'Workers and background commands' })
     fireEvent.pointerEnter(region.parentElement!)
     view.rerender({ tasks: [command('shell-1'), subagent('sub-new')] })
@@ -447,7 +460,11 @@ describe('kinds', () => {
   })
 
   it('keeps focus on a command row’s Stop when the last worker leaves', () => {
-    const view = renderTray({ expanded: true, workers: [worker('a')], tasks: [command('shell-1')] })
+    const view = renderTray({
+      expanded: true,
+      workers: [worker('a')],
+      tasks: [command('shell-1')]
+    })
     const stop = screen.getByRole('button', { name: /^Stop .*make target-shell-1/ })
     stop.focus()
     view.rerender({ workerRows: new Map(), workerIdentities: [] })

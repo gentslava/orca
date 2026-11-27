@@ -25,7 +25,6 @@ import {
   claudeChildWorkObservation,
   type DecodedClaudeTask,
   type EndedClaudeTask,
-  claudeRosterEntries,
   claudeTaskProgressFacts,
   type ClaudeTaskFacts
 } from './claude-child-work-evidence'
@@ -70,13 +69,7 @@ export class ClaudeChildWorkDecoder {
       return
     }
     if (message.subtype === 'background_tasks_changed') {
-      if (Array.isArray(message.tasks)) {
-        for (const { id, task, live } of claudeRosterEntries(message.tasks)) {
-          if (live) {
-            this.wake.confirmRunning(id, task)
-          }
-        }
-      }
+      this.wake.confirmRoster(message.tasks)
       const known = { live: this.live, ended: this.ended, parentOf: this.taskInvocations.parentOf }
       for (const [id, task] of tf.claudeRosterStarts(message, known)) {
         this.started(id, task, true)
@@ -91,18 +84,7 @@ export class ClaudeChildWorkDecoder {
     if (selected && (!selected.current || selected.invocation.excluded)) {
       return
     }
-    // Only a frame the decoder admits proves the provider runs this owner; a historical alias
-    // that is ignored above would otherwise clear the lease and leave the row working for good.
-    // A frame that does not report running (a metadata-only update) says nothing about a resume.
-    // task_progress is emitted only while a task runs, and a running update reports it under the patch.
-    const patch = record(message.patch)
-    const running = liveClaudeTaskRunState(patch?.status) ?? liveClaudeTaskRunState(message.status)
-    if (running !== null || message.subtype === 'task_progress') {
-      this.wake.confirmRunning(
-        id,
-        liveClaudeTaskRunState(patch?.status) !== null ? patch! : message
-      )
-    }
+    this.wake.confirmFrame(id, message)
     switch (message.subtype) {
       case 'task_started':
         this.started(id, message)

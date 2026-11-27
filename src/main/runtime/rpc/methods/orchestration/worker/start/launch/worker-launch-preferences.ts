@@ -122,7 +122,7 @@ export function assertWorkerLaunchPreferencesCreateTerminal(args: {
   if (args.terminal && (args.role || args.model || args.effort || args.fastMode !== undefined)) {
     throw new OrchestrationError(
       'invalid_argument',
-      '--role, --model and --effort or --fast cannot be applied when reusing an existing terminal.'
+      '--role, --model, --effort, and --fast cannot be applied when reusing an existing terminal.'
     )
   }
 }

@@ -88,28 +88,6 @@ export const CreateSupportParams = lazyZodSchema(() =>
     .strict()
 )
 
-export const SendParams = lazyZodSchema(() =>
-  z
-    .object({
-      envelope: MutationEnvelope,
-      retryUnknown: z.literal(true).optional(),
-      /** Host-held draft while active; gate strict payloads on agent-session.queued-messages.v2.
-       * Operation fingerprint only, never body fingerprint. */
-      delivery: z.literal('queue-if-active').optional(),
-      /** Preserve composer options until dispatch; requires agent-session.send-options.v1. Operation fingerprint only. */
-      options: AgentSessionOptions.optional(),
-      selection: AgentSessionSelectionSchema.optional(),
-      // Strict payload: only hosts advertising the bound usage-limit send capability accept this.
-      usageLimitContinuationOfTurnItemId: Identifier('Invalid source turn item id').optional(),
-      body: SendBody
-    })
-    .strict()
-    .refine(
-      (value) => value.options === undefined || value.selection === undefined,
-      'Choose options or selection'
-    )
-)
-
 export const CreateIntentParams = lazyZodSchema(() =>
   z
     .object({
@@ -194,11 +172,16 @@ export const RespondParams = lazyZodSchema(() =>
 )
 
 export const SetOptionParams = lazyZodSchema(() =>
-  z.strictObject({
-    envelope: MutationEnvelope,
-    key: Identifier('Invalid option key'),
-    value: z.string().max(MAX_OPTION_LABEL)
-  })
+  z
+    .strictObject({
+      envelope: MutationEnvelope,
+      key: Identifier('Invalid option key'),
+      value: z.string().max(MAX_OPTION_LABEL).nullable()
+    })
+    .refine(
+      (params) => params.value !== null || params.key === 'model',
+      'Only a model has a default'
+    )
 )
 
 export const OptionsParams = lazyZodSchema(() => z.object({ sessionId: SessionId }).strict())

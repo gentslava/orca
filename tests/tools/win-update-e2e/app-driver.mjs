@@ -213,6 +213,17 @@ export async function ensureTerminal(page, { allowCreate = true, timeoutMs = 60_
     return
   }
   await createWorkspaceFromSeededRepo(page, timeoutMs)
+  await openStartPageTerminal(page, timeoutMs)
+}
+
+// Explicit empty-workspace actions: a setup-only create opens the start page, whose New Terminal starts the shell.
+async function openStartPageTerminal(page, timeoutMs) {
+  const terminal = page.locator(TERMINAL_SURFACE_VISIBLE).first()
+  const startTerminal = page.getByRole('button', { name: /^New Terminal/ }).first()
+  await terminal.or(startTerminal).first().waitFor({ state: 'visible', timeout: timeoutMs })
+  if (!(await terminal.isVisible().catch(() => false))) {
+    await startTerminal.click({ timeout: timeoutMs })
+  }
   await waitForTerminalReady(page, timeoutMs)
 }
 

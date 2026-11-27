@@ -112,6 +112,15 @@ async function renderPicker({
       )
     )
   })
+  if (inParent) {
+    const avatarTab = [...container.querySelectorAll('button[role="tab"]')].find(
+      (tab) => tab.textContent === 'Avatar'
+    )
+    if (!avatarTab) {
+      throw new Error('Missing Avatar tab')
+    }
+    await act(async () => avatarTab.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })))
+  }
   const upload = [...container.querySelectorAll('button')].find((button) =>
     button.textContent?.includes('Upload')
   )

@@ -26299,6 +26299,12 @@
       "checksPassing": "{{review}} checks: Passing",
       "open": "{{review}}: Open"
     },
+    "start": {
+      "title": "What would you like to open?",
+      "description": "Choose an agent or a tool for this project.",
+      "agents": "Agents",
+      "manageAgents": "Manage agents"
+    },
     "vm": {
       "menu": {
         "waking": "Waking VM…",
@@ -26348,6 +26354,9 @@
     }
   },
   "updates": {
+    "forkPreview": {
+      "manualInstall": "Install the downloaded update manually."
+    },
     "installOnQuit": {
       "title": "Update ready to install",
       "summary": "Quit Orca. Reopen after installation.",
@@ -27532,7 +27541,7 @@
         "title": "Current account quotas",
         "scope": "{{host}} · Account-wide subscription windows. History filters do not change these limits.",
         "refresh": "Refresh account quotas",
-        "reportedAccountCoverage": "Claude, Codex and Antigravity show accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.",
+        "reportedAccountCoverage": "Claude and Codex show accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.",
         "partialAccounts": "The account list is unavailable or incomplete. Only reported accounts and current provider quota snapshots are shown.",
         "noSources": "No account quota source is available. Manage provider accounts to check your subscription.",
         "manage": "Manage accounts",

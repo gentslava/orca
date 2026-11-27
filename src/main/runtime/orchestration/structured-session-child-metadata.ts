@@ -1,4 +1,5 @@
 import type { AgentSessionConversationView } from '../../../shared/agent-session/lifecycle/leases/agent-session-conversation-view'
+import { lazyZodSchema } from '../../../shared/schema/lazy-zod-schema'
 import { isStructuredAgentId } from '../../../shared/agent-session/lifecycle/provider-handles/agent-session-provider-handle-encoding'
 import { parseRoutableExecutionHostId } from '../../../shared/execution-host/execution-host'
 import { isTuiAgent } from '../../../shared/agent-launch/catalog/tui-agent-config'
@@ -18,7 +19,7 @@ import type {
 } from './db/orchestration-records'
 import type { WorkerTerminalResourceRow } from './terminal-authority/release/worker-terminal-ownership'
 
-const launchAgent = FederationAttachStartParams.pick({ agent: true })
+const launchAgent = lazyZodSchema(() => FederationAttachStartParams.pick({ agent: true }))
 
 export function structuredSessionChildMetadata(args: {
   dispatch: DispatchContextRow

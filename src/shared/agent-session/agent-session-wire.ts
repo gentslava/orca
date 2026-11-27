@@ -35,10 +35,7 @@ import type { StructuredAgentSessionProjectedStatus } from './view/structured-ag
 export type AgentSessionTurnActivity = { turnId: string; text: string }
 
 /** The agent's guess at the user's next prompt; never journaled, replaced when a turn opens. */
-export type AgentSessionPromptSuggestion = {
-  id: string
-  text: string
-}
+export type AgentSessionPromptSuggestion = { id: string; text: string }
 
 /** Newest turn across the whole journal, including off-page long-running turns. null means no turn; older hosts omit it and clients derive from loaded rows. */
 export type AgentSessionLatestTurn = {

@@ -32,10 +32,10 @@ export function UsageAccountQuotaCard({
 }): React.JSX.Element {
   const t = useTranslate()
   const intlLocale = useIntlLocale()
-  const providerSections = getWindowSections(provider)
+  const providerSections = getWindowSections(provider, t)
   const sections = [
     ...providerSections,
-    ...getWindowSections({ ...provider, buckets: [] }).filter(
+    ...getWindowSections({ ...provider, buckets: [] }, t).filter(
       (section) => !providerSections.some((existing) => existing.window === section.window)
     )
   ].flatMap((section) =>
@@ -57,7 +57,7 @@ export function UsageAccountQuotaCard({
         </h4>
         {provider.planType ? (
           <span className="text-xs text-muted-foreground">
-            {formatPlanLabel(provider.planType)}
+            {formatPlanLabel(provider.planType, provider.provider)}
           </span>
         ) : null}
       </div>
@@ -161,7 +161,8 @@ export function UsageAccountQuotas({
     accounts,
     accountsUnverifiable,
     settings,
-    ownerLabel
+    ownerLabel,
+    t
   )
   return (
     <section className="space-y-3" data-testid="usage-account-quotas">
@@ -193,7 +194,7 @@ export function UsageAccountQuotas({
         {accounts && !accountsUnverifiable && !accounts.failedProviders?.length
           ? t(
               'stats.usage.quota.reportedAccountCoverage',
-              'Claude, Codex and Antigravity show accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.'
+              'Claude and Codex show accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.'
             )
           : t(
               'stats.usage.quota.partialAccounts',

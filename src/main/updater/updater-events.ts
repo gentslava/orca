@@ -5,6 +5,7 @@ import {
   resetMacInstallState
 } from './mac-install/updater-mac-install'
 import { compareVersions } from './releases/updater-fallback'
+import { isForkMacUpdateBuild } from './releases/updater-fork-release-feed'
 import { fetchChangelog } from './releases/updater-changelog'
 import { getUnsupportedSystemUpdate } from './releases/updater-system-requirement'
 import type { UpdaterHandlerContext } from './updater-handler-context'
@@ -135,8 +136,9 @@ export function registerAutoUpdaterHandlers({
     markUpdateAvailableEventPending(attemptId)
     void (async () => {
       try {
+        const forkReleaseUrl = isForkMacUpdateBuild() ? getKnownReleaseUrl() : undefined
         const changelog =
-          isLocalBuildCheck() || isPinnedBuildCheck()
+          forkReleaseUrl || isLocalBuildCheck() || isPinnedBuildCheck()
             ? null
             : await fetchChangelog(info.version, app.getVersion()).catch(() => null)
 
@@ -149,7 +151,7 @@ export function registerAutoUpdaterHandlers({
 
         // A concurrent error during the fetch must not leave stale available state.
         setAvailableVersion(info.version)
-        setAvailableReleaseUrl(null)
+        setAvailableReleaseUrl(forkReleaseUrl ?? null)
         // Dev jumps must not suppress real background checks by persisting lastUpdateCheckAt.
         if (!isLocalBuildCheck() && !isPinnedBuildCheck()) {
           if (missingManifestFallback || publishingWindowLastGoodCheck) {
@@ -168,6 +170,7 @@ export function registerAutoUpdaterHandlers({
             state: 'available',
             version: info.version,
             changelog,
+            ...(forkReleaseUrl ? { releaseUrl: forkReleaseUrl } : {}),
             // Tell clients this host cannot self-update before offering a download.
             ...(isExternallyManagedLinuxInstall() ? { externallyManaged: true } : {})
           },

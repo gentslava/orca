@@ -80,6 +80,7 @@ function ownerUsageFor(owner: AccountOwner): OwnerUsageRateLimits {
     owner,
     rateLimits: accounts?.rateLimits ?? useAppStore.getState().rateLimits,
     accounts,
+    accountsUnverifiable: owner.wslHostDistro !== null,
     remoteOwner: remote ? { environmentId: remote, label: 'Visible host' } : null,
     refreshRemote: null
   }

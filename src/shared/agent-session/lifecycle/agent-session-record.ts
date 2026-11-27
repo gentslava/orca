@@ -215,8 +215,7 @@ export function isAgentSessionProcessIdentity(
     Number.isSafeInteger(identity.pid) &&
     (identity.pid as number) > 0 &&
     (identity.processStartTimeMs === null ||
-      (Number.isSafeInteger(identity.processStartTimeMs) &&
-        (identity.processStartTimeMs as number) >= 0)) &&
+      isNonNegativeSafeInteger(identity.processStartTimeMs)) &&
     isBoundedString(identity.spawnToken, MAX_ID_LENGTH) &&
     (identity.runtime === undefined || isBoundedString(identity.runtime, MAX_ID_LENGTH))
   )
@@ -308,13 +307,10 @@ function isPersistedAgentSessionObservationLease(
 
 /** Stored identity is independent of registrations; availability is checked only at start. */
 export function isPersistedAgentSessionObservationRecord(
-  value: unknown
-): value is PersistedAgentSessionObservationRecord {
-  if (!isStoredRecordObject(value)) {
-    return false
-  }
-  const record = value
+  record: unknown
+): record is PersistedAgentSessionObservationRecord {
   if (
+    !isStoredRecordObject(record) ||
     !(
       record.schemaVersion === AGENT_SESSION_RECORD_SCHEMA_VERSION &&
       isAgentSessionId(record.sessionId) &&

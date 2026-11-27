@@ -2,6 +2,7 @@ import { appendSessionLinkMessage, type SessionLinkAppend } from './session-link
 import { mintAgentSessionOperationId } from '../mailbox/structured-pointer/structured-pointer-operation-id'
 import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
+import { lazyZodSchema } from '../../../../shared/schema/lazy-zod-schema'
 import {
   SessionLink,
   SessionLinkEvent,
@@ -11,8 +12,8 @@ import type Database from '../../../sqlite/sync-database'
 import type { MessageInsert } from '../db/messages/message-insert'
 import { runLifecycleWriteTransaction } from '../db/lifecycle-write-transaction-runner'
 
-const storedDocument = z.object({ document: z.string() })
-const storedId = z.object({ link_id: z.string() })
+const storedDocument = lazyZodSchema(() => z.object({ document: z.string() }))
+const storedId = lazyZodSchema(() => z.object({ link_id: z.string() }))
 
 /** The orchestration database connection the store runs on: the worker's own, or a test's. */
 export type SessionLinkDatabase = {

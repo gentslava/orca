@@ -16,7 +16,6 @@ import {
   GENERIC_PROCESS_NAME_AGENTS,
   recognizeAgentProcess
 } from '../../../../../shared/agent-status/process/agent-process-recognition'
-import { resolveStructuredWorkerAuthority } from '../../terminal-authority/structured-sessions/structured-worker-authority'
 import type { StructuredPointerTarget } from '../structured-pointer/structured-mailbox-pointer-delivery'
 import type { OrchestrationDb } from '../../db/orchestration-db'
 import {
@@ -31,7 +30,6 @@ import {
 } from './structured-session-mail-target'
 import { closedChatWorkersForSession } from '../../workers/lifecycle/chat-assignee'
 import { OPERATOR_CLOSE_EXIT_CAUSE } from '../../../../../shared/terminal/pty/lifecycle/terminal-exit-cause'
-import { resolveTerminalIdentityFromProbes } from '../../../terminal/identity/terminal-identity-probe'
 import { observeChatWorkerWorking } from '../../workers/turn-stops/chat-worker-turn-stops'
 import { ChatWorkerModelWait } from '../../workers/turn-stops/chat-worker-model-wait'
 
@@ -93,10 +91,7 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends RuntimeSlept
       return livePty.pty.worktreeId
     }
     const record = this.handles.get(handle)
-    if (!record || record.runtimeId !== this.runtimeId) {
-      return null
-    }
-    return record.worktreeId
+    return record?.runtimeId === this.runtimeId ? record.worktreeId : null
   }
 
   protected setPtyManagementTitleFromObservedTitle(
@@ -165,18 +160,6 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends RuntimeSlept
     } catch {
       return false
     }
-  }
-
-  /** Read-only live-agent identity in either lane, without terminal.show's writable-looking pane payload. */
-  resolveTerminalIdentity(handle: string) {
-    return resolveTerminalIdentityFromProbes(handle, {
-      isLiveStructuredWorker: () =>
-        Boolean(resolveStructuredWorkerAuthority(handle, this._orchestrationDb)),
-      hasLivePty: () => Boolean(this.getLivePtyForHandle(handle)),
-      assertLiveLeaf: () => {
-        this.getLiveLeafForHandle(handle)
-      }
-    })
   }
 
   deliverPendingMessagesForHandle(handle: string, reservedTypes?: ReadonlySet<string>): void {

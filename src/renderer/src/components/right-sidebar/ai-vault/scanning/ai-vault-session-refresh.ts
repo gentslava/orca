@@ -1,3 +1,5 @@
+import { resetAgentSessionIdsRefreshKeys } from './ai-vault-agent-session-refresh-key'
+import { useAiVaultStartupCatalog } from './use-ai-vault-startup-catalog'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { aiVaultScanErrorText } from './ai-vault-scan-issue-copy'
@@ -7,7 +9,10 @@ import { AiVaultSessionPublicationGate } from './ai-vault-session-publication-ga
 import { EMPTY_AI_VAULT_SESSIONS } from '../session-list/ai-vault-session-identity'
 import { useAppliedAiVaultScan } from './ai-vault-applied-scan'
 import { useAiVaultSessionHostRefreshEvents } from '../scope/ai-vault-host-scope'
-import { aiVaultSessionResultCacheKey } from './ai-vault-session-result-cache'
+import {
+  aiVaultSessionResultCacheKey,
+  resetAiVaultSessionResultCacheForTest
+} from './ai-vault-session-result-cache'
 import {
   refreshAiVaultSessionList,
   type AiVaultConditionalSnapshot,
@@ -20,7 +25,10 @@ import { useAiVaultConversationRefresh } from './ai-vault-conversation-refresh'
 import { saveAiVaultSessionList } from './ai-vault-saved-session-lists'
 import { useAiVaultAssociationObservation } from './ai-vault-association-observation'
 import { createNonSecureContextUuid as createBrowserUuid } from '../../../../../../shared/identifiers/non-secure-context-uuid'
-import { claimAiVaultForcedRescan } from './ai-vault-forced-rescan-budget'
+import {
+  claimAiVaultForcedRescan,
+  resetAiVaultForcedRescanBudgetForTest
+} from './ai-vault-forced-rescan-budget'
 import {
   type AiVaultListResult,
   type AiVaultSession,
@@ -106,6 +114,7 @@ export function useAiVaultSessionRefresh(
       )}\n${sessionLimitRef.current}`,
     []
   )
+  const loadStartupCatalog = useAiVaultStartupCatalog(applyScan, publicationGateRef, setLoading)
   const refresh = useCallback(
     async (args: AiVaultRefreshArgs = {}): Promise<void> => {
       const observation = associationsRef.current
@@ -196,6 +205,12 @@ export function useAiVaultSessionRefresh(
         scanKey === currentScanScopeKey() &&
         associationCurrent()
       try {
+        if (!cachedResult) {
+          await loadStartupCatalog(request, requestTokenRef.current, scanKey, requestCurrent)
+          if (!requestCurrent()) {
+            return
+          }
+        }
         const previous = conditionalSnapshotRef.current
         const result = await refreshAiVaultSessionList(
           request,
@@ -245,7 +260,7 @@ export function useAiVaultSessionRefresh(
       }
       // Read changing scope through refs; recursion requires a stable refresh identity.
     },
-    [applyScan, currentScanScopeKey]
+    [applyScan, currentScanScopeKey, loadStartupCatalog]
   )
 
   useEffect(() => {
@@ -305,4 +320,10 @@ export function useAiVaultSessionRefresh(
     sessions: shown?.result.sessions ?? EMPTY_AI_VAULT_SESSIONS,
     loadedSessionLimit: shown?.limit ?? null
   }
+}
+
+export function resetAiVaultForcedRescanThrottleForTest(): void {
+  resetAiVaultForcedRescanBudgetForTest()
+  resetAgentSessionIdsRefreshKeys()
+  resetAiVaultSessionResultCacheForTest()
 }

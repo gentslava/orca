@@ -25,7 +25,7 @@ import type {
 import type { StructuredAgentSessionPendingSend } from '../session/structured/delivery/structured-agent-session-pending-sends'
 import {
   headSteerableQueuedMessageCard,
-  queuedMessageCardSteers,
+  lastSteerableQueuedMessageCard,
   projectQueuedMessageCards,
   type QueuedMessageCard
 } from '../../../../../shared/agent-session/view/structured-agent-session-queued-cards'
@@ -228,48 +228,18 @@ export function useStructuredAgentSessionQueuedMessages(args: {
   // The host's whole queue, in the order a pending drag will leave it: its head is what the shortcut sends.
   const steerOrder = reordered.held
   const mailLeads = steerOrder[0] !== undefined && mail.waitingIds.has(steerOrder[0].messageId)
-  const steerHead = useCallback((): boolean => {
-    if (!enabled) {
-      return false
+  const bindSteerShortcut = (card: QueuedMessageCard | null) => {
+    if (!enabled || !card || editingMessageId === card.messageId || inFlight.has(card.messageId)) {
+      return undefined
     }
-    const head = headSteerableQueuedMessageCard(steerOrder)
-    if (!head || editingMessageId === head.messageId || inFlightRef.current.has(head.messageId)) {
-      return false
-    }
-    void steer(head.messageId)
-    return true
-  }, [editingMessageId, enabled, steerOrder, steer])
-  const steerableHead = enabled ? headSteerableQueuedMessageCard(steerOrder) : null
-  // The same checks as the press, read from rendered state, so the composer never offers a dead steer.
-  const headSteers =
-    steerableHead !== null &&
-    editingMessageId !== steerableHead.messageId &&
-    !inFlight.has(steerableHead.messageId)
-  const steerCard = useCallback(
-    (card: QueuedMessageCard | undefined): boolean => {
-      if (
-        !enabled ||
-        !card ||
-        card.hold === 'sending' ||
-        !queuedMessageCardSteers(card) ||
-        editingMessageId === card.messageId ||
-        inFlightRef.current.has(card.messageId)
-      ) {
+    return () => {
+      if (inFlightRef.current.has(card.messageId)) {
         return false
       }
       void steer(card.messageId)
       return true
-    },
-    [editingMessageId, enabled, steer]
-  )
-
-  const canSteer = (card: QueuedMessageCard | undefined): boolean =>
-    enabled &&
-    card !== undefined &&
-    card.hold !== 'sending' &&
-    queuedMessageCardSteers(card) &&
-    editingMessageId !== card.messageId &&
-    !inFlight.has(card.messageId)
+    }
+  }
 
   const resume = useCallback(
     (): Promise<boolean> =>
@@ -354,10 +324,8 @@ export function useStructuredAgentSessionQueuedMessages(args: {
     edit: editing.begin,
     editCapable: editing.capable,
     editor: editing.editor,
-    steerHead: headSteers ? steerHead : undefined,
-    steerLast: canSteer(reordered.cards.at(-1))
-      ? () => steerCard(reordered.cards.at(-1))
-      : undefined,
+    steerHead: bindSteerShortcut(headSteerableQueuedMessageCard(steerOrder)),
+    steerLast: bindSteerShortcut(lastSteerableQueuedMessageCard(reordered.cards)),
     isWorking,
     holds: mail.holds,
     stopping: args.stopping,

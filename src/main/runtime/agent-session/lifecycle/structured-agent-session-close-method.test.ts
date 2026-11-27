@@ -1,3 +1,9 @@
+// @orca-isolated-worker -- This suite owns a real journal worker bundle and profile slot.
+import type { WorkerEntryLayout } from '../../../worker-threads/worker-thread-entry-path'
+import {
+  journalSqlReaderPath,
+  journalSqlWorkerPath
+} from '../../../native-chat/agent-session-journal/journal-sql-worker-bundle.test-fixture'
 import '../../rpc/dispatch/testing/unused-default-rpc-methods.test-fixture'
 import { expect, it, vi } from 'vitest'
 import { createStructuredAgentSessionLogger } from '../../../native-chat/agent-session-wire/host/structured-agent-session-logger'
@@ -19,6 +25,22 @@ import {
   openAuthorityRuntime,
   root
 } from './structured-agent-session-tab-authority.test-support'
+
+vi.mock(import('../../../worker-threads/worker-thread-entry-path'), async (importOriginal) => {
+  const original = await importOriginal()
+  return {
+    ...original,
+    resolveWorkerThreadEntryPath(layout: WorkerEntryLayout, entry: string) {
+      if (entry === 'journal-sql-worker-entry.js') {
+        return journalSqlWorkerPath()
+      }
+      if (entry === 'journal-sql-reader-entry.js') {
+        return journalSqlReaderPath()
+      }
+      return original.resolveWorkerThreadEntryPath(layout, entry)
+    }
+  }
+})
 
 vi.mock('../../../claude/cli-capabilities/claude-cli-flag-prewarm', () => ({
   prewarmClaudeCliFlags: async () => undefined
@@ -43,7 +65,9 @@ const PAIRED_CLI = {
 }
 
 async function closeRig() {
-  const rig = await openAuthorityRuntime(await authorityProfile([], { records: [B], visible: [] }))
+  const rig = await openAuthorityRuntime(
+    await authorityProfile([B], { records: [B], visible: [B] })
+  )
   await rig.runtime.restoreStructuredAgentSessionTabs()
   const rpc = new RpcDispatcher({
     runtime: rig.runtime,
@@ -89,6 +113,7 @@ it.each([
   await openTestAgentSessionRecordStoreSlot({
     stateDirectory: root,
     hostId: 'local',
+    legacySessionTabIds: [],
     logger: createStructuredAgentSessionLogger()
   })
   const rpc = new RpcDispatcher({

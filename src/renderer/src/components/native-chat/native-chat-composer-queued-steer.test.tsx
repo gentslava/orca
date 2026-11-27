@@ -73,6 +73,8 @@ function Composer({
     submissions: [],
     hasPendingPrompt: false,
     isWorking: true,
+    stopping: false,
+    transcriptShown: true,
     sending,
     composerScopeKey: undefined,
     ...writes,

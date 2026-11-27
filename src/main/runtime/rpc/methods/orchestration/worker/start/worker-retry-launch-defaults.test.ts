@@ -323,7 +323,8 @@ describe('worker-start --retry-of launch preference rehydration', () => {
       })
     ).rejects.toMatchObject({
       code: 'invalid_argument',
-      message: '--model and --effort cannot be applied when reusing an existing terminal.'
+      message:
+        '--role, --model, --effort, and --fast cannot be applied when reusing an existing terminal.'
     })
 
     const reused = await callStart({
