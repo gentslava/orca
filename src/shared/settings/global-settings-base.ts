@@ -1,4 +1,3 @@
-import type { AntigravityCliQuotaSettings } from '../agent-accounts/antigravity/antigravity-account-types'
 import type { AntigravityChatAuthSettings } from '../agent-accounts/antigravity/antigravity-chat-auth-config'
 import type { EmulatorOpeningSettings } from '../emulator/emulator-opening-preferences'
 import type { BrowserExtensionGlobalSettings } from '../browser/extensions/browser-extension-settings'
@@ -32,6 +31,7 @@ import type { KeybindingGlobalSettings } from '../keybindings/global-settings'
 import type { WorkspaceCleanupPolicySettings } from '../workspace-cleanup/workspace-cleanup-policy'
 import type { PRAutoRefreshSettings } from '../source-control/hosted-review/review-refresh-policy'
 import type { ManagedAccountNameSettings } from '../agent-accounts/managed-account-display-names'
+import type { AntigravityCliQuotaSettings } from '../agent-accounts/antigravity/antigravity-account-types'
 import type { NewTabMenuSettings } from '../new-tab-menu/new-tab-menu-layout'
 import type { UiLanguageSettings } from '../i18n/ui-language-settings'
 import type { ChatDeleteSettings } from '../agent-session/chat-deletion/orca-chat-delete'
@@ -47,7 +47,6 @@ type DesktopWindowSettings = {
 
 /** Settings groups owned by their feature modules and composed into GlobalSettings. */
 export type GlobalSettingsBase = AntigravityChatAuthSettings &
-  AntigravityCliQuotaSettings &
   EmulatorOpeningSettings &
   SshRemoteControlSettings &
   ClaudeAgentViewSettings &
@@ -81,6 +80,7 @@ export type GlobalSettingsBase = AntigravityChatAuthSettings &
   WorkspaceCleanupPolicySettings &
   PRAutoRefreshSettings &
   ManagedAccountNameSettings &
+  AntigravityCliQuotaSettings &
   NewTabMenuSettings &
   UiLanguageSettings &
   ChatDeleteSettings
