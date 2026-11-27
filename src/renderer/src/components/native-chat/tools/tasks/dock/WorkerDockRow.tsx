@@ -63,7 +63,8 @@ export const WorkerDockRow = memo(function WorkerDockRow({
   const rowId = row?.id ?? id ?? ''
   const loading = t('components.native-chat.workerDock.loadingWorker', 'Loading worker…')
   const title = row ? workerDockRowTitle(row) : loading
-  // An unreadable state has no label anywhere: the row reads as its title and time only.
+  const kind = row ? workerDockKindLabel(t, row.kind) : ''
+  // An unreadable state has no status label.
   const state = !row || row.state === 'unavailable' ? '' : workerDockStateLabel(t, row.state)
   // A remote chat's worker is shown, not driven, here: its label says where to act instead.
   const remote =
@@ -82,17 +83,9 @@ export const WorkerDockRow = memo(function WorkerDockRow({
     row.progressNote
       ? row.progressNote
       : ''
-  const label = [
-    mixed && row ? workerDockKindLabel(t, row.kind) : '',
-    title,
-    state,
-    progress,
-    remote
-  ]
-    .filter(Boolean)
-    .join(' · ')
+  const label = [mixed ? kind : '', title, state, progress, remote].filter(Boolean).join(' · ')
   const tooltip = row
-    ? [row.name, title === row.title ? '' : row.title, title, state, progress, remote]
+    ? [kind, row.name, title === row.title ? '' : row.title, title, state, progress, remote]
         .filter(Boolean)
         .join(' · ')
     : undefined
@@ -116,17 +109,18 @@ export const WorkerDockRow = memo(function WorkerDockRow({
         }}
       >
         <span className="flex h-5 shrink-0 items-center">
-          <WorkerDockGlyph glyph={row ? workerDockGlyph(row) : 'queued'} />
+          <WorkerDockGlyph glyph={row ? workerDockGlyph(row) : 'queued'} kind={row?.kind} />
         </span>
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="line-clamp-3 break-words">{title}</span>
           {progress ? (
             <span className="truncate text-xs text-muted-foreground">{progress}</span>
           ) : null}
-          {row && (row.model || row.changedAt !== null) ? (
+          {row ? (
             <span className="truncate text-xs text-muted-foreground">
-              {row.model}
-              {row.model && row.changedAt !== null ? ' · ' : null}
+              {kind}
+              {row.model ? ` · ${row.model}` : null}
+              {row.changedAt !== null ? ' · ' : null}
               <Age at={row.changedAt} visible={visible} />
             </span>
           ) : null}

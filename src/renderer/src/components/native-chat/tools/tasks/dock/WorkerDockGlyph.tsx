@@ -4,6 +4,8 @@ import { AgentWorkingSpinner } from '@/components/agent/status/AgentWorkingSpinn
 import { handleDotWaveAnimationStart } from '@/components/ui/shared-animation-clock'
 import { cn } from '@/lib/class-names'
 import { observeOffscreenAnimation } from '@/lib/window-activity/offscreen-animation-pause'
+import type { WorkerDockEntry } from '../../../../../../../shared/orchestration/dock/worker-dock'
+import { KIND_ICONS } from '../background-task-kind-icons'
 import type { WorkerDockGlyph as Glyph } from './worker-dock-card-order'
 
 // A 3×3 wave lit along diagonals, top-left first: each diagonal (row + column, 0..4) starts 2s/7.5
@@ -32,29 +34,40 @@ function WorkerDockDotGrid() {
 /** One 12px status mark: amber question, red dot, yellow spinner, grey ring or green dot. The row's
  *  label carries the state for assistive technology, so the mark itself is decorative. `chip`
  *  draws running as a quiet dot grid instead of the spinner, for the always-visible chip. */
-export function WorkerDockGlyph({ glyph, chip = false }: { glyph: Glyph; chip?: boolean }) {
+export function WorkerDockGlyph({
+  glyph,
+  kind,
+  chip = false
+}: {
+  glyph: Glyph
+  kind?: WorkerDockEntry['kind']
+  chip?: boolean
+}) {
+  const KindIcon = kind && KIND_ICONS[kind === 'worker' ? 'agent' : kind]
   return (
-    <span
-      aria-hidden="true"
-      data-worker-dock-glyph={glyph}
-      className="inline-flex size-3 shrink-0 items-center justify-center"
-    >
-      {glyph === 'ask' ? (
-        <AgentQuestionIcon className="size-3" />
-      ) : glyph === 'running' && chip ? (
-        <WorkerDockDotGrid />
-      ) : glyph === 'running' ? (
-        <AgentWorkingSpinner className="size-2.5" />
-      ) : (
-        <span
-          className={cn(
-            'block size-2 rounded-full',
-            glyph === 'failed' && 'bg-destructive',
-            glyph === 'done' && 'bg-status-success',
-            glyph === 'queued' && 'border-[1.5px] border-muted-foreground'
-          )}
-        />
-      )}
+    <span aria-hidden="true" className="inline-flex shrink-0 items-center gap-1">
+      {KindIcon ? <KindIcon className="size-3.5 text-muted-foreground" /> : null}
+      <span
+        data-worker-dock-glyph={glyph}
+        className="inline-flex size-3 shrink-0 items-center justify-center"
+      >
+        {glyph === 'ask' ? (
+          <AgentQuestionIcon className="size-3" />
+        ) : glyph === 'running' && chip ? (
+          <WorkerDockDotGrid />
+        ) : glyph === 'running' ? (
+          <AgentWorkingSpinner className="size-2.5" />
+        ) : (
+          <span
+            className={cn(
+              'block size-2 rounded-full',
+              glyph === 'failed' && 'bg-destructive',
+              glyph === 'done' && 'bg-status-success',
+              glyph === 'queued' && 'border-[1.5px] border-muted-foreground'
+            )}
+          />
+        )}
+      </span>
     </span>
   )
 }
