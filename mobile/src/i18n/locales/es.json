@@ -855,6 +855,16 @@
         "needsAuth_many": "{{count}} requieren iniciar sesión"
       },
       "pasteHint": "Cuando el navegador llegue a una página que no se carga, copia su dirección y pégala aquí."
+    },
+    "agentMessage": {
+      "unnamedRecipient": "un agente",
+      "event": {
+        "followedUp": "Seguimiento enviado",
+        "update": "Actualización",
+        "message": "Mensaje",
+        "handedOff": "Traspasado",
+        "task": "Tarea"
+      }
     }
   },
   "common": {
@@ -3702,9 +3712,6 @@
       "agentCouldNotStart": "No se pudo iniciar {{label}}. Revisa el comando del agente en Ajustes y vuelve a intentarlo.",
       "agentFailedToStart": "No se pudo iniciar {{label}}. Revisa el comando del agente en Ajustes y vuelve a intentarlo.",
       "agentReportedError": "{{label}} informó de un error.",
-      "antigravityInvalidEvents": "Antigravity devolvió eventos JSON no válidos.",
-      "antigravityInvalidResult": "Antigravity devolvió un resultado no válido.",
-      "antigravityNoFinalResult": "Antigravity no devolvió ningún resultado final.",
       "chatNameAgentUnsupported": "Elige un agente compatible para generar nombres de chats en esta acción en Ajustes -> Chat -> Nombres de chats. Agentes compatibles: {{agents}}, o «Comando personalizado».",
       "chatNameCustomCommandEmpty": "El comando personalizado está vacío. Añade uno en Ajustes -> Chat -> Nombres de chats.",
       "cliFailed": "El comando CLI de {{label}} falló con el código {{exitCode}}.",
