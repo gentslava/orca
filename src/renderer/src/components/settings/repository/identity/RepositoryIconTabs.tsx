@@ -1,7 +1,8 @@
-import { Suspense, useState } from 'react'
+import { Suspense, useImperativeHandle, useState } from 'react'
 import { Github, Image, Link2 } from 'lucide-react'
 import type { RepoIcon } from '../../../../../../shared/repository/appearance/repo-icon'
 import { Button } from '../../../ui/button'
+import { LoadingSpinner } from '../../../ui/LoadingSpinner'
 import { Input } from '../../../ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../../ui/tooltip'
@@ -18,7 +19,12 @@ const RepositoryIconEmojiPicker = lazyWithRetry(
   { reloadKey: 'repo-icon-emoji-picker' }
 )
 
+export type RepositoryIconTabsHandle = {
+  cancelUpload: () => void
+}
+
 type RepositoryIconTabsProps = {
+  ref?: React.Ref<RepositoryIconTabsHandle>
   initialTab: 'letters' | 'avatar' | 'icon' | 'emoji'
   /** The monogram editor, shared with the sidebar project card. */
   lettersPanel: React.ReactNode
@@ -30,6 +36,7 @@ type RepositoryIconTabsProps = {
 }
 
 export function RepositoryIconTabs({
+  ref,
   initialTab,
   lettersPanel,
   selectedLucideName,
@@ -40,9 +47,13 @@ export function RepositoryIconTabs({
 }: RepositoryIconTabsProps): React.JSX.Element {
   const t = useTranslate()
   const [website, setWebsite] = useState('')
-
-  const { uploadImage: handleUploadImage, applyWebsiteFavicon } =
+  const { uploadImage, applyWebsiteFavicon, cancelUpload, uploading, showUploadSpinner } =
     useRepositoryIconImagePicks(onSetIcon)
+  useImperativeHandle(ref, () => ({ cancelUpload }))
+  const handleSetIcon = (icon: RepoIcon | null) => {
+    cancelUpload()
+    onSetIcon(icon)
+  }
   const handleUseWebsiteFavicon = (): void => {
     applyWebsiteFavicon(website)
   }
@@ -72,7 +83,10 @@ export function RepositoryIconTabs({
           variant="default"
           className="w-full gap-2"
           disabled={loadingGitHub}
-          onClick={() => void onUseGitHubAvatar()}
+          onClick={() => {
+            cancelUpload()
+            onUseGitHubAvatar()
+          }}
         >
           <Github className="size-3.5" />
           {t('auto.components.settings.RepositoryIconPicker.cc76342291', 'Use GitHub avatar')}
@@ -88,10 +102,16 @@ export function RepositoryIconTabs({
           variant="outline"
           size="sm"
           className="gap-2"
-          onClick={() => void handleUploadImage()}
+          disabled={uploading || loadingGitHub}
+          aria-busy={uploading}
+          onClick={() => void uploadImage()}
         >
-          <Image className="size-3.5" />
-          {t('auto.components.settings.RepositoryIconPicker.381b4844fd', 'Upload PNG')}
+          {uploading && showUploadSpinner ? (
+            <LoadingSpinner className="size-3.5" />
+          ) : (
+            <Image className="size-3.5" />
+          )}
+          {t('auto.components.settings.RepositoryIconPicker.381b4844fd', 'Upload image')}
         </Button>
         <div className="flex gap-2">
           <Input
@@ -117,7 +137,7 @@ export function RepositoryIconTabs({
         <p className="text-xs text-muted-foreground">
           {t(
             'auto.components.settings.RepositoryIconPicker.fde066a63b',
-            'PNG uploads must be 256KB or smaller.'
+            'PNG, JPEG, SVG, WebP, GIF, BMP, ICO or AVIF. Up to 10MB and 32 megapixels.'
           )}
         </p>
       </TabsContent>
@@ -132,7 +152,7 @@ export function RepositoryIconTabs({
                   variant={selectedLucideName === option.name ? 'secondary' : 'ghost'}
                   size="icon-xs"
                   className="size-8"
-                  onClick={() => onSetIcon({ type: 'lucide', name: option.name })}
+                  onClick={() => handleSetIcon({ type: 'lucide', name: option.name })}
                   aria-label={t(
                     'auto.components.settings.RepositoryIconPicker.useRepoIcon',
                     'Use {{value0}} repo icon',
@@ -152,7 +172,7 @@ export function RepositoryIconTabs({
 
       <TabsContent value="emoji">
         <Suspense fallback={null}>
-          <RepositoryIconEmojiPicker selectedEmoji={selectedEmoji} onSetIcon={onSetIcon} />
+          <RepositoryIconEmojiPicker selectedEmoji={selectedEmoji} onSetIcon={handleSetIcon} />
         </Suspense>
       </TabsContent>
     </Tabs>
