@@ -536,7 +536,7 @@ index 088beb906a6..6dea17371be 100644
      <div className="@container space-y-5">
        <div className="space-y-4">
 diff --git a/src/renderer/src/components/stats/usage-account-quota-rows.ts b/src/renderer/src/components/stats/usage-account-quota-rows.ts
-index 08f703b61f..f85ea7a85b 100644
+index 08f703b61f63c04fae9aeb0659979178849e13ba..76e231f5b3bba436973ac6823d19bf86764f0c7d 100644
 --- a/src/renderer/src/components/stats/usage-account-quota-rows.ts
 +++ b/src/renderer/src/components/stats/usage-account-quota-rows.ts
 @@ -1,5 +1,4 @@
@@ -545,7 +545,7 @@ index 08f703b61f..f85ea7a85b 100644
    InactiveAccountUsage,
    ProviderRateLimits,
    RateLimitRuntimeTarget,
-@@ -30,7 +29,13 @@ export type UsageAccountQuotaRow = {
+@@ -30,7 +29,13 @@
    provider: ProviderRateLimits
  }
 
@@ -560,7 +560,7 @@ index 08f703b61f..f85ea7a85b 100644
 
  function sameRuntime(left: RateLimitRuntimeTarget, right: RateLimitRuntimeTarget): boolean {
    return left.runtime === right.runtime && left.wslDistro === right.wslDistro
-@@ -102,33 +107,6 @@ function managedQuotaRows(
+@@ -102,33 +107,6 @@
    )
  }
 
@@ -594,7 +594,7 @@ index 08f703b61f..f85ea7a85b 100644
  export function buildUsageAccountQuotaRows(
    limits: RateLimitState,
    accounts: ProviderAccountsSnapshot | null,
-@@ -188,11 +166,8 @@ export function buildUsageAccountQuotaRows(
+@@ -188,11 +166,8 @@
    return [
      ...claude,
      ...codex,
@@ -605,7 +605,7 @@ index 08f703b61f..f85ea7a85b 100644
 -      (key) => key !== 'claude' && key !== 'codex' && key !== 'antigravity'
 -    ).flatMap((key) => fallback(limits[key]))
 +    ...USAGE_PROVIDER_KEYS.filter((key) => key !== 'claude' && key !== 'codex').flatMap((key) =>
-+      fallback(limits[key])
++      fallback(limits[key] ?? null)
 +    )
    ]
  }
@@ -865,10 +865,10 @@ index 046ca66874..6319750a93 100644
          })}
          ownerLabel="Build server"
 diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx
-index f550e04077..96b0f78760 100644
+index f550e04077523471c736d0320cabaa5e36092f45..1683d840d5b893b1bcab838d5e31f3a22b996213 100644
 --- a/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx
 +++ b/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx
-@@ -119,34 +119,16 @@ describe('account quotas', () => {
+@@ -119,34 +119,25 @@
      expect(cards[2]).toHaveTextContent('Quota data unavailable')
    })
 
@@ -883,12 +883,10 @@ index f550e04077..96b0f78760 100644
 -      active,
 -      rateLimits
 -    })
--    renderQuotas(
--      createEmptyRateLimitState({
-+  it('shows current supported quotas without an account list and ignores a retired provider', () => {
-+    const limitsFromOlderHost = {
-+      ...createEmptyRateLimitState({
-         codex: quota(27, 'plus'),
++  it('shows current Antigravity CLI quota in usage details', () => {
+     renderQuotas(
+       createEmptyRateLimitState({
+-        codex: quota(27, 'plus'),
 -        muse: { ...quota(12, 'plus'), provider: 'muse' },
 -        antigravity: antigravity(31),
 -        antigravityAccounts: [
@@ -896,13 +894,21 @@ index f550e04077..96b0f78760 100644
 -          saved('saved@example.test', false, antigravity(64)),
 -          saved('unread@example.test', false, null)
 -        ]
--      })
--    )
++        antigravityCli: { ...quota(31, 'plus'), provider: 'antigravity' }
+       })
+     )
 -    const cards = screen.getAllByTestId('usage-quota-antigravity')
 -    expect(cards).toHaveLength(3)
 -    expect(cards[1]).toHaveTextContent('saved@example.test')
 -    expect(cards[1]).toHaveTextContent('64% used')
 -    expect(within(cards[2]).queryByRole('progressbar')).not.toBeInTheDocument()
++    expect(screen.getByTestId('usage-quota-antigravity')).toHaveTextContent('31% used')
++  })
++
++  it('shows current supported quotas without an account list and ignores a retired provider', () => {
++    const limitsFromOlderHost = {
++      ...createEmptyRateLimitState({
++        codex: quota(27, 'plus'),
 +        muse: { ...quota(12, 'plus'), provider: 'muse' }
 +      }),
 +      antigravity: { ...quota(31, 'plus'), provider: 'antigravity' }
