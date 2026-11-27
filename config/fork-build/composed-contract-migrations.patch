@@ -945,7 +945,7 @@ index 685a61b44d..4ef2787782 100644
          "noSources": "No account quota source is available. Manage provider accounts to check your subscription.",
          "manage": "Manage accounts",
 diff --git a/src/shared/rpc-contract/structured-agent-session/structured-agent-session-core-params.ts b/src/shared/rpc-contract/structured-agent-session/structured-agent-session-core-params.ts
-index ce246d75a876c509e1947c95a6e76f5816ccc258..58a6054049cfa3b0dcd8d07c638419a6caa87bd9 100644
+index ce246d75a876c509e1947c95a6e76f5816ccc258..597162f93cd9db2b3a43fc10b8f694a9e24534fa 100644
 --- a/src/shared/rpc-contract/structured-agent-session/structured-agent-session-core-params.ts
 +++ b/src/shared/rpc-contract/structured-agent-session/structured-agent-session-core-params.ts
 @@ -88,28 +88,6 @@
@@ -977,7 +977,7 @@ index ce246d75a876c509e1947c95a6e76f5816ccc258..58a6054049cfa3b0dcd8d07c638419a6
  export const CreateIntentParams = lazyZodSchema(() =>
    z
      .object({
-@@ -194,11 +172,13 @@
+@@ -194,11 +172,16 @@
  )
 
  export const SetOptionParams = lazyZodSchema(() =>
@@ -992,7 +992,10 @@ index ce246d75a876c509e1947c95a6e76f5816ccc258..58a6054049cfa3b0dcd8d07c638419a6
 +      key: Identifier('Invalid option key'),
 +      value: z.string().max(MAX_OPTION_LABEL).nullable()
 +    })
-+    .refine((params) => params.value !== null || params.key === 'model', 'Only a model has a default')
++    .refine(
++      (params) => params.value !== null || params.key === 'model',
++      'Only a model has a default'
++    )
  )
 
  export const OptionsParams = lazyZodSchema(() => z.object({ sessionId: SessionId }).strict())
