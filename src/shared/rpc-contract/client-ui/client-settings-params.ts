@@ -58,6 +58,7 @@ const NativeChatSessionOptionAgent = lazyZodSchema(() =>
 
 export const NativeChatSessionOptionsMutation = lazyZodSchema(() =>
   z.discriminatedUnion('type', [
+    z.object({ type: z.literal('clear-model'), agent: NativeChatSessionOptionAgent }).strict(),
     z
       .object({
         type: z.literal('apply-picks'),
