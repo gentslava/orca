@@ -2714,6 +2714,7 @@
       "stateIdleCount_other": "{{value0}} stopped",
       "stateUnverifiableCount_one": "{{value0}} with status unavailable",
       "stateUnverifiableCount_other": "{{value0}} with status unavailable",
+      "openAgent": "Open {{value0}}",
       "background": "Background",
       "backgrounding": "Backgrounding…"
     },
@@ -3795,6 +3796,17 @@
       "answeredCount_other": "You answered <answer>{{count}} questions</answer>",
       "answeredCount": "You answered <answer>{{count}} questions</answer>"
     },
+    "approvalRecord": {
+      "cancelled": "Request for <tool>{{tool}}</tool> cancelled",
+      "coordinatorAllowed": "Coordinator allowed <tool>{{tool}}</tool>",
+      "coordinatorDenied": "Coordinator denied <tool>{{tool}}</tool>",
+      "allowedUnnamed": "Allowed <tool>{{tool}}</tool>",
+      "deniedUnnamed": "Denied <tool>{{tool}}</tool>",
+      "youAllowed": "You allowed <tool>{{tool}}</tool>",
+      "youAllowedForSession": "You allowed <tool>{{tool}}</tool> for this session",
+      "youDenied": "You denied <tool>{{tool}}</tool>",
+      "youAnswered": "You answered <tool>{{tool}}</tool>: <answer>{{answer}}</answer>"
+    },
     "subagentGroup": {
       "stateCompleted": "completed",
       "stateWorking": "working",
@@ -3816,7 +3828,8 @@
       "started_other": "Kicked off {{count}} subagents",
       "ran_one": "Ran {{count}} subagent",
       "ran_other": "Ran {{count}} subagents",
-      "tokens": "{{value0}} tokens"
+      "tokens": "{{value0}} tokens",
+      "openAgent": "Open {{value0}}"
     },
     "textAttachmentPreview": {
       "unreadableReply": "Unreadable attachment reply. Try again.",
@@ -4303,6 +4316,16 @@
       "running": "Running",
       "failed": "Failed"
     },
+    "subagentView": {
+      "promptFromMain": "Prompt from main agent",
+      "noSteps": "No steps yet",
+      "beforeClear": "This subagent ran before the chat was cleared",
+      "stoppedBeforeReply": "Stopped before replying",
+      "noReply": "Ended without a reply",
+      "backTo": "Back to {{value0}}",
+      "unnamed": "Subagent",
+      "mainAgent": "Main agent"
+    },
     "workerApproval": {
       "allowFor": "Allow {{tool}} for {{worker}}?",
       "title": "{{worker}} · {{title}}",
@@ -4337,17 +4360,6 @@
       "always": "Always allow {{server}}",
       "deny": "Deny",
       "thisServer": "this server"
-    },
-    "approvalRecord": {
-      "cancelled": "Request for <tool>{{tool}}</tool> cancelled",
-      "coordinatorAllowed": "Coordinator allowed <tool>{{tool}}</tool>",
-      "coordinatorDenied": "Coordinator denied <tool>{{tool}}</tool>",
-      "allowedUnnamed": "Allowed <tool>{{tool}}</tool>",
-      "deniedUnnamed": "Denied <tool>{{tool}}</tool>",
-      "youAllowed": "You allowed <tool>{{tool}}</tool>",
-      "youAllowedForSession": "You allowed <tool>{{tool}}</tool> for this session",
-      "youDenied": "You denied <tool>{{tool}}</tool>",
-      "youAnswered": "You answered <tool>{{tool}}</tool>: <answer>{{answer}}</answer>"
     },
     "tool": {
       "activity": "Activity"
@@ -8610,9 +8622,6 @@
       "working": "Working"
     }
   },
-  "workspaceOptions": {
-    "recentActivity": "Most recent workspace activity"
-  },
   "chats": {
     "delete": {
       "title": "Delete this chat?",
@@ -8716,5 +8725,8 @@
     "workspacesAllButCount": "All but {{count}}",
     "headerMissing": "Fill in {{header}} to add this server.",
     "servers": "Servers"
+  },
+  "workspaceOptions": {
+    "recentActivity": "Most recent workspace activity"
   }
 }

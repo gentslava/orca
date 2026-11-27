@@ -31,14 +31,14 @@ import {
   nativeChatSubagentEndingKey,
   nativeChatSubagentEndingMessage,
   type NativeChatSubagentAside
-} from './native-chat-subagent-ending'
+} from '../../../../../shared/native-chat/transcript/subagents/native-chat-subagent-ending'
 import {
   NativeChatSubagentNeedsYouLine,
   NativeChatSubagentSheetHeader
 } from './NativeChatSubagentSheetHeader'
 import { NativeChatSubagentViewBar } from './NativeChatSubagentViewBar'
 import { NativeChatSubagentPrompt } from './NativeChatSubagentPrompt'
-import { nativeChatSubagentHandoff } from './native-chat-subagent-handoff'
+import { nativeChatSubagentHandoff } from '../../../../../shared/native-chat/transcript/subagents/native-chat-subagent-handoff'
 import {
   projectionBesideStreamedText,
   noteStreamedTextRevisedList,
