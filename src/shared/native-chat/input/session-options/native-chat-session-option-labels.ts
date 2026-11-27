@@ -8,6 +8,7 @@ import {
 // English pieces for the session option pickers; desktop translates each one, mobile shows them as is.
 export const NATIVE_CHAT_SESSION_OPTION_COPY = {
   model: 'Model',
+  defaultModel: 'Default',
   effort: 'Effort',
   fastMode: 'Fast mode',
   speed: 'Speed',
@@ -179,6 +180,21 @@ export function nativeChatModelPillLabel(
       : undefined
   if (fallback) {
     return nativeChatSessionChoiceLabel(fallback, say)
+  }
+  const onDefault = descriptor.defaultChoice?.selected === true
+  const { reportedModel } = descriptor
+  if (onDefault && reportedModel) {
+    const reported =
+      descriptor.kind.type === 'select'
+        ? descriptor.kind.choices.find((choice) => choice.value === reportedModel)
+        : undefined
+    return reported
+      ? nativeChatSessionChoiceLabel(reported, say)
+      : (descriptor.reportedModelLabel ?? reportedModel)
+  }
+  // Default names the model it resolved to once the host does; until then it names itself.
+  if (onDefault && (descriptor.valueSource === 'unknown' || descriptor.valueSource === 'default')) {
+    return say('defaultModel')
   }
   // The tooltip names the category; default sources still identify a model, while unknown sources do not.
   const choice = descriptor.valueSource === 'unknown' ? null : selectedNativeChatChoice(descriptor)
