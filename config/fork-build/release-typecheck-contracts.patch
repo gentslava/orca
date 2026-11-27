@@ -646,3 +646,98 @@ index 0f0a5b584ac243f92afa81a01367fad5e06d1dae..3c38ed681e9a5cbc9994101a18acb65d
      const stop = screen.getByRole('button', { name: /^Stop .*make target-shell-1/ })
      stop.focus()
      view.rerender({ workerRows: new Map(), workerIdentities: [] })
+diff --git a/src/main/claude/child-work/claude-child-wake-lease.ts b/src/main/claude/child-work/claude-child-wake-lease.ts
+index 0c62c91ff4a3644f09f06b9e6c9247a526cb55d9..dfce3483d1b9fd88de3a61256dd5a393c28ddf45 100644
+--- a/src/main/claude/child-work/claude-child-wake-lease.ts
++++ b/src/main/claude/child-work/claude-child-wake-lease.ts
+@@ -2,7 +2,12 @@
+ // owner again when its surviving descendants end, so an unbounded wake left the row working for good.
+
+ import type { AgentChildWorkEvidence } from '../../../shared/agent-status/child-work/agent-status-child-work-evidence'
+-import type { DecodedClaudeTask, EndedClaudeTask } from './claude-child-work-evidence'
++import { liveClaudeTaskRunState, record } from '../background-tasks/claude-background-task-frames'
++import {
++  claudeRosterEntries,
++  type DecodedClaudeTask,
++  type EndedClaudeTask
++} from './claude-child-work-evidence'
+
+ /** Long enough for a resumed owner's first frame, short enough that a wrong guess settles quickly. */
+ export const CLAUDE_CHILD_WAKE_LEASE_MS = 60_000
+@@ -68,6 +73,29 @@ export class ClaudeChildWake {
+     }
+   }
+
++  confirmRoster(tasks: unknown): void {
++    if (!Array.isArray(tasks)) {
++      return
++    }
++    for (const { id, task, live } of claudeRosterEntries(tasks)) {
++      if (live) {
++        this.confirmRunning(id, task)
++      }
++    }
++  }
++
++  confirmFrame(id: string, message: Record<string, unknown>): void {
++    const patch = record(message.patch)
++    if (patch && liveClaudeTaskRunState(patch.status) !== null) {
++      this.confirmRunning(id, patch)
++    } else if (
++      liveClaudeTaskRunState(message.status) !== null ||
++      message.subtype === 'task_progress'
++    ) {
++      this.confirmRunning(id, message)
++    }
++  }
++
+   /** Whether this owner's wake already ran out, so the decoder must not read it as done. */
+   spent(id: string): boolean {
+     return this.expired.has(id)
+diff --git a/src/main/claude/child-work/claude-child-work-decoder.ts b/src/main/claude/child-work/claude-child-work-decoder.ts
+index 2de19775355e723dd70f4f83a0c535a5b57ac4c9..220be3a9f2fb62d862aa369ff3dcb7ee285c79db 100644
+--- a/src/main/claude/child-work/claude-child-work-decoder.ts
++++ b/src/main/claude/child-work/claude-child-work-decoder.ts
+@@ -25,7 +25,6 @@ import {
+   claudeChildWorkObservation,
+   type DecodedClaudeTask,
+   type EndedClaudeTask,
+-  claudeRosterEntries,
+   claudeTaskProgressFacts,
+   type ClaudeTaskFacts
+ } from './claude-child-work-evidence'
+@@ -70,13 +69,7 @@ export class ClaudeChildWorkDecoder {
+       return
+     }
+     if (message.subtype === 'background_tasks_changed') {
+-      if (Array.isArray(message.tasks)) {
+-        for (const { id, task, live } of claudeRosterEntries(message.tasks)) {
+-          if (live) {
+-            this.wake.confirmRunning(id, task)
+-          }
+-        }
+-      }
++      this.wake.confirmRoster(message.tasks)
+       const known = { live: this.live, ended: this.ended, parentOf: this.taskInvocations.parentOf }
+       for (const [id, task] of tf.claudeRosterStarts(message, known)) {
+         this.started(id, task, true)
+@@ -91,18 +84,7 @@ export class ClaudeChildWorkDecoder {
+     if (selected && (!selected.current || selected.invocation.excluded)) {
+       return
+     }
+-    // Only a frame the decoder admits proves the provider runs this owner; a historical alias
+-    // that is ignored above would otherwise clear the lease and leave the row working for good.
+-    // A frame that does not report running (a metadata-only update) says nothing about a resume.
+-    // task_progress is emitted only while a task runs, and a running update reports it under the patch.
+-    const patch = record(message.patch)
+-    const running = liveClaudeTaskRunState(patch?.status) ?? liveClaudeTaskRunState(message.status)
+-    if (running !== null || message.subtype === 'task_progress') {
+-      this.wake.confirmRunning(
+-        id,
+-        liveClaudeTaskRunState(patch?.status) !== null ? patch! : message
+-      )
+-    }
++    this.wake.confirmFrame(id, message)
+     switch (message.subtype) {
+       case 'task_started':
+         this.started(id, message)
