@@ -741,3 +741,30 @@ index 2de19775355e723dd70f4f83a0c535a5b57ac4c9..220be3a9f2fb62d862aa369ff3dcb7ee
      switch (message.subtype) {
        case 'task_started':
          this.started(id, message)
+diff --git a/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts b/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts
+index b17ae348f7a46c9a6c74b38b12016e22c279a2b3..a43e8fefd1e88cd1d45f26e0b923cf5e5dce25a9 100644
+--- a/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts
++++ b/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts
+@@ -122,7 +122,7 @@ export function assertWorkerLaunchPreferencesCreateTerminal(args: {
+   if (args.terminal && (args.role || args.model || args.effort || args.fastMode !== undefined)) {
+     throw new OrchestrationError(
+       'invalid_argument',
+-      '--role, --model and --effort or --fast cannot be applied when reusing an existing terminal.'
++      '--role, --model, --effort, and --fast cannot be applied when reusing an existing terminal.'
+     )
+   }
+ }
+diff --git a/src/main/runtime/rpc/methods/orchestration/worker/start/worker-retry-launch-defaults.test.ts b/src/main/runtime/rpc/methods/orchestration/worker/start/worker-retry-launch-defaults.test.ts
+index e883dd2850cbb91ade100e53856ba885dee1b7ea..7df21a0951f7c2379c1676aebe065123876aa23d 100644
+--- a/src/main/runtime/rpc/methods/orchestration/worker/start/worker-retry-launch-defaults.test.ts
++++ b/src/main/runtime/rpc/methods/orchestration/worker/start/worker-retry-launch-defaults.test.ts
+@@ -323,7 +323,8 @@ describe('worker-start --retry-of launch preference rehydration', () => {
+       })
+     ).rejects.toMatchObject({
+       code: 'invalid_argument',
+-      message: '--model and --effort cannot be applied when reusing an existing terminal.'
++      message:
++        '--role, --model, --effort, and --fast cannot be applied when reusing an existing terminal.'
+     })
+
+     const reused = await callStart({
