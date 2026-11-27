@@ -1,20 +1,17 @@
+import { preflightFederatedWorkerLaunch } from '../../rpc/methods/orchestration/federation/federated-worker-launch-preflight'
 import type { FederatedWorkerStartRequest } from './federated-worker-start-request'
 import type { RuntimeStatus } from '../../../../shared/remote-runtime/session-graph/runtime-session-contracts'
 import {
-  ORCHESTRATION_CONTRACT_RUNTIME_CAPABILITY,
   ORCHESTRATION_FEDERATION_CONTROL_MAIL_PROTOCOL_VERSION,
   ORCHESTRATION_FEDERATION_CONTROL_MAIL_RUNTIME_CAPABILITY,
   ORCHESTRATION_FEDERATION_LIFECYCLE_SETTLEMENT_PROTOCOL_VERSION,
   ORCHESTRATION_FEDERATION_LIFECYCLE_SETTLEMENT_RUNTIME_CAPABILITY,
-  ORCHESTRATION_FEDERATION_RUNTIME_CAPABILITY,
   ORCHESTRATION_WORKER_TURN_STOP_REPORTS_RUNTIME_CAPABILITY
 } from '../../../../shared/orchestration/orchestration-runtime-capabilities'
-import { orchestrationMigrationData } from '../../../../shared/orchestration/orchestration-rpc-contract'
 import { OrchestrationError } from '../orchestration-error'
 import {
   assertWorkerLaunchPreferencesCreateTerminal,
   joinWorkerStartWarnings,
-  resolveFederatedWorkerLaunchPreferences,
   resolveFederatedWorkerLaunchReceipt
 } from '../../rpc/methods/orchestration/worker/start/launch/worker-launch-preferences'
 import { callRemoteStartWithRetryLaunchFallback } from '../../rpc/methods/orchestration/worker/start/worker-retry-launch-defaults'
@@ -79,24 +76,14 @@ export async function startFederatedWorker(args: FederatedWorkerStartRequest): P
     undefined,
     pairingFence
   )) as RuntimeStatus
-  if (!status.capabilities?.includes(ORCHESTRATION_CONTRACT_RUNTIME_CAPABILITY)) {
-    throw new OrchestrationError(
-      'orchestration_migration_required',
-      `Connected server ${server.name} does not support the current orchestration contract. No effects were applied.`,
-      orchestrationMigrationData('runtime_capability_missing')
-    )
-  }
-  if (!status.capabilities?.includes(ORCHESTRATION_FEDERATION_RUNTIME_CAPABILITY)) {
-    throw new OrchestrationError(
-      'capability_unsupported',
-      `Connected server ${server.name} does not support orchestration federation.`
-    )
-  }
-  const launchPlan = resolveFederatedWorkerLaunchPreferences({
+  const launchPlan = await preflightFederatedWorkerLaunch({
     params,
+    runtime,
+    server,
+    status,
+    worktree,
     createsWorktree,
-    capabilities: status.capabilities,
-    serverName: server.name
+    preflightTimeoutMs: budgets.preflightTimeoutMs
   })
   const { requestedLaunch } = launchPlan
   const childParent = createMode
@@ -177,7 +164,8 @@ export async function startFederatedWorker(args: FederatedWorkerStartRequest): P
   try {
     const called = await callRemoteStartWithRetryLaunchFallback({
       ...launchPlan,
-      inherited: params.inheritedLaunchPreferences,
+      requestedLaunch,
+      inherited: params.inheritedLaunchPreferences && !params.role && params.fastMode === undefined,
       onFallback: (dropped) => {
         launch = dropped.requestedLaunch
         warning = joinWorkerStartWarnings(dropped.warning, childWarning)
@@ -207,8 +195,10 @@ export async function startFederatedWorker(args: FederatedWorkerStartRequest): P
             setupSource: createsWorktree ? creationSetupSource : undefined,
             terminal: params.terminal,
             agent: params.agent,
+            role: params.role,
             model,
             effort,
+            fastMode: params.fastMode,
             timeoutMs: budgets.readinessTimeoutMs,
             devMode: params.devMode
           },
@@ -225,13 +215,15 @@ export async function startFederatedWorker(args: FederatedWorkerStartRequest): P
       )
     }
     recordWorkerLaunchObservation(db, started.dispatch.id, remote.launch)
+    if (isReadyRemoteFederatedWorkerStartReceipt(remote)) {
+      recordReadyFederatedDispatch(db, started.dispatch.id, remote)
+    }
     launch = resolveFederatedWorkerLaunchReceipt(
       remote.launch,
       called.requestedLaunch,
       remote.state === 'ready'
     )
     if (isReadyRemoteFederatedWorkerStartReceipt(remote)) {
-      recordReadyFederatedDispatch(db, started.dispatch.id, remote)
       const readyWorker = db.markWorkerDispatchReady(started.dispatch.id)
       runtime.ensureOrchestrationFederationRelay(runId)
       const reportsTurnStops = status.capabilities?.includes(

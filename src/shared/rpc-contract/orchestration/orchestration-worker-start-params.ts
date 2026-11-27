@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { lazyZodSchema } from '../../schema/lazy-zod-schema'
 import { OptionalFiniteNumber, OptionalString, requiredString } from '../rpc-param-primitives'
+import { WorkerRoleName } from '../../orchestration-worker-roles'
 import { CrossStoreParentRefSchema } from '../workspaces/cross-store-parent-params'
 
 export const OptionalWorkerLaunchPreference = lazyZodSchema(() =>
@@ -32,8 +33,10 @@ export const WorkerStartParams = lazyZodSchema(() =>
       setup: z.enum(['run', 'skip', 'inherit']).optional(),
       terminal: OptionalString,
       agent: OptionalString,
+      role: WorkerRoleName.optional(),
       model: OptionalWorkerLaunchPreference,
       effort: OptionalWorkerLaunchPreference,
+      fastMode: z.boolean().optional(),
       retryOf: OptionalString,
       timeoutMs: OptionalFiniteNumber,
       devMode: z.boolean().optional(),

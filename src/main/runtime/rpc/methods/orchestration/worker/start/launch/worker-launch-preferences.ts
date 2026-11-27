@@ -1,86 +1,31 @@
-import { z } from 'zod'
 import type { AgentLaunchPreferences } from '../../../../../../../../shared/agent-session/lifecycle/operations/agent-session-host-authority'
 import { checkAgentLaunchModelPreferences } from '../../../../../../../../shared/agent-launch/choices/agent-launch-model-preferences'
-import { ORCHESTRATION_WORKER_LAUNCH_PREFERENCES_RUNTIME_CAPABILITY } from '../../../../../../../../shared/orchestration/orchestration-runtime-capabilities'
+import {
+  ORCHESTRATION_WORKER_LAUNCH_PREFERENCES_RUNTIME_CAPABILITY,
+  ORCHESTRATION_WORKER_ROLE_ROUTING_RUNTIME_CAPABILITY
+} from '../../../../../../../../shared/orchestration/orchestration-runtime-capabilities'
 import type { TuiAgent } from '../../../../../../../../shared/agent-launch/catalog/tui-agent'
 import { isTuiAgent } from '../../../../../../../../shared/agent-launch/catalog/tui-agent-config'
 import { lazyZodSchema } from '../../../../../../../../shared/schema/lazy-zod-schema'
-import type { OrcaRuntimeService } from '../../../../../../orca-runtime'
-import type { AgentMessageSender } from '../../../../../../../../shared/agent-session/journal/agent-session-message-source'
 import { OrchestrationError } from '../../../../../../orchestration/orchestration-error'
+import { z } from 'zod'
 
-export type OrchestrationWorkerLaunchSelection = {
-  agent: TuiAgent | null
-  model: string | null
-  effort: string | null
-}
+import {
+  createPendingWorkerLaunchReceipt,
+  createWorkerLaunchReceipt,
+  type OrchestrationWorkerLaunchReceipt
+} from './worker-launch-receipt'
 
-export type OrchestrationWorkerLaunchReceipt = {
-  requested: OrchestrationWorkerLaunchSelection
-  effective: OrchestrationWorkerLaunchSelection | null
-}
-
-export function createWorkerLaunchReceipt(args: {
-  agent: TuiAgent | null
-  model?: string
-  effort?: string
-}): OrchestrationWorkerLaunchReceipt {
-  const selection = {
-    agent: args.agent,
-    model: args.model ?? null,
-    effort: args.effort ?? null
-  }
-  return { requested: selection, effective: { ...selection } }
-}
-
-/** A chat worker launches with the model and effort its session was seeded with, not only those the caller asked for. */
-export function structuredWorkerLaunchReceipt(
-  receipt: OrchestrationWorkerLaunchReceipt,
-  options: Readonly<Record<string, string>> | undefined
-): OrchestrationWorkerLaunchReceipt {
-  return {
-    ...receipt,
-    effective: {
-      ...(receipt.effective ?? receipt.requested),
-      model: options?.model ?? null,
-      effort: options?.effort ?? null
-    }
-  }
-}
-
-/** A reuse start launches nothing; the agent already running there is its effective agent, so
- *  mail from a start that never binds still names it. */
-export function reusedWorkerLaunchReceipt(
-  runtime: Pick<OrcaRuntimeService, 'orchestrationSenderNames'>,
-  receipt: OrchestrationWorkerLaunchReceipt,
-  party: AgentMessageSender['party']
-): OrchestrationWorkerLaunchReceipt {
-  if (receipt.effective?.agent) {
-    return receipt
-  }
-  const running = runtime.orchestrationSenderNames.liveAgentOf(party)
-  return isTuiAgent(running)
-    ? {
-        ...receipt,
-        effective: { ...(receipt.effective ?? receipt.requested), agent: running }
-      }
-    : receipt
-}
-
-export function createPendingWorkerLaunchReceipt(args: {
-  agent: TuiAgent | null
-  model?: string
-  effort?: string
-}): OrchestrationWorkerLaunchReceipt {
-  return {
-    requested: {
-      agent: args.agent,
-      model: args.model ?? null,
-      effort: args.effort ?? null
-    },
-    effective: null
-  }
-}
+export {
+  createPendingWorkerLaunchReceipt,
+  createWorkerLaunchReceipt,
+  parseWorkerLaunchPreflight,
+  resolveFederatedWorkerLaunchReceipt,
+  reusedWorkerLaunchReceipt,
+  structuredWorkerLaunchReceipt,
+  type OrchestrationWorkerLaunchReceipt,
+  type OrchestrationWorkerLaunchSelection
+} from './worker-launch-receipt'
 
 export function formatDroppedRetryLaunchWarning(
   dropped: { model?: string; effort?: string },
@@ -108,26 +53,62 @@ export function resolveWorkerLaunchPreferences(args: {
   model?: string
   effort?: string
   inheritedLaunchPreferences?: boolean
+  fastMode?: boolean
+  role?: string
+  structuredFastModeSupported?: boolean
+  structuredFastServiceTier?: string
 }): {
   preferences: AgentLaunchPreferences | undefined
   receipt: OrchestrationWorkerLaunchReceipt
   warning?: string
 } {
-  const checked = checkAgentLaunchModelPreferences(args)
+  const structuredFast =
+    args.structuredFastModeSupported === true && (args.agent === 'claude' || args.agent === 'codex')
+  if (
+    structuredFast &&
+    args.agent === 'codex' &&
+    args.fastMode !== undefined &&
+    !args.structuredFastServiceTier
+  ) {
+    throw new OrchestrationError(
+      'capability_unsupported',
+      'Codex Fast requires a verified service tier. No effects were applied.',
+      { effectsApplied: false }
+    )
+  }
+  const checked = checkAgentLaunchModelPreferences({
+    ...args,
+    fastMode: structuredFast ? undefined : args.fastMode
+  })
   if ('refusal' in checked) {
     if (args.inheritedLaunchPreferences && (args.model || args.effort)) {
-      return {
-        preferences: undefined,
-        receipt: createWorkerLaunchReceipt({ agent: args.agent }),
-        warning: formatDroppedRetryLaunchWarning(args, checked.refusal.message)
-      }
+      const launch = resolveWorkerLaunchPreferences({
+        ...args,
+        model: undefined,
+        effort: undefined,
+        inheritedLaunchPreferences: false
+      })
+      return { ...launch, warning: formatDroppedRetryLaunchWarning(args, checked.refusal.message) }
     }
     throw new OrchestrationError(checked.refusal.code, checked.refusal.message)
   }
-  const { preferences } = checked
+  const preferences =
+    structuredFast && args.fastMode !== undefined
+      ? {
+          ...checked.preferences,
+          ...(args.agent === 'codex'
+            ? { serviceTier: args.structuredFastServiceTier }
+            : { fastMode: args.fastMode })
+        }
+      : checked.preferences
   return {
     preferences,
-    receipt: createWorkerLaunchReceipt({ agent: args.agent, ...preferences })
+    receipt: createWorkerLaunchReceipt({
+      agent: args.agent,
+      role: args.role,
+      ...preferences,
+      ...(args.fastMode !== undefined ? { fastMode: args.fastMode } : {})
+    })
   }
 }
 
@@ -135,11 +116,13 @@ export function assertWorkerLaunchPreferencesCreateTerminal(args: {
   terminal?: string
   model?: string
   effort?: string
+  fastMode?: boolean
+  role?: string
 }): void {
-  if (args.terminal && (args.model || args.effort)) {
+  if (args.terminal && (args.role || args.model || args.effort || args.fastMode !== undefined)) {
     throw new OrchestrationError(
       'invalid_argument',
-      '--model and --effort cannot be applied when reusing an existing terminal.'
+      '--role, --model and --effort or --fast cannot be applied when reusing an existing terminal.'
     )
   }
 }
@@ -147,9 +130,21 @@ export function assertWorkerLaunchPreferencesCreateTerminal(args: {
 export function assertWorkerLaunchPreferencesRuntimeSupported(args: {
   model?: string
   effort?: string
+  fastMode?: boolean
+  role?: string
   capabilities?: readonly string[]
   serverName: string
 }): void {
+  if (
+    (args.role || args.fastMode !== undefined) &&
+    !args.capabilities?.includes(ORCHESTRATION_WORKER_ROLE_ROUTING_RUNTIME_CAPABILITY)
+  ) {
+    throw new OrchestrationError(
+      'capability_unsupported',
+      `Connected server ${args.serverName} does not support worker roles or Fast launch options. No effects were applied.`,
+      { effectsApplied: false }
+    )
+  }
   if (
     (args.model || args.effort) &&
     !args.capabilities?.includes(ORCHESTRATION_WORKER_LAUNCH_PREFERENCES_RUNTIME_CAPABILITY)
@@ -217,19 +212,6 @@ export function resolveFederatedWorkerLaunchPreferences(args: {
     requestedLaunch: createPendingWorkerLaunchReceipt({ agent: tuiAgent, model, effort }),
     ...(warning ? { warning } : {})
   }
-}
-
-export function resolveFederatedWorkerLaunchReceipt(
-  remote: OrchestrationWorkerLaunchReceipt | undefined,
-  requested: OrchestrationWorkerLaunchReceipt,
-  remoteReady: boolean
-): OrchestrationWorkerLaunchReceipt {
-  if (remote) {
-    return remote
-  }
-  return remoteReady
-    ? { requested: requested.requested, effective: { ...requested.requested } }
-    : requested
 }
 
 const RecordedStartOptions = lazyZodSchema(() =>

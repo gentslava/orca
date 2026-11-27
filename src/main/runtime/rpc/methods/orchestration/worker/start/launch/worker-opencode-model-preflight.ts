@@ -3,10 +3,7 @@ import {
   resolveWorkerConfiguredAgentParams
 } from './worker-configured-agent-preflight'
 import { formatDroppedRetryLaunchWarning } from './worker-launch-preferences'
-import {
-  prepareLocalWorkerStart,
-  type prepareFederationAttachmentWorkerStart
-} from './worker-start-validation'
+import type { prepareFederationAttachmentWorkerStart } from './worker-start-validation'
 import {
   refuseUnmatchedWorkerSelector,
   type WorkerStartSelectorLabel
@@ -28,7 +25,7 @@ export async function probeWorkerOpenCodeModelLaunchSupport(
   )
 }
 
-export async function resolveLocalWorkerStartLaunch(args: {
+export async function resolveLocalWorkerStartPreferences(args: {
   params: WorkerStartInput
   createsWorktree: boolean
   existingWorktree: string
@@ -59,16 +56,13 @@ export async function resolveLocalWorkerStartLaunch(args: {
       }
     }
   }
-  const prepared = prepareLocalWorkerStart({
-    params: probeDropWarning
+  return {
+    launchParams: probeDropWarning
       ? { ...launchParams, model: undefined, effort: undefined, inheritedLaunchPreferences: false }
       : launchParams,
-    createsWorktree,
-    runtime,
-    openCodeModelLaunchSupported
-  })
-  const warning = probeDropWarning ?? prepared.launch.warning
-  return { ...prepared, ...(warning ? { warning } : {}) }
+    openCodeModelLaunchSupported,
+    probeDropWarning
+  }
 }
 
 export async function prepareFederationWorkerLaunchOnHost(
@@ -85,5 +79,17 @@ export async function prepareFederationWorkerLaunchOnHost(
     (await probeWorkerOpenCodeModelLaunchSupport(args.runtime, params, {
       worktree: params.worktree
     }))
-  return prepareFederationConfiguredWorkerStart({ ...args, params, openCodeModelLaunchSupported })
+  const prepared = await prepareFederationConfiguredWorkerStart({
+    ...args,
+    params,
+    openCodeModelLaunchSupported
+  })
+  if (prepared.agent && (params.role || params.fastMode !== undefined)) {
+    await args.runtime.preflightOrchestrationWorkerLaunch(
+      prepared.agent,
+      prepared.launch.preferences,
+      args.createsWorktree ? { repo: params.repo } : { worktree: params.worktree }
+    )
+  }
+  return prepared
 }
