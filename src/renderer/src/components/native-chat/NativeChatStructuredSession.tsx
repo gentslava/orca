@@ -1,3 +1,4 @@
+import { nativeChatForegroundTasks } from './NativeChatForegroundTaskAction'
 import { useStructuredNativeChatSubagents } from './subagents/use-structured-native-chat-subagents'
 import { useNativeChatCrewSource } from '../orchestration-crew/use-native-chat-crew'
 import { NativeChatPaneFileDropScope } from './attachments/intake/NativeChatPaneFileDropSurface'
@@ -252,7 +253,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
   const { colorScheme } = surface.appearance
   const paneHeader = nativeChatPaneHeader(props, ownerWorktreeId, colorScheme, handOff)
   const findBar = <NativeChatSurfaceFindBar surface={surface} isVisible={parentShown} />
-  return (
+  const content = (
     <NativeChatStructuredContexts
       antigravityAuth={install.antigravityAuth}
       slackMirror={slackMirror}
@@ -405,4 +406,5 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
       </NativeChatSurface>
     </NativeChatStructuredContexts>
   )
+  return nativeChatForegroundTasks(props.sessionId, controller, content)
 }

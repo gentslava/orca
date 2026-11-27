@@ -1,3 +1,4 @@
+import { NativeChatForegroundTaskAction } from '../../../NativeChatForegroundTaskAction'
 import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
 import {
   workerDockKindLabel,
@@ -156,6 +157,9 @@ export const WorkerDockRow = memo(function WorkerDockRow({
             : 'opacity-0 group-hover/worker:opacity-100 group-hover/worker:[&>*:not(svg)]:pointer-events-auto group-focus-within/worker:opacity-100 [@media(pointer:coarse)]:opacity-100 [@media(pointer:coarse)]:[&>*:not(svg)]:pointer-events-auto'
         )}
       >
+        {row?.providerId && row.kind !== 'worker' ? (
+          <NativeChatForegroundTaskAction taskId={row.providerId} />
+        ) : null}
         {row ? <WorkerDockRowAction row={row} pending={pending} onAction={onAction} /> : null}
       </div>
     </div>
