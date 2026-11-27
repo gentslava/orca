@@ -544,8 +544,7 @@
       "heldPickRefused": "このチャットでは {{picked}} を利用できません。{{kept}} のままにしました。",
       "optionsSection": "オプション",
       "permissionsLabel": "権限、{{value}}",
-      "settingsLocked": "このターンが完了すると、モデル設定を変更できます。",
-      "workingAnnouncement": "Agent が作業中です。このターンが完了すると、モデル設定を変更できます。"
+      "settingsLocked": "このターンが完了すると、モデル設定を変更できます。"
     },
     "sessionOptionRows": {
       "defaultMarker": "既定",
