@@ -70,6 +70,7 @@ export type OrchestrationAgentMessage = OrchestrationMailNotice | OrchestrationT
 
 export type AgentMessageSource = Readonly<{
   kind: 'agent'
+  link?: Readonly<{ id: string; title: string; eventId: string }>
   /** Every distinct sender of the messages it carries, in mail order. */
   senders: readonly AgentMessageSender[]
   /** Null when this build cannot read the kind a newer one wrote; the senders still stand. */
@@ -159,6 +160,14 @@ const senderSchema = lazyZodSchema(() =>
 // Parse separately so malformed senders or newer orchestration kinds never turn an agent message into a human message.
 const sourceSchema = lazyZodSchema(() =>
   z.object({
+    link: salvagedOptional(
+      'link',
+      z.object({
+        id: z.string().min(1).max(128),
+        title: z.string().max(160),
+        eventId: z.string().min(1).max(128)
+      })
+    ),
     kind: openEnum(['agent'], 'agent'),
     senders: salvagedField('senders', salvagingArray(senderSchema), () => []),
     orchestration: salvagedOptional(
