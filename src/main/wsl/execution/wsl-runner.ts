@@ -4,10 +4,10 @@ import {
   MAX_COMMAND_LINE_CHARS
 } from '../../../shared/shell/launch/windows-command-line-budget'
 import { runProcess } from '@orca/process-host'
-import { resolveWslInteropSpawnCwd } from './wsl-interop-spawn-directory'
+import { resolveWslInteropSpawnCwdAsync } from './wsl-interop-spawn-directory'
 import { buildWslExecArgs } from '../../../shared/shell/wsl/wsl-login-shell-command'
 import { getWslGuestEnvironment, type WslGuestEnvironment } from './wsl-guest-environment'
-import { resolveWslExecutablePath } from './wsl-executable-path'
+import { resolveWslExecutablePathAsync } from './wsl-executable-path'
 
 /** Shared WSL argv/environment/payload rules; see docs/reference/wsl-command-execution.md. */
 
@@ -156,10 +156,11 @@ export async function runWslProcess(spec: WslSpec): Promise<WslResult> {
   // Never fall back to a blocking login shell after probe failure (#14288); use default PATH. Measure the complete argv including env before choosing transport.
   const argvForm = buildGuestArgv(environment, spec, 'argv')
   // Windows counts executable, distro and --exec prefix in the same command-line budget.
-  const fullLine = [
-    resolveWslExecutablePath(),
-    ...buildWslExecArgs(spec.distro, argvForm, { user: spec.user })
-  ]
+  const [program, cwd] = await Promise.all([
+    resolveWslExecutablePathAsync(),
+    resolveWslInteropSpawnCwdAsync()
+  ])
+  const fullLine = [program, ...buildWslExecArgs(spec.distro, argvForm, { user: spec.user })]
   // Prefer argv to preserve stdin; oversized unbounded hooks must use stdin or fail to spawn.
   const delivery: 'argv' | 'stdin' =
     spec.script !== undefined && commandLineLength(fullLine) > MAX_COMMAND_LINE_CHARS
@@ -173,10 +174,10 @@ export async function runWslProcess(spec: WslSpec): Promise<WslResult> {
   // Probe and command share one deadline; never add an independent probe timeout.
   const remainingMs = Math.max(1, deadline - Date.now())
   const result = await runProcess({
-    program: resolveWslExecutablePath(),
+    program,
     args: buildWslExecArgs(spec.distro, argv, { user: spec.user }),
     // Use stable Windows cwd: inherited worktrees can disappear and break all later spawns (#16463). Guest cd stays inside.
-    cwd: resolveWslInteropSpawnCwd(),
+    cwd,
     env: buildHostEnv(spec.env),
     input: delivery === 'stdin' ? spec.script : spec.input,
     timeoutMs: remainingMs,
