@@ -1075,24 +1075,6 @@ index e075d602a6f0ee1658de0d65342a5f46623c8116..0eada7e55a85027a063c792493035fad
                        model,
                        spec.dialect.effortChangesModel ? ready : undefined,
                        (result) =>
-diff --git a/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts b/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts
-index 86aaae165df410cfd0e3edc540e6e13702b3391d..fe3bf2041e13549e04156d7187b4434c2a75ba9b 100644
---- a/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts
-+++ b/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts
-@@ -146,9 +146,11 @@ export function installChats(records: AgentSessionRecord[]) {
-     hostId: 'local',
-     listRecords: () => records,
-     getRecord: vi.fn((sessionId: string) => byId.get(sessionId) ?? null),
--    listConversations: vi.fn(() => records.map(agentSessionConversationView))
-+    listConversations: vi.fn(() => records.map(agentSessionConversationView)),
-+    conversationsKeyedBy: (keys: AgentSessionConversationKeys, key: string) =>
-+      records.map(agentSessionConversationView).filter((view) => keys(view).includes(key))
-   }
--  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the ownership read touches only `deps.store.listConversations`, `getRecord` and `hostId`; the rest of the host is never reached.
-+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: conversation projection only reads the store methods supplied by this fixture.
-   setStructuredAgentSessionHost({ deps: { store } } as never)
-   return store
- }
 diff --git a/src/main/claude/structured/claude-structured-session-identity.test-fixture.ts b/src/main/claude/structured/claude-structured-session-identity.test-fixture.ts
 new file mode 100644
 index 0000000000000000000000000000000000000000..33ff3d2be15665d0083a08355d532b0d6524a5b4
@@ -2345,41 +2327,6 @@ index b2ddc670de..6e021624f3 100644
  )
  const PAGE_SIZE = 100
 
-diff --git a/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts b/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts
-index 4a1caed07c..f125e688c7 100644
---- a/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts
-+++ b/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts
-@@ -10,6 +10,7 @@ import type { OrcaRuntimeService } from '../../../../../../orca-runtime'
- import type { AgentMessageSender } from '../../../../../../../../shared/agent-session/journal/agent-session-message-source'
- import { OrchestrationError } from '../../../../../../orchestration/orchestration-error'
- import { z } from 'zod'
-+import { lazyZodSchema } from '../../../../../../../../shared/schema/lazy-zod-schema'
-
- export type OrchestrationWorkerLaunchSelection = {
-   agent: TuiAgent | null
-@@ -26,13 +27,15 @@ export type OrchestrationWorkerLaunchReceipt = {
-   effective: OrchestrationWorkerLaunchSelection | null
- }
-
--const PreflightSelection = z.object({
--  agent: z.custom<TuiAgent>((value) => typeof value === 'string' && isTuiAgent(value)),
--  model: z.string().nullable(),
--  effort: z.string().nullable(),
--  fastMode: z.boolean().optional(),
--  serviceTier: z.string().optional()
--})
-+const PreflightSelection = lazyZodSchema(() =>
-+  z.object({
-+    agent: z.custom<TuiAgent>((value) => typeof value === 'string' && isTuiAgent(value)),
-+    model: z.string().nullable(),
-+    effort: z.string().nullable(),
-+    fastMode: z.boolean().optional(),
-+    serviceTier: z.string().optional()
-+  })
-+)
-
- export function parseWorkerLaunchPreflight(value: unknown): OrchestrationWorkerLaunchReceipt {
-   const parsed = z
 diff --git a/src/shared/agent-session/agent-session-foreground-task.ts b/src/shared/agent-session/agent-session-foreground-task.ts
 index 21c607f9da..a620e5a9aa 100644
 --- a/src/shared/agent-session/agent-session-foreground-task.ts

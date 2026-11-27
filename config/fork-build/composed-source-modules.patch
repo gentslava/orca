@@ -1112,7 +1112,7 @@ index 0b7d2f035f6..da0aab31c70 100644
    return (
      <LinkRoutingPreferenceDialogContext.Provider value={requestPreference}>
 diff --git a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
-index 8ab6b9f6b40..92ead3b9dfa 100644
+index 605b8ba57e8aeec4bfbfddf25f02c0954811ec0b..d250e91813488c6af77a24f345bc9a5a1ef9cbb2 100644
 --- a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
 +++ b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
 @@ -3,8 +3,7 @@ import { ChevronDown, SlidersHorizontal } from 'lucide-react'
@@ -1140,7 +1140,7 @@ index 8ab6b9f6b40..92ead3b9dfa 100644
 @@ -41,16 +43,6 @@ export type NativeChatSessionOptionPickersProps = {
    focusComposer?: () => void
  }
- 
+
 -// Keep visible value text inside the accessible name for voice control (WCAG 2.5.3).
 -function pillAccessibleName(title: string, value: string, t: Translate = translate): string {
 -  return value === title
@@ -1151,9 +1151,9 @@ index 8ab6b9f6b40..92ead3b9dfa 100644
 -      })
 -}
 -
- function PickerTrigger(props: {
-   modelLabel: string
-   /** The options' values, shown after the model; empty when there are none to show. */
+ function PickerTrigger({
+   triggerRef,
+   ...props
 diff --git a/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-labels-text.ts b/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-labels-text.ts
 index c11eb526834..f0523512f03 100644
 --- a/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-labels-text.ts
