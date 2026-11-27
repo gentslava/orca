@@ -1,5 +1,11 @@
 import { createContext, useContext, useRef, type ReactNode, type RefObject } from 'react'
-import { View, type HostInstance, type StyleProp, type ViewStyle } from 'react-native'
+import {
+  View,
+  type HostInstance,
+  type StyleProp,
+  type ViewProps,
+  type ViewStyle
+} from 'react-native'
 
 const ComposerMenuHostContext = createContext<RefObject<HostInstance | null> | null>(null)
 
@@ -7,16 +13,18 @@ const ComposerMenuHostContext = createContext<RefObject<HostInstance | null> | n
 export function MobileNativeChatComposerMenuHost({
   style,
   testID,
-  children
+  children,
+  ariaHidden
 }: {
   style?: StyleProp<ViewStyle>
   testID?: string
   children: ReactNode
+  ariaHidden?: ViewProps['aria-hidden']
 }): React.JSX.Element {
   const ref = useRef<HostInstance>(null)
   return (
     <ComposerMenuHostContext value={ref}>
-      <View ref={ref} testID={testID} style={style}>
+      <View ref={ref} testID={testID} style={style} aria-hidden={ariaHidden}>
         {children}
       </View>
     </ComposerMenuHostContext>

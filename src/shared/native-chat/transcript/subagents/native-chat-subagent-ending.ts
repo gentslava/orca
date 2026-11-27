@@ -1,12 +1,11 @@
 // How a subagent's view ends: only a completed subagent gets a reply; anything else says why it has none.
 
-import type {
-  NativeChatMessage,
-  NativeChatSubagentEntry
-} from '../../../../../shared/native-chat/native-chat-types'
-import { normalizeSubagentState } from '../../../../../shared/native-chat/transcript/subagents/native-chat-subagent-summary'
+import type { NativeChatMessage, NativeChatSubagentEntry } from '../../native-chat-types'
+import { normalizeSubagentState } from './native-chat-subagent-summary'
 import type { NativeChatSubagentHandoff } from './native-chat-subagent-handoff'
-import type { NativeChatSubagentHistory } from './native-chat-subagent-history'
+
+/** Whether a view holds all of a subagent's work; 'cleared': it ran before the latest /clear. */
+export type NativeChatSubagentHistory = 'landed' | 'page' | 'cleared' | 'stop'
 
 /** Marks the ending row that draws a reply under "Result" and an error under "Failed". */
 export const NATIVE_CHAT_SUBAGENT_RESULT_PRESENTATION = 'subagent-result'
