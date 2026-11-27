@@ -964,11 +964,11 @@ import {
   QueuedMessageActionParams,
   QueuedMessagesResumeParams,
   RespondParams,
-  SendParams,
   SetOptionParams
 } from './structured-agent-session/structured-agent-session-core-params'
 import { ContinuationContextParams } from './structured-agent-session/structured-agent-session-identifiers'
 import { AgentSessionMcpParams } from './structured-agent-session/structured-agent-session-mcp-params'
+import { SendParams } from './structured-agent-session/structured-agent-session-message-params'
 import {
   AcknowledgeAttentionParams,
   AgentsParams,

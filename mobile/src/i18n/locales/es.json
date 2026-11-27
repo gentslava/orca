@@ -612,7 +612,6 @@
       "permissions": "Permisos",
       "permissionsLabel": "Permisos, {{value}}",
       "settingsLocked": "La configuración del modelo se desbloqueará cuando termine este turno.",
-      "workingAnnouncement": "El agente está trabajando. La configuración del modelo se desbloqueará cuando termine este turno.",
       "applying": "Aplicando…",
       "onAttach": "Se aplica cuando el chat se conecte",
       "heldPickRefused": "{{picked}} no está disponible en este chat. Se mantiene {{kept}}.",
@@ -6529,12 +6528,6 @@
       "purposeTooLongForHost": "Orca en {{host}} admite hasta 200 caracteres para el propósito. Acórtalo o actualiza Orca en {{host}}."
     }
   },
-  "hostMutation": {
-    "renameOffline": "{{host}} está sin conexión. Tu texto se queda aquí hasta que puedas guardarlo.",
-    "renameUnconfirmed": "Aún sin confirmar. Orca comprobará el nombre cuando {{host}} vuelva a estar conectado.",
-    "saving": "Guardando",
-    "serverUnreachable": "No se puede acceder a su servidor."
-  },
   "sidebar": {
     "cardSlot": {
       "working": "Trabajando"
@@ -6631,5 +6624,11 @@
     "workspacesAllButCount": "Todos menos {{count}}",
     "headerMissing": "Rellena {{header}} para añadir este servidor.",
     "servers": "Servidores"
+  },
+  "hostMutation": {
+    "renameOffline": "{{host}} está sin conexión. Tu texto se queda aquí hasta que puedas guardarlo.",
+    "renameUnconfirmed": "Aún sin confirmar. Orca comprobará el nombre cuando {{host}} vuelva a estar conectado.",
+    "saving": "Guardando",
+    "serverUnreachable": "No se puede acceder a su servidor."
   }
 }

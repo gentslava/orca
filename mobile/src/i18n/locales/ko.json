@@ -890,8 +890,7 @@
       "heldPickRefused": "이 채팅에서는 {{picked}}을(를) 사용할 수 없습니다. {{kept}}을(를) 유지했습니다.",
       "optionsSection": "옵션",
       "permissionsLabel": "권한, {{value}}",
-      "settingsLocked": "이번 턴이 끝나면 모델 설정을 변경할 수 있습니다.",
-      "workingAnnouncement": "에이전트가 작업 중입니다. 이번 턴이 끝나면 모델 설정을 변경할 수 있습니다."
+      "settingsLocked": "이번 턴이 끝나면 모델 설정을 변경할 수 있습니다."
     },
     "sessionOptionRows": {
       "defaultMarker": "기본값",

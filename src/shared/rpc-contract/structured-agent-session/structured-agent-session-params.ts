@@ -24,7 +24,6 @@ export {
   AccountHome,
   AttachParams,
   CreateSupportParams,
-  SendParams,
   CreateIntentParams,
   CreateParams,
   CancelParams,
@@ -34,6 +33,7 @@ export {
   SetOptionParams,
   OptionsParams
 } from './structured-agent-session-core-params'
+export { SendParams } from './structured-agent-session-message-params'
 
 /** One relaunch cannot offer more chats than a profile plausibly holds. */
 export const MAX_RESTART_RESUME_SESSIONS = 512

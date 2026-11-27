@@ -622,8 +622,7 @@
       "heldPickRefused": "{{picked}} ist in diesem Chat nicht verfügbar. {{kept}} beibehalten.",
       "optionsSection": "Optionen",
       "permissionsLabel": "Berechtigungen, {{value}}",
-      "settingsLocked": "Die Modelleinstellungen werden nach diesem Durchgang freigegeben.",
-      "workingAnnouncement": "Der Agent arbeitet. Die Modelleinstellungen werden nach diesem Durchgang freigegeben."
+      "settingsLocked": "Die Modelleinstellungen werden nach diesem Durchgang freigegeben."
     },
     "sessionOptionRows": {
       "defaultMarker": "Standard",
