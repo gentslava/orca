@@ -21,7 +21,6 @@ export function nativeChatMessageSlotHeight(
       hasReceipt: slot.receipt !== undefined,
       hasStatus: slot.status !== undefined,
       hasTurnDiff: slot.turnDiff !== undefined,
-      turnDiffFileCount: slot.turnDiff?.files.length,
       hasOpenedPullRequests: (slot.openedPullRequests?.length ?? 0) > 0,
       folded: slot.folded
     },
