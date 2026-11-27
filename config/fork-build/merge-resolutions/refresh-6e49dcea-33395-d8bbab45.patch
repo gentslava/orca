@@ -1,0 +1,11 @@
+diff --git a/mobile/src/i18n/locales/en.json b/mobile/src/i18n/locales/en.json
+--- a/mobile/src/i18n/locales/en.json
++++ b/mobile/src/i18n/locales/en.json
+@@ -3509,6 +3509,7 @@
+       "permissionAppliesNextMessage": "{{saved}} applies to your next message; running {{active}}",
+       "permissionAppliesNextMessageCompact": "{{saved}} · next message",
+       "permissionAppliesNextMessageTiming": "Applies next message · running {{active}}",
++      "defaultModel": "Default",
+       "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works.",
+       "modelsLoading": "Loading models…",
+       "signInForModels": "Sign in to see the models you can use."

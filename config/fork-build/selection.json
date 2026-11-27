@@ -1,0 +1,406 @@
+{
+  "schemaVersion": 1,
+  "upstream": "stablyai/orca",
+  "base": "main",
+  "authors": ["gentslava"],
+  "seed": [
+    33360, 33361, 33362, 33363, 33365, 33369, 33371, 33375, 33383, 33395, 33403, 33417, 33502,
+    33512, 33576, 34338, 34365, 34471, 34480, 34866, 34895, 34899, 36548, 36558, 36569, 36572,
+    36574, 36593, 36606, 36607, 36858, 36892, 37279, 37717, 40728, 40816, 44450, 44451, 44452,
+    44655, 44768, 45385, 45437, 46107, 46187, 46190
+  ],
+  "include": [
+    {
+      "number": 37744,
+      "reason": "Preserve owner-approved linked chat delivery with current journal storage, queued mail and worker identity checks."
+    },
+    {
+      "number": 33371,
+      "reason": "Keep host-owned usage history and original account attribution while adopting upstream resumable provider scans."
+    },
+    {
+      "number": 33383,
+      "reason": "Keep live conversation evidence, host-specific list fingerprints and retries on the current AI Vault contracts."
+    },
+    {
+      "number": 33362,
+      "reason": "Preserve queued draft editing and future-turn choices while a turn is active across the current desktop, mobile, and host RPC contracts."
+    },
+    {
+      "number": 44451,
+      "reason": "Keep the desktop Default model choice while preserving account-specific listing and compatibility for older clients."
+    },
+    {
+      "number": 33395,
+      "reason": "Keep provider Default on desktop and mobile and serialize its reset before message dispatch."
+    },
+    {
+      "number": 33361,
+      "reason": "Keep conversation recovery and project navigation scoped to the verified execution host, including independent local and remote folder histories."
+    },
+    {
+      "number": 33369,
+      "reason": "Keep worker role and Fast routing, including capability checks on the actual execution host before creating a workspace or dispatch."
+    },
+    {
+      "number": 34895,
+      "reason": "Keep retained child-agent transcripts reachable from the parent while preserving host-specific media, paste routing, and the current chat sheet layer."
+    },
+    {
+      "number": 45437,
+      "reason": "Keep the Claude flagged-request fallback setting and its quiet failure notice alongside upstream provider authentication and retry handling."
+    },
+    {
+      "number": 34338,
+      "reason": "Preserve validated image import and cancellation across the Settings picker and the sidebar project icon controls."
+    },
+    {
+      "number": 33576,
+      "reason": "Keep older transcript pages, reading position and folded turns across desktop and mobile lifecycle changes while retaining upstream streaming optimizations."
+    },
+    {
+      "number": 38963,
+      "reason": "Keep the Claude foreground task controls and background routing across desktop, mobile and the host lifecycle."
+    },
+    {
+      "number": 44452,
+      "reason": "Keep the mobile subagent transcript overlay and desktop shared view contract with the upstream composer menu host."
+    },
+    {
+      "number": 36593,
+      "reason": "Keep expanded command details and the original disclosure behavior alongside upstream scroll tracking."
+    },
+    {
+      "number": 33363,
+      "reason": "Keep quiet review activity in the fold while preserving current streamed-text updates and notice timestamps."
+    },
+    {
+      "number": 33502,
+      "reason": "Keep personal project pins and opening order on desktop and mobile, with separate ownership for projects that share a repository ID on different hosts."
+    },
+    {
+      "number": 46107,
+      "reason": "Preserve the reviewed Russian translations while matching current upstream English keys, terminology and interpolation."
+    },
+    {
+      "number": 34899,
+      "reason": "Preserve the selected host's quota roster with upstream WSL usage and authentication scoping."
+    },
+    {
+      "number": 36945,
+      "reason": "Keep the retained mobile project heading and upstream connection status on the new base."
+    },
+    {
+      "number": 42410,
+      "reason": "Separate persistent chat artifacts from disposable builds and preserve AppImage environment isolation with Windows environment matching."
+    },
+    {
+      "number": 43124,
+      "reason": "Keep per-turn file changes collapsible and use the current session transcript slot height estimator."
+    },
+    {
+      "number": 49959,
+      "reason": "Use the current upstream Claude wake lease and clear its wake evidence once a completion is confirmed."
+    },
+    {
+      "number": 48762,
+      "reason": "Use the command and agent icons on the upstream redesigned worker tray."
+    },
+    {
+      "number": 49658,
+      "reason": "Render Codex document citations using native file links on the current upstream Markdown pipeline."
+    },
+    {
+      "number": 47337,
+      "reason": "Preserve queued mode, model, effort and safe delivery when a bot replaces its chat. Upstream PR CI passed and its same-provider/cross-provider regression tests cover the behavior."
+    },
+    {
+      "number": 39918,
+      "reason": "Close CLI-launched agent chats through the existing host lifecycle, with explicit session IDs, unknown-session errors and narrowly scoped paired-client capability."
+    },
+    {
+      "number": 40175,
+      "reason": "Retain unified native Settings, launch and composer model-menu policy with host-owned catalogs while preserving upstream CLI discovery for terminal agents and the separately selected host agy model-catalog support."
+    },
+    {
+      "number": 36530,
+      "reason": "scrcpy input latency fixes requested for the Android emulator"
+    },
+    {
+      "number": 36905,
+      "reason": "Opaque-scroller improvement supplied upstream; physical handset testing still requires native magnifier protection, now tracked by replacement PR 38022."
+    },
+    {
+      "number": 37968,
+      "reason": "Merged compact orchestration cards on desktop and mobile; PR 33403 now retains only human-authored chat navigation."
+    },
+    {
+      "number": 40297,
+      "reason": "Merged fix for owner issue 40202: wrap long artifact Update labels while preserving idle/busy button height."
+    },
+    {
+      "number": 40298,
+      "reason": "Owner-requested saved remote-server rename; issue 40221 was closed as duplicate, with matching earlier request 40165 and open implementation 40298. Include until upstream ships it."
+    },
+    {
+      "number": 41099,
+      "reason": "Require a deliberate second Escape within two seconds before stopping a working chat; protect long-running turns from accidental key presses while keeping the Stop button immediate."
+    },
+    {
+      "number": 41114,
+      "reason": "Merged localized account-menu heading repair; retain full-width account identities and one-line reset countdowns through account-usage-row-layout.patch."
+    },
+    {
+      "number": 41166,
+      "reason": "Reuse the existing shared start-failure defaults in mobile to reduce the verified web payload while preserving all translation keys and exact fallback text."
+    },
+    {
+      "number": 41381,
+      "reason": "Keep model search, effort slider and other options visible in the mobile picker while only the model catalogue scrolls; match desktop structure and retain touch, keyboard, remote pending and model-specific choice behavior."
+    },
+    {
+      "number": 41540,
+      "reason": "Require owner-fenced remote account rosters and quota values from the same accounts stream, including older-host failure visibility; retain this owner-requested fix across upstream lifecycle changes."
+    },
+    {
+      "number": 41578,
+      "reason": "Restore phone transcript touch panning while preserving horizontal code scrolling and text-size pinch. Backport only the upstream four-file feature to the frozen source; retain original head ancestry in the fork integration without unrelated later-main changes."
+    },
+    {
+      "number": 48773,
+      "reason": "Persist manually collapsed project sections across relaunches in the desktop Sessions sidebar and Session History."
+    }
+  ],
+  "exclude": {
+    "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle.",
+    "36980": "Retired: Mobile Home redesigned and bottom quick-actions bar removed in upstream PR 38206; original layout request obsolete per owner decision.",
+    "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained.",
+    "40980": "Upstream 48304, 48305 and 49165 discover the actual account-scoped agy session models, refresh the catalog on sign-in and avoid background listing. That replaces the older agy models probe."
+  },
+  "replacements": {
+    "33360": 45985,
+    "36569": 36922,
+    "36574": 36922,
+    "36606": 36928,
+    "36607": 36928,
+    "36736": 40148,
+    "36858": 37211,
+    "36892": 38022,
+    "37279": 37276,
+    "37717": 37711,
+    "37861": 37958,
+    "39022": 39727,
+    "40293": 40673,
+    "40499": 40496,
+    "40728": 43959,
+    "40816": 41430,
+    "40870": 41203,
+    "40955": 40951,
+    "41859": 42954,
+    "44655": 45027,
+    "44768": 44991,
+    "46187": 48573
+  },
+  "reviewedUpstreamMerges": {
+    "39727": {
+      "head": "6fabb219837547f8fdf43c45b8d4eb4f1e963ef1",
+      "merge": "c00f8448d5f4f2e3116babc29983c1c5e18c8513",
+      "mergedAt": "2026-11-08T04:44:39Z",
+      "reason": "GitHub no longer serves PR metadata. The last verified release plan records the merge, whose patch matches PR 39022 and the surviving PR 39727 Git head. The relocated automation and queue readers still import directly from the owning modules."
+    },
+    "40496": {
+      "head": "187126b03eb4ec0eaaaf6f223a607db464bcb7ce",
+      "merge": "1500ba41539685843f30af38248b57737b341147",
+      "mergedAt": "2026-11-09T22:18:36Z",
+      "reason": "The merged ACP subagent restart digest fix replaces PR 40499. The verified release plan and surviving upstream Git ref supply the exact identities after the PR API became unavailable."
+    }
+  },
+  "dependencies": {
+    "45437": [33363, 41166],
+    "38963": [34895, 36593],
+    "33383": [33361],
+    "33395": [33362, 44451],
+    "33502": [33361],
+    "33576": [44450],
+    "36593": [36634],
+    "46190": [48573],
+    "48773": [33361],
+    "34899": [33371]
+  },
+  "outputs": [
+    "macos-arm64-dmg",
+    "macos-arm64-zip",
+    "windows-x64-installer",
+    "windows-x64-zip",
+    "android-apk",
+    "linux-x64-appimage",
+    "linux-x64-deb",
+    "linux-x64-rpm",
+    "linux-arm64-appimage",
+    "linux-arm64-deb",
+    "linux-arm64-rpm"
+  ],
+  "statusIssue": 12,
+  "compatibilityPatches": [
+    "preview-updater-guard.patch",
+    "fork-updater.patch",
+    "test-runner-registration.patch",
+    "integration-module-boundaries.patch",
+    "conversation-project-order.patch",
+    "model-fallback-next-turn-test.patch",
+    "reviewed-merge-target-paths.patch",
+    "upstream-module-relocations.patch",
+    "startup-chat-catalog.patch",
+    "project-start-actions.patch",
+    "composed-ci-contracts.patch",
+    "codex-selected-account-read.patch",
+    "composed-source-modules.patch",
+    "composed-reactive-copy.patch",
+    "runtime-environment-rename.patch",
+    "account-usage-row-layout.patch",
+    "fork-ci-macos-arm64-image.patch",
+    "composed-contract-migrations.patch",
+    "composed-qualification-format.patch",
+    "selected-regressions.patch",
+    "composed-source-quality.patch",
+    "release-typecheck-contracts.patch"
+  ],
+  "retainClosed": {
+    "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",
+    "36634": "Owner retains full tool invocation details in expanded chat rows; upstream issue 36633 was closed as not planned and the maintainer alternative 36958 was closed unmerged.",
+    "36945": "Owner retains the project name in the mobile session header; upstream issue 36942 was closed as not planned after the session bar redesign in 41345.",
+    "38848": "Owner preference: empty Cmd/Ctrl+Enter sends the newest queued message; upstream intentionally sends the first."
+  },
+  "retainedHeadSources": {
+    "34365": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/gentslava/android-picker-refusal-diagnostics"
+    },
+    "36634": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/fix/native-chat-tool-invocation-details"
+    },
+    "38848": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/fix/queue-last-message-shortcut-20261106"
+    }
+  },
+  "forkHeadSources": {
+    "33383": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-live-ai-vault-33383"
+    },
+    "44451": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-default-picker-44451"
+    },
+    "33395": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-model-default-33395"
+    },
+    "33362": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-queued-options-33362"
+    },
+    "33361": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-ai-vault-recovery-33361"
+    },
+    "33369": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-worker-launch-options-33369"
+    },
+    "34895": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-child-chat-history-34895"
+    },
+    "45437": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-quiet-chat-errors-45437"
+    },
+    "34338": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-project-icons-34338"
+    },
+    "33576": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-chat-retention-33576"
+    },
+    "38963": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-claude-background-38963"
+    },
+    "44452": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-mobile-child-view-44452"
+    },
+    "36593": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-tool-disclosure-36593"
+    },
+    "33363": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-compact-activity-33363"
+    },
+    "33502": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-project-order-33502"
+    },
+    "34899": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-9a5a-account-quotas-34899"
+    },
+    "36945": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-mobile-project-title-36945"
+    },
+    "41166": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-mobile-fallbacks-41166"
+    },
+    "42410": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-conversation-files-42410"
+    },
+    "43124": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-file-changes-43124"
+    },
+    "46107": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-508d-russian-46107"
+    },
+    "33371": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-9a5a-usage-history-catalogs-33371"
+    },
+    "37744": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-9a5a-session-links-ui-37744"
+    }
+  },
+  "foreignHeadSources": {
+    "39918": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/cli-chat-close-39918"
+    },
+    "40298": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/rename-saved-server-40298"
+    },
+    "41578": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/mobile-chat-touch-scroll-41578"
+    }
+  },
+  "forkFeatures": {
+    "activity-row-project-only": {
+      "ref": "refs/heads/fix/activity-row-project-only",
+      "reason": "Activity rows name only the project; upstream 45027 keeps the workspace name."
+    },
+    "android-fork-update-channel": {
+      "ref": "refs/heads/integration/fork-android-update-c475",
+      "reason": "Personal Android APKs use verified downloads from this fork and compare their packaged build identity."
+    }
+  }
+}

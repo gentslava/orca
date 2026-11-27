@@ -1,0 +1,12 @@
+diff --git a/src/shared/rpc-contract/client-ui/client-ui-params.ts b/src/shared/rpc-contract/client-ui/client-ui-params.ts
+--- a/src/shared/rpc-contract/client-ui/client-ui-params.ts
++++ b/src/shared/rpc-contract/client-ui/client-ui-params.ts
+@@ -138,7 +138,7 @@
+       showWorkspaceLineage: z.boolean().optional(),
+       sortBy: z.enum(['name', 'smart', 'recent', 'repo', 'manual']).optional(),
+       sidebarView: z.enum(SIDEBAR_VIEWS).optional(),
+-      projectOrderBy: z.enum(['manual', 'recent']).optional(),
++      projectOrderBy: z.enum(['manual', 'recent', 'frequent', 'name']).optional(),
+       showActiveOnly: z.boolean().optional(),
+       hideSleepingWorkspaces: z.boolean().optional(),
+       showSleepingWorkspaces: z.boolean().optional(),

@@ -1,0 +1,15 @@
+diff --git a/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx b/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx
+index 022930c8ca95032cf80350660db7a77989919a2b..c67e51061e3efb1fee1d2adf88c4484aed20c051 100644
+--- a/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx
++++ b/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx
+@@ -255,7 +255,9 @@ export function MobileNativeChatSessionOptionPickers({
+                 disabled={locked(model)}
+                 onReset={
+                   controller.optionSurface?.resetOption
+-                    ? () => { void controller.optionSurface?.resetOption?.(model.id) }
++                    ? () => {
++                        void controller.optionSurface?.resetOption?.(model.id)
++                      }
+                     : undefined
+                 }
+                 onSetOption={(value) => applyOption(model, value)}
