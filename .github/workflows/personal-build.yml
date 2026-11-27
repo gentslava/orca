@@ -723,3 +723,33 @@ jobs:
         run: |
           mkdir -p personal-build
           node config/fork-build/status.mjs personal-build
+
+  retention:
+    needs: [plan, sync, publish, status]
+    if: github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && needs.sync.result == 'success' && needs.publish.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      issues: read
+    steps:
+      - *checkout
+      - *node
+      - uses: actions/download-artifact@v8
+        with:
+          name: personal-source-plan
+          path: personal-build
+      - name: Keep the published release and its verified rollback
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PUBLICATION: ${{ needs.publish.result }}
+          BRANCH_SYNC: ${{ needs.sync.result }}
+        run: node config/fork-build/release-retention.mjs personal-build --apply
+      - name: Preserve the release cleanup receipt
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: personal-release-retention
+          path: personal-build/release-retention.json
+          if-no-files-found: warn
+          retention-days: 14
