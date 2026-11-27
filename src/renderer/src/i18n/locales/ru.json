@@ -26383,6 +26383,9 @@
       "description": "Агенты там используют учётные записи Claude и Codex дистрибутива по умолчанию до обновления Orca в WSL."
     },
     "antigravity": {
+      "quotaAutoRefresh": "Обновлять квоты Antigravity в фоне",
+      "quotaAutoRefreshDescription": "Показывать квоты Gemini и других моделей Antigravity в строке состояния. Orca проверяет текущую учётную запись CLI каждые 15 минут.",
+      "quotaRefreshFailed": "Не удалось обновить квоты Antigravity.",
       "chatCancel": "Отмена",
       "chatCopyLink": "Копировать ссылку входа",
       "chatCopyFailed": "Не удалось скопировать ссылку.",

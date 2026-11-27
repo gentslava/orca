@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import type { AntigravityAccountState } from '../../shared/agent-accounts/antigravity/antigravity-account-types'
 import {
   parseAntigravityNativeCredential,
@@ -52,6 +52,19 @@ export class AntigravityAccountService {
 
   listAccounts(): Promise<AntigravityAccountState> {
     return this.serialize(async () => this.state(await this.reconcile()))
+  }
+
+  readUsageLogin(): Promise<string | null> {
+    return this.serialize(async () => {
+      const current = await this.backend.read()
+      return current
+        ? createHash('sha256')
+            .update(current.authMethod)
+            .update('\0')
+            .update(current.refreshToken ?? current.identity?.subject ?? current.contents)
+            .digest('hex')
+        : null
+    })
   }
 
   addCurrentAccount(): Promise<AntigravityAccountState> {

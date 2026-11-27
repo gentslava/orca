@@ -22,7 +22,7 @@
 1 src/main/agent-hooks/server/server-runtime-env.ts
 1 src/main/agent-hooks/server/server-status-hook-lifecycle.ts
 2 src/main/agent-hooks/wsl-relay/wsl-hook-relay-deps.ts
-3 src/main/agent-hooks/wsl-relay/wsl-hook-relay-launch.ts
+2 src/main/agent-hooks/wsl-relay/wsl-hook-relay-launch.ts
 2 src/main/agent-launch/trust/agent-trust-ownership-ledger.ts
 10 src/main/agent-launch/trust/agent-trust-presets.ts
 2 src/main/agent-launch/trust/agent-workspace-trust-spawn.ts
@@ -49,7 +49,7 @@
 2 src/main/ai-vault/scanners/devin/session-scanner-devin-db.ts
 1 src/main/ai-vault/scanners/hermes/session-scanner-hermes-sources.ts
 1 src/main/ai-vault/scanners/omp/omp-session-root.ts
-2 src/main/ai-vault/scanners/opencode/reader-transport/opencode-wsl-runtime-preparation.ts
+1 src/main/ai-vault/scanners/opencode/reader-transport/opencode-wsl-runtime-preparation.ts
 5 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-spawn.ts
 2 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-wsl-client.ts
 1 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-open.ts
@@ -62,7 +62,6 @@
 4 src/main/antigravity/native-credential-backend.ts
 1 src/main/antigravity/native-file-credentials.ts
 12 src/main/antigravity/native-windows-credentials.ts
-1 src/main/antigravity/native-wsl-credentials.ts
 6 src/main/artifacts/artifact-cloud-auth-context.ts
 7 src/main/artifacts/artifact-cloud-service.ts
 2 src/main/artifacts/artifact-create-intent-store.ts # sign-out clear (bestEffortFsyncDirectorySync) plus writeArtifactFileWhileCurrent, whose only sync step is the fenced renameSync; was 8
@@ -184,7 +183,6 @@
 1 src/main/claude-accounts/profiles/setup/claude-profile-sharing.ts
 1 src/main/claude-accounts/profiles/wsl/claude-profile-wsl-entry.ts
 1 src/main/claude-accounts/profiles/wsl/claude-profile-wsl-provision.ts
-1 src/main/claude-accounts/profiles/wsl/claude-profile-wsl-router.ts
 2 src/main/claude-accounts/runtime-auth/keychain.ts
 5 src/main/claude-accounts/selection/claude-account-selection.ts
 1 src/main/claude-accounts/service.ts
@@ -199,7 +197,7 @@
 1 src/main/claude/child-process/claude-agent-sdk-process-spawn.ts
 1 src/main/claude/claude-stream-json-connection.ts
 1 src/main/claude/configuration/claude-diff-panel-auto-open.ts
-13 src/main/claude/configuration/claude-folder-trust-file.ts
+12 src/main/claude/configuration/claude-folder-trust-file.ts
 1 src/main/claude/configuration/claude-in-chrome-default.ts
 1 src/main/claude/configuration/claude-rejected-api-key.ts
 1 src/main/claude/conversation-naming/claude-naming-invocation.ts
@@ -231,7 +229,6 @@
 14 src/main/cli/launchers/linux-terminal-orca-cli-shim.ts
 1 src/main/cli/launchers/orca-cli-child-path.ts
 1 src/main/cli/launchers/this-app-orca-cli-launcher.ts # resolves this app's CLI launcher once per data folder per run (the Linux packaged shim check), for the MCP agent-file and terminal entries
-1 src/main/cli/wsl/wsl-cli-installer.ts
 1 src/main/cli/wsl/wsl-cli-registration-reconciliation.ts
 6 src/main/cli/wsl/wsl-cli-registration-registry.ts
 1 src/main/cli/wsl/wsl-managed-cli.ts
@@ -239,11 +236,10 @@
 1 src/main/codex-accounts/credentials/codex-credential-absence-grace.ts
 5 src/main/codex-accounts/credentials/managed-codex-auth-readiness.ts
 1 src/main/codex-accounts/legacy-wsl-auth-drain/legacy-wsl-runtime-auth-drain-script-harness.ts
-4 src/main/codex-accounts/legacy-wsl-auth-drain/legacy-wsl-runtime-auth-drain.ts
-10 src/main/codex-accounts/login/codex-login-session.ts
+9 src/main/codex-accounts/login/codex-login-session.ts
 2 src/main/codex-accounts/managed-homes/codex-config-mirror.ts
-7 src/main/codex-accounts/managed-homes/codex-managed-home-lifecycle.ts
-4 src/main/codex-accounts/managed-homes/codex-managed-home-path.ts
+3 src/main/codex-accounts/managed-homes/codex-managed-home-lifecycle.ts
+2 src/main/codex-accounts/managed-homes/codex-managed-home-path.ts
 2 src/main/codex-accounts/managed-homes/guest-codex-account-homes.ts
 5 src/main/codex-accounts/managed-homes/host-codex-managed-home-ownership.ts
 3 src/main/codex-accounts/runtime-home/credentials/runtime-home-service-auth-core.ts
@@ -258,7 +254,6 @@
 1 src/main/codex-accounts/runtime-home/runtime-home-service-paths.ts
 1 src/main/codex-accounts/runtime-home/runtime-home-service-sync.ts
 1 src/main/codex-accounts/runtime-home/wsl/runtime-home-service-wsl.ts
-1 src/main/codex-accounts/runtime-home/wsl/wsl-codex-auth-batch-reader.ts
 2 src/main/codex-accounts/service.ts
 10 src/main/codex-cli/command.ts
 1 src/main/codex-usage/codex-usage-provider.ts
@@ -312,7 +307,7 @@
 1 src/main/codex/history/resume/codex-session-resume-preparation.ts
 1 src/main/codex/history/rollouts/codex-session-file-listing.ts
 2 src/main/codex/history/rollouts/codex-session-link.ts
-2 src/main/codex/history/shared-store/wsl-codex-account-history.ts
+1 src/main/codex/history/shared-store/wsl-codex-account-history.ts
 3 src/main/codex/hooks/definitions/codex-hook-definition.ts
 9 src/main/codex/hooks/installation/codex-hook-launch-preparation.ts # unchanged from main: Off now routes its strip through the worker (strip runs on main only when the worker is down)
 2 src/main/codex/hooks/installation/codex-hook-local-install.ts # was 14 on main; the pass now runs on the trust worker, main keeps legacy cleanup and status
@@ -511,7 +506,7 @@
 4 src/main/git/command-runner/host-routing/wsl-command-resolution.ts
 2 src/main/git/command-runner/host-routing/wsl-drive-checkout-git-routing.ts
 2 src/main/git/command-runner/host-routing/wsl-git-read-environment.ts
-9 src/main/git/command-runner/host-routing/wsl-windows-checkout-git-probe.ts
+8 src/main/git/command-runner/host-routing/wsl-windows-checkout-git-probe.ts
 1 src/main/git/command-runner/hosted-cli/default-wsl-cli-fallback.ts
 2 src/main/git/command-runner/hosted-cli/gh-exec-file.ts
 2 src/main/git/command-runner/hosted-cli/gh-executable-absence-batch.ts
@@ -519,7 +514,6 @@
 4 src/main/git/command-runner/process-capture/command-exec-file.ts
 1 src/main/git/command-runner/process-capture/exec-file-capture-to-termination.ts
 2 src/main/git/command-runner/process-capture/exec-file-capture.ts
-1 src/main/git/command-runner/process-capture/wsl-process-group-termination.ts
 23 src/main/git/repositories/discovery/repo-detection.ts # main-checkout root lookup moved here from local-repo-registration.ts, which dropped to 1
 16 src/main/git/repositories/discovery/repo-git-marker-scan.ts
 2 src/main/git/worktrees/catalog/worktree-git-path.ts
@@ -619,8 +613,6 @@
 4 src/main/ipc/plugins/plugins.ts
 3 src/main/ipc/preflight/preflight-command-exec.ts
 1 src/main/ipc/preflight/preflight-local-env.ts
-1 src/main/ipc/preflight/preflight-wsl-agent-detection.ts
-1 src/main/ipc/preflight/preflight-wsl-command.ts
 5 src/main/ipc/profiles/orca-profile-org-members-handlers.ts
 12 src/main/ipc/profiles/orca-profiles.ts
 2 src/main/ipc/pty/delivery/producer-sync.ts
@@ -750,7 +742,6 @@
 10 src/main/mcp-servers/mcp-host-list.ts # the host MCP list reuses the bot tools file and its synchronous credential store, read per user action as bots-tools.ts does; +2 botOwnTools for a list from one credential store read, and botOwnTool now reading the store in its own file
 1 src/main/mcp-servers/mcp-shared-process-servers.ts # a shared server's relay request reads the host list as a launch does; only its one-time inline-header migration is synchronous
 2 src/main/mcp-servers/session-mcp-launch.ts # per chat launch and turn: the bot launch read of its tools file and its revision check (moved from bot-structured-session-wiring.ts)
-1 src/main/mcp-servers/terminal/terminal-mcp-cli-support.ts # runWslProcess for a WSL CLI's --help/--version probe, once per CLI and distro per 10 minutes
 1 src/main/mcp-servers/terminal/terminal-mcp-launch.ts # the stale-terminal count reads the host list once per count (after an MCP edit or a host start), in place of one read per terminal
 1 src/main/mcp-servers/terminal/terminal-mcp-servers.ts # wslGuestOrcaLauncher: the managed WSL CLI launcher, resolved once per data folder per run
 3 src/main/mcp-servers/terminal/terminal-mcp-wsl-servers.ts # resolves the managed WSL CLI launcher (getManagedWslCliDir) once per data folder per run; settleWslAutomountRoot reads a distro mount root once per distro start (cached after)
@@ -810,7 +801,6 @@
 1 src/main/opencode-usage/opencode-usage-provider.ts
 1 src/main/opencode-usage/store.ts
 1 src/main/opencode/acp/opencode-acp-connection.ts
-1 src/main/opencode/model-launch/opencode-launch-capabilities.ts
 1 src/main/opencode/model-launch/opencode-launch-model-context.ts
 2 src/main/opencode/opencode-private-server.ts
 2 src/main/opencode/opencode-pty-launch.ts
@@ -823,7 +813,7 @@
 3 src/main/opencode/status-hooks/overlay-dir-gc.ts
 1 src/main/opencode/text-tasks/opencode-text-task.ts
 1 src/main/opencode/text-tasks/wsl/opencode-wsl-text-task-entry.ts
-4 src/main/opencode/text-tasks/wsl/opencode-wsl-text-task.ts
+3 src/main/opencode/text-tasks/wsl/opencode-wsl-text-task.ts
 2 src/main/opencode/transcripts/opencode-transcript-import.ts
 7 src/main/orca-profiles/catalog/other-profile-workspace-catalog.ts
 2 src/main/orca-profiles/catalog/profile-project-presence.ts
@@ -1287,12 +1277,8 @@
 1 src/main/server/serve-pairing-readiness.ts
 2 src/main/skills/cloud/skill-cloud-auth.ts
 1 src/main/skills/cloud/skill-cloud-package-service.ts
-1 src/main/skills/discovery/claude-plugin-skill-sources-wsl.ts
 1 src/main/skills/discovery/skill-discovery-sources.ts
-1 src/main/skills/discovery/skill-discovery-wsl.ts
-1 src/main/skills/filesystem/skill-wsl-install-filesystem.ts
-2 src/main/skills/providers/skill-provider-runtime-roots.ts
-1 src/main/skills/providers/skill-wsl-provider-detection.ts
+1 src/main/skills/providers/skill-provider-runtime-roots.ts
 1 src/main/speech/dictation-cleanup-service.ts
 2 src/main/speech/model-cache-path.ts
 6 src/main/speech/model-manager.ts
@@ -1401,7 +1387,6 @@
 4 src/main/text-generation/failures/source-control-agent-failure.ts
 1 src/main/text-generation/models/commit-message-model-discovery-policy.ts
 4 src/main/text-generation/models/commit-message-model-discovery.ts
-1 src/main/text-generation/policies/source-control-read-only-policy.ts
 1 src/main/text-generation/requests/jira-issue-summary-requests.ts
 1 src/main/tray/system-tray.ts
 2 src/main/updater/lifecycle/main-window-updater.ts
@@ -1440,7 +1425,7 @@
 3 src/main/worker-threads/forked-child-entry-path.ts
 2 src/main/worker-threads/worker-send-ledger.ts
 2 src/main/workspace-hooks/hook-orca-cli-env.ts
-5 src/main/workspace-hooks/hooks.ts
+4 src/main/workspace-hooks/hooks.ts
 5 src/main/workspace-hooks/issue-command-file.ts
 5 src/main/workspace-hooks/worktree-runner-script.ts
 8 src/main/workspaces/catalog/folder-repo-git-conversion.ts
@@ -1471,14 +1456,8 @@
 4 src/main/wsl/discovery/wsl-installation.ts
 1 src/main/wsl/discovery/wsl-registered-distro-fallback.ts
 2 src/main/wsl/execution/wsl-exe-process.ts
-3 src/main/wsl/execution/wsl-guest-environment.ts
-1 src/main/wsl/execution/wsl-guest-node-helper.ts
-1 src/main/wsl/execution/wsl-guest-pane-processes.ts
-1 src/main/wsl/execution/wsl-guest-process-table.ts
-1 src/main/wsl/execution/wsl-interop-health.ts
 2 src/main/wsl/execution/wsl-interop-spawn-directory.ts
 2 src/main/wsl/execution/wsl-node-runtime-prefetch.ts
-4 src/main/wsl/execution/wsl-runner.ts
 2 src/main/wsl/filesystem/unc-path-access.ts
 4 src/main/wsl/filesystem/wsl-automount-root.ts
 1 src/main/wsl/filesystem/wsl-drive-project-new-default.ts
@@ -1486,10 +1465,8 @@
 5 src/main/wsl/filesystem/wsl-drive-unc-conversion-startup.ts
 7 src/main/wsl/filesystem/wsl-drive-unc-conversion-stores.ts
 2 src/main/wsl/filesystem/wsl-drive-unc-mounts.ts
-1 src/main/wsl/filesystem/wsl-guest-drive-path.ts
 8 src/main/wsl/filesystem/wsl-guest-windows-drive-path.ts
 1 src/main/wsl/filesystem/wsl-unc-delete.ts
-1 src/main/wsl/history/wsl-fish-history-cleanup.ts
 4 src/main/wsl/host-lifecycle/wsl-host-connector.ts
 6 src/main/wsl/host-lifecycle/wsl-host-kept-for-peers.ts
 2 src/main/wsl/host-lifecycle/wsl-host-removal.ts

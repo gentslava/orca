@@ -35,6 +35,7 @@ import { DIAGNOSTICS_METHODS } from './host-management/diagnostics'
 import { TERMINAL_DAEMON_METHODS } from './terminal/terminal-daemon'
 import { ACCOUNT_METHODS } from './accounts/accounts'
 import { ANTIGRAVITY_ACCOUNT_METHODS } from './accounts/antigravity-accounts'
+import { ANTIGRAVITY_CLI_QUOTA_METHODS } from './accounts/antigravity-cli-quota'
 import { ORCA_ACCOUNT_METHODS } from './orca-account'
 import { GOOGLE_METHODS } from './google'
 import { GOOGLE_READ_METHODS } from './google-read'
@@ -224,6 +225,7 @@ const SERVICE_RPC_METHODS = [
   ...TERMINAL_DAEMON_METHODS,
   ...ACCOUNT_METHODS,
   ...ANTIGRAVITY_ACCOUNT_METHODS,
+  ...ANTIGRAVITY_CLI_QUOTA_METHODS,
   ...ORCA_ACCOUNT_METHODS,
   ...GOOGLE_METHODS,
   ...GOOGLE_READ_METHODS,

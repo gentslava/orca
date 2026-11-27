@@ -13,6 +13,8 @@ import {
 import type { ProviderRateLimits } from '../../../shared/agent-usage/rate-limits/rate-limit-types'
 
 export abstract class RateLimitServicePolling extends RateLimitServiceFetchQueue {
+  protected pollAntigravityCliQuota: (() => void) | undefined
+
   setPollingInterval(ms: number): void {
     this.pollInterval = normalizePollingInterval(ms)
     if (this.timer) {
@@ -24,6 +26,7 @@ export abstract class RateLimitServicePolling extends RateLimitServiceFetchQueue
   protected startTimer(): void {
     this.stopTimer()
     this.timer = setInterval(() => {
+      this.pollAntigravityCliQuota?.()
       if (!this.shouldBackgroundPoll()) {
         return
       }

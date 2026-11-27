@@ -80,9 +80,11 @@ export async function withAntigravityChatBackend(
   target: AntigravityAccountTarget,
   state: AntigravityAccountState
 ): Promise<AntigravityAccountState> {
+  const quotaAutoRefresh = runtime.requireStore().getSettings().antigravityCliQuotaEnabled === true
+  const accountState = { ...state, quotaAutoRefresh }
   // Chats never run in WSL.
   if (target.runtime !== 'host') {
-    return state
+    return accountState
   }
   // A cold agy check takes seconds; the rows don't wait for it, and a later refresh shows it.
   const route = await withTimeout(
@@ -91,12 +93,12 @@ export async function withAntigravityChatBackend(
     null
   )
   if (route === null) {
-    return state
+    return accountState
   }
   const agy = route.orcaHome ? false : route.agy
   const version = agy === 'signedIn' ? readyAntigravityHostAcpVersion() : null
   return {
-    ...state,
+    ...accountState,
     chatUsesAgy: agy === 'signedIn',
     chatAgySignedOut: agy === 'signedOut',
     ...(route.orcaHome ? { chatKeyOnAgy: true } : {}),

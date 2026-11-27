@@ -38,6 +38,8 @@ export type ExtraUsageBalance = CurrencyExtraUsageBalance | CreditExtraUsageBala
 
 export type RateLimitBucket = RateLimitWindow & {
   name: string
+  group?: string
+  windowName?: string
 }
 
 export type UsageRateLimitSource = 'oauth' | 'cli' | 'web' | 'live-session'
@@ -96,6 +98,7 @@ export type ProviderRateLimits = {
   provider:
     | 'claude'
     | 'codex'
+    | 'antigravity'
     | 'opencode-go'
     | 'kimi'
     | 'minimax'
@@ -179,6 +182,8 @@ export type CursorAccountStatus = {
 export type RateLimitState = {
   claude: ProviderRateLimits | null
   codex: ProviderRateLimits | null
+  antigravityCli?: ProviderRateLimits | null
+  antigravityCliQuotaEnabled?: boolean
   opencodeGo: ProviderRateLimits | null
   kimi: ProviderRateLimits | null
   minimax: ProviderRateLimits | null

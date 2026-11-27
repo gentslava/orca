@@ -41,6 +41,12 @@ export function createProviderAccountServices(
   const agentView = getClaudeAgentViewService()
   void agentView.reconcile(store.getSettings())
   const rateLimits = new RateLimitService()
+  rateLimits.setAntigravityCliQuotaTarget(() => {
+    const settings = store.getSettings()
+    return settings.antigravityCliQuotaEnabled === true
+      ? resolveLocalAccountUsageTarget(settings)
+      : null
+  })
   const codexRuntimeHome = new CodexRuntimeHomeService(store)
   const codexAccounts = new CodexAccountService(
     store,
@@ -69,6 +75,14 @@ export function createProviderAccountServices(
     store.getSettings()
   )
   store.onSettingsChanged((updates, settings) => {
+    if (
+      'antigravityCliQuotaEnabled' in updates ||
+      'localAccountRuntime' in updates ||
+      'localAccountWslDistro' in updates ||
+      'localWindowsRuntimeDefault' in updates
+    ) {
+      rateLimits.antigravityCliQuotaSettingChanged()
+    }
     void agentView.reconcile(settings)
     if (updates.claudeOAuthUsageEnabled === false) {
       rateLimits.discardClaudeOAuthUsage()

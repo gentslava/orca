@@ -103,6 +103,7 @@ function antigravityOrcaHomeCatalogFingerprints(): string[] {
 /** What agy's own login served: the model lists taken with it, the chats running on it, and the
  *  checks that vouched for it. The catalog of the HOME chats launch with goes once that is known. */
 function forgetAgyLogin(runtime: OrcaRuntimeService): void {
+  runtime.getUsageRateLimits()?.antigravityCliQuotaSettingChanged()
   noteAgyLoginChanged()
   const launchHome = sharedAgyLaunchHome(runtime)
   // Orca's homes list with agy's Google login too (Enterprise, the retired server's chats).
@@ -201,6 +202,9 @@ export const ANTIGRAVITY_ACCOUNT_METHODS = [
       if (target.runtime === 'host' && switched) {
         forgetAgyLogin(ctx.runtime)
       } else {
+        if (switched) {
+          ctx.runtime.getUsageRateLimits()?.antigravityCliQuotaSettingChanged()
+        }
         restartIdleAgyChats(target)
       }
       return withAntigravityChatBackend(ctx.runtime, target, state)

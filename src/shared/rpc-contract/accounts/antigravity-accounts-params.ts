@@ -20,6 +20,14 @@ export const AntigravityAccountMutationParams = lazyZodSchema(() =>
     .strict()
 )
 
+export const AntigravityQuotaSettingsParams = lazyZodSchema(() =>
+  z.strictObject({ enabled: z.boolean() })
+)
+
+export const AntigravityQuotaRefreshParams = lazyZodSchema(() =>
+  AntigravityAccountTargetParams.optional()
+)
+
 export const AntigravityChatSignInStartParams = lazyZodSchema(() =>
   z.strictObject({
     intent: z.enum(['signIn', 'changeAccount']).optional()

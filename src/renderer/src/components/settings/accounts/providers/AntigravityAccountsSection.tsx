@@ -21,6 +21,7 @@ import { structuredChatUnavailableOnPlatform } from '../../../../../../shared/ag
 import { SettingsGroup } from '../../section-layout/SettingsGroup'
 import { useOnLaterChange } from './use-on-later-change'
 import { useAntigravityAccountRun } from './use-antigravity-account-run'
+import { SettingsSwitchRow } from '../../form-controls/SettingsFormControls'
 import { ACCOUNTS_SECTION_IDS } from '../accounts-search'
 import {
   AntigravityAgyAccountRows,
@@ -217,6 +218,21 @@ export function AntigravityAccountsSection({
           run={(action, accountId) => void run(action, accountId)}
           {...(signInControls ? { signIn: signInControls } : {})}
         />
+        {state?.quotaAutoRefresh !== undefined ? (
+          <SettingsSwitchRow
+            label={t(
+              'accounts.antigravity.quotaAutoRefresh',
+              'Refresh Antigravity quota in the background'
+            )}
+            description={t(
+              'accounts.antigravity.quotaAutoRefreshDescription',
+              'Show Gemini and other Antigravity quotas in the status bar. Orca checks the current CLI account every 15 minutes.'
+            )}
+            checked={state.quotaAutoRefresh}
+            disabled={busy}
+            onChange={() => void run(state.quotaAutoRefresh ? 'DisableQuota' : 'EnableQuota')}
+          />
+        ) : null}
         {runtimeRow}
       </SettingsGroup>
       {chats &&

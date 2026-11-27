@@ -31,7 +31,7 @@ import {
 export async function callAntigravityAccounts(
   owner: RuntimeClientTarget,
   target: AntigravityAccountTarget,
-  action: 'List' | 'AddCurrent' | 'Select' | 'Remove',
+  action: 'List' | 'AddCurrent' | 'Select' | 'Remove' | 'EnableQuota' | 'DisableQuota',
   accountId?: string
 ): Promise<AntigravityAccountState> {
   if (owner.kind === 'environment') {
@@ -41,12 +41,28 @@ export async function callAntigravityAccounts(
       'This execution host does not support native Antigravity Accounts yet. Update Orca on that host.'
     )
   }
+  if (action === 'EnableQuota' || action === 'DisableQuota') {
+    await callRuntimeRpc(
+      owner,
+      'accounts.antigravitySetQuotaAutoRefresh',
+      { enabled: action === 'EnableQuota' },
+      { timeoutMs: 10_000 }
+    )
+    return callAntigravityAccounts(owner, target, 'List')
+  }
   return callRuntimeRpc(
     owner,
     `accounts.antigravity${action}`,
     action === 'List' || action === 'AddCurrent' ? target : { target, accountId },
     { timeoutMs: 20_000 }
   )
+}
+
+export async function refreshAntigravityQuota(
+  owner: RuntimeClientTarget,
+  target?: AntigravityAccountTarget
+): Promise<void> {
+  await callRuntimeRpc(owner, 'accounts.antigravityRefreshQuota', target, { timeoutMs: 60_000 })
 }
 
 async function assertChatSignInHost(owner: RuntimeClientTarget): Promise<void> {

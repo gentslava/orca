@@ -3,8 +3,8 @@ import {
   buildWslCapturedLoginShellCommand,
   buildWslExecArgs
 } from '../../../shared/shell/wsl/wsl-login-shell-command'
-import { resolveWslExecutablePath } from './wsl-executable-path'
-import { resolveWslInteropSpawnCwd } from './wsl-interop-spawn-directory'
+import { resolveWslExecutablePathAsync } from './wsl-executable-path'
+import { resolveWslInteropSpawnCwdAsync } from './wsl-interop-spawn-directory'
 
 /** Cache the distro login environment to retain user PATH without repeated blocking profile/login-shell probes (#14288/#9768). */
 
@@ -62,13 +62,18 @@ async function probeGuestEnvironment(
     `printf '%s\\0%s\\0%s' "$PATH" "$HOME" "$_orca_env"`
   ].join('\n')
   const captured = buildWslCapturedLoginShellCommand(script)
+  const deadline = Date.now() + Math.min(PROBE_TIMEOUT_MS, budgetMs)
+  const [program, cwd] = await Promise.all([
+    resolveWslExecutablePathAsync(),
+    resolveWslInteropSpawnCwdAsync()
+  ])
   const result = await runProcess({
-    program: resolveWslExecutablePath(),
+    program,
     args: buildWslExecArgs(distro, ['sh', '-c', captured.command]),
     // This path spawns wsl.exe directly; request UTF-8 or its UTF-16 errors corrupt the NUL-delimited payload (#9010).
     env: { ...process.env, WSL_UTF8: '1' },
-    cwd: resolveWslInteropSpawnCwd(),
-    timeoutMs: Math.min(PROBE_TIMEOUT_MS, budgetMs),
+    cwd,
+    timeoutMs: Math.max(1, deadline - Date.now()),
     maxOutputBytes: PROBE_MAX_OUTPUT_BYTES
   })
   if (result.timedOut) {

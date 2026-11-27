@@ -36,13 +36,19 @@ export type OwnerUsageState =
 export type OwnerUsageFailureReason = OwnerAccountsFailure | 'unsupported-owner'
 
 type UsageProviderKey = {
-  [K in keyof RateLimitState]-?: RateLimitState[K] extends ProviderRateLimits | null ? K : never
+  [K in keyof RateLimitState]-?: Exclude<
+    RateLimitState[K],
+    undefined
+  > extends ProviderRateLimits | null
+    ? K
+    : never
 }[keyof RateLimitState]
 
 // Why a Record: a new provider is a compile error here, not a silent leak of local numbers.
 const USAGE_PROVIDER_IDS: Record<UsageProviderKey, ProviderRateLimits['provider']> = {
   claude: 'claude',
   codex: 'codex',
+  antigravityCli: 'antigravity',
   opencodeGo: 'opencode-go',
   kimi: 'kimi',
   minimax: 'minimax',
@@ -56,10 +62,10 @@ const USAGE_PROVIDER_IDS: Record<UsageProviderKey, ProviderRateLimits['provider'
 export const USAGE_PROVIDER_KEYS = Object.keys(USAGE_PROVIDER_IDS) as UsageProviderKey[]
 
 export function mapProviders(
-  build: (key: UsageProviderKey) => ProviderRateLimits | null
+  build: (key: UsageProviderKey) => ProviderRateLimits | null | undefined
 ): Pick<RateLimitState, UsageProviderKey> {
   // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: one entry per UsageProviderKey.
-  return Object.fromEntries(USAGE_PROVIDER_KEYS.map((key) => [key, build(key)])) as Pick<
+  return Object.fromEntries(USAGE_PROVIDER_KEYS.map((key) => [key, build(key) ?? null])) as Pick<
     RateLimitState,
     UsageProviderKey
   >

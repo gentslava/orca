@@ -123,6 +123,7 @@ export type RuntimeStore = {
   getMobileClientTabSelections?: Store['getMobileClientTabSelections']
   setMobileClientTabSelections?: Store['setMobileClientTabSelections']
   getSettings(): {
+    antigravityCliQuotaEnabled?: GlobalSettings['antigravityCliQuotaEnabled']
     browserClientHostedRemoteEnabled?: GlobalSettings['browserClientHostedRemoteEnabled']
     autoRenameBranchFromWork?: GlobalSettings['autoRenameBranchFromWork']
     nativeChatAutoName?: GlobalSettings['nativeChatAutoName']
