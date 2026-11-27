@@ -37,6 +37,7 @@ export function MobileSessionHeader({
     presentedConnState,
     forceReconnectHost,
     worktreeName,
+    worktreeProjectName,
     activePanel,
     setShowHeaderMoreActions,
     requestLeaveSession,
@@ -108,7 +109,7 @@ export function MobileSessionHeader({
         title={
           routeBot
             ? routeBot.bot.name
-            : worktreeName || t('session.header.terminalTitle', 'Terminal')
+            : worktreeProjectName || worktreeName || t('session.header.terminalTitle', 'Terminal')
         }
         leading={routeBot ? <MobileBotAvatar avatar={routeBot.avatar} size={18} /> : undefined}
         connState={statusDot.state}
@@ -196,6 +197,7 @@ export function MobileSessionHeader({
             </>
           ) : (
             <NavBar
+              reserveTwoButtonSides
               leading={leading}
               center={titleBlock}
               trailing={trailing}
