@@ -74,6 +74,12 @@ export function registerLazyRuntimeEnvironmentHandlers(
     }
   )
 
+  registerLazyIpcHandleGroup(['runtimeEnvironments:rename'], async (ipc) => {
+    const { registerRuntimeEnvironmentRenameHandler } =
+      await import('./connectivity/runtime-environment-rename-handler')
+    registerRuntimeEnvironmentRenameHandler(getUserDataPath, ipc)
+  })
+
   ipcMain.removeHandler('runtimeEnvironments:retryConnectionsNow')
   registerLazyIpcHandleGroup(['runtimeEnvironments:retryConnectionsNow'], async (ipc) => {
     const { registerRuntimeEnvironmentRecoveryHandler } =
