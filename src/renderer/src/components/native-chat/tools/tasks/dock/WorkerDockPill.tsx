@@ -9,9 +9,11 @@ import {
 } from 'react'
 import { useLatestHandler } from '@/lib/use-latest-handler'
 import { cn } from '@/lib/class-names'
-import { WorkerDockGlyph } from './WorkerDockGlyph'
+import { WorkerDockGlyph, WorkerDockKindIcon } from './WorkerDockGlyph'
 import { workerChipAnchor } from './worker-chip-slot'
 import type { WorkerDockGlyph as Glyph } from './worker-dock-card-order'
+import type { WorkerDockEntry } from '../../../../../../../shared/orchestration/dock/worker-dock'
+import { workerDockKindLabel } from './worker-dock-labels'
 
 // Where Jump to latest rests while the open panel rises over the transcript: 8px above it.
 const JUMP_LIFT = '--native-chat-worker-jump-lift'
@@ -71,6 +73,7 @@ function WorkerDockChipLabel({ label, titled }: { label: string; titled: boolean
 export function WorkerDockPill({
   pill,
   glyph,
+  kind,
   label,
   spokenLabel = label,
   titled = false,
@@ -85,6 +88,7 @@ export function WorkerDockPill({
 }: {
   pill: RefObject<HTMLButtonElement | null>
   glyph: Glyph | false
+  kind?: WorkerDockEntry['kind']
   /** The chip's text: the one worker's title, how many run or need you, or what is known. */
   label: string
   /** The chip's count for assistive technology, both groups in full. */
@@ -105,6 +109,7 @@ export function WorkerDockPill({
   onEnterList: () => void
 }) {
   const t = useTranslate()
+  const accessibleTitle = kind ? `${workerDockKindLabel(t, kind)} · ${latest}` : latest
   return (
     <div
       className={cn(
@@ -126,12 +131,14 @@ export function WorkerDockPill({
         aria-controls={expanded ? listId : undefined}
         // A lone worker's chip is its title, which already names it.
         aria-label={
-          total === 0 || label === latest
+          total === 0
             ? undefined
-            : t('components.native-chat.workerDock.chipLabel', '{{label}}, latest: {{title}}', {
-                label: spokenLabel,
-                title: latest
-              })
+            : label === latest
+              ? accessibleTitle
+              : t('components.native-chat.workerDock.chipLabel', '{{label}}, latest: {{title}}', {
+                  label: spokenLabel,
+                  title: latest
+                })
         }
         className={cn(
           'flex min-w-0 items-center self-stretch rounded-[inherit] text-xs whitespace-nowrap hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
@@ -153,6 +160,9 @@ export function WorkerDockPill({
         }}
       >
         <WorkerDockChipDot glyph={glyph} terminal={commandsOnly} />
+        {kind && !(commandsOnly && kind === 'command' && glyph === 'running') ? (
+          <WorkerDockKindIcon kind={kind} />
+        ) : null}
         <WorkerDockChipLabel label={label} titled={titled} />
       </button>
       {expanded ? action : null}

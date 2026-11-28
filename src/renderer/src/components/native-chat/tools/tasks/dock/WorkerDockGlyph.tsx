@@ -7,6 +7,20 @@ import { cn } from '@/lib/class-names'
 import { observeOffscreenAnimation } from '@/lib/window-activity/offscreen-animation-pause'
 import type { WorkerDockGlyph as Glyph } from './worker-dock-card-order'
 
+import type { WorkerDockEntry } from '../../../../../../../shared/orchestration/dock/worker-dock'
+import { KIND_ICONS } from '../background-task-kind-icons'
+
+export function WorkerDockKindIcon({ kind }: { kind: WorkerDockEntry['kind'] }) {
+  const Icon = KIND_ICONS[kind === 'worker' ? 'agent' : kind]
+  return (
+    <Icon
+      aria-hidden="true"
+      data-worker-dock-kind={kind}
+      className="size-3.5 shrink-0 text-muted-foreground"
+    />
+  )
+}
+
 // A 3×3 wave lit along diagonals, top-left first: each diagonal (row + column, 0..4) starts 2s/7.5
 // later. Built once, so a re-render allocates nothing.
 const DOT_GRID_CELLS: readonly CSSProperties[] = Array.from({ length: 9 }, (_, index) => ({

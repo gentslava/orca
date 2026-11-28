@@ -127,9 +127,7 @@ export function WorkerDockRoster(props: {
     rangeExtractor: extractRange,
     enabled: morph.mounted && !smallRoster
   })
-  const small = rowWindow.drawsEveryRow
-  const virtual = rowWindow.virtualizer
-  const visibleItems = rowWindow.drawn
+  const { drawsEveryRow: small, virtualizer: virtual, drawn: visibleItems } = rowWindow
   const [fade, setFade] = useState<string | undefined>(undefined)
   const refade = useLatestHandler(() =>
     setFade(viewport.current ? workerDockScrollFade(viewport.current) : undefined)
@@ -308,6 +306,7 @@ export function WorkerDockRoster(props: {
       >
         <WorkerDockPill
           pill={pill}
+          kind={topRow?.kind}
           glyph={
             top ? workerDockGlyph({ ...top, retired: topRow?.retired }) : unlisted && 'running'
           }

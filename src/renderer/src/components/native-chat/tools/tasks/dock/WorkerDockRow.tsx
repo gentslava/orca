@@ -7,7 +7,7 @@ import {
 import { memo } from 'react'
 import { cn } from '@/lib/class-names'
 import { WorkerDockRowAction } from './WorkerDockRowAction'
-import { WorkerDockGlyph } from './WorkerDockGlyph'
+import { WorkerDockGlyph, WorkerDockKindIcon } from './WorkerDockGlyph'
 import { workerDockGlyph } from './worker-dock-card-order'
 import { useNowSnapshot } from '@/lib/window-activity/use-now'
 import { formatShortTimeAgo } from '@/lib/time-format/short-time-ago'
@@ -152,6 +152,7 @@ export const WorkerDockRow = memo(function WorkerDockRow({
             <WorkerDockGlyph glyph={row ? workerDockGlyph(row) : 'queued'} />
           )}
         </span>
+        {row && row.kind !== 'worker' ? <WorkerDockKindIcon kind={row.kind} /> : null}
         {/* A command reads as mono. */}
         <span
           className={cn('min-w-0 flex-1 truncate', row?.kind === 'command' && 'font-mono text-xs')}

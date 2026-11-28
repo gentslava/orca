@@ -131,6 +131,19 @@ describe('worker tray counts only agents as workers', () => {
 })
 
 describe('open tray', () => {
+  it('shows separate type icons for agent and command rows', () => {
+    const { container } = renderTray({
+      expanded: true,
+      tasks: [subagent('sub-1'), command('shell-1')]
+    })
+    expect(
+      container.querySelector('[data-worker-dock-row] [data-worker-dock-kind="agent"]')
+    ).not.toBeNull()
+    expect(
+      container.querySelector('[data-worker-dock-row] [data-worker-dock-kind="command"]')
+    ).not.toBeNull()
+  })
+
   it.each([
     // The open header reads like the chip.
     ['agents only', { workers: [worker('a'), worker('b')] }, '2 running', 'Workers'],
