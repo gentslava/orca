@@ -1,9 +1,10 @@
-import { isAbsolute } from 'node:path'
+import { isAbsolute, join } from 'node:path'
 import type {
   AntigravityAccountState,
   AntigravityAccountTarget
 } from '../../../../../shared/agent-accounts/antigravity/antigravity-account-types'
 import {
+  antigravityHostCatalogFingerprints,
   forgetAntigravityHostAcpChecks,
   isAntigravityHostAccountHome,
   readyAntigravityHostAcpVersion
@@ -17,12 +18,17 @@ import { getProfileUserDataPath } from '../../../../orca-profiles/profile-storag
 import type { OrcaRuntimeService } from '../../../orca-runtime'
 import {
   antigravityAgySignIn,
+  noteAgyLoginChanged,
   savedChatAuthIsPersonal,
   savedChatAuthUsesAgyLogin
 } from '../../../../antigravity/antigravity-chat-route'
 import { withTimeout } from '../../../../../shared/concurrency/promise-timeout-fallback'
 import { antigravityUsesFileStoreAsync } from '../../../../antigravity/native-file-credentials'
 
+import { antigravityAgyOrcaAccountHome } from '../../../../antigravity/antigravity-agy-orca-home'
+import { ANTIGRAVITY_CHAT_HOME_FOLDER } from '../../../../antigravity/antigravity-chat-home'
+import { agentModelCatalogFingerprint } from '../../../../native-chat/agent-model-catalog/agent-model-catalog-fingerprint'
+import { agentModelCatalogStore } from '../../../../native-chat/agent-model-catalog/agent-model-catalog-store'
 const CHAT_BACKEND_WAIT_MS = 1_500
 const LAUNCH_HOME_WAIT_MS = 1_000
 
@@ -62,7 +68,7 @@ export function readAgySignInInBackground(runtime: OrcaRuntimeService): void {
 /** The HOME new host agy chats launch with, when it shares the login an account switch changes;
  *  a login shell or the agent's settings can set one other than Orca's own. Unknown after
  *  LAUNCH_HOME_WAIT_MS, or when unreadable. */
-export function sharedAgyLaunchHome(runtime: OrcaRuntimeService): Promise<string | undefined> {
+function sharedAgyLaunchHome(runtime: OrcaRuntimeService): Promise<string | undefined> {
   const read = async (): Promise<string | undefined> => {
     // agy's login is in the system keyring, which every HOME shares, unless it keeps a file per HOME.
     if (process.platform === 'win32' || (await antigravityUsesFileStoreAsync(process.env))) {
@@ -86,9 +92,11 @@ export async function withAntigravityChatBackend(
   target: AntigravityAccountTarget,
   state: AntigravityAccountState
 ): Promise<AntigravityAccountState> {
+  const quotaAutoRefresh = runtime.requireStore().getSettings().antigravityCliQuotaEnabled === true
+  const accountState = { ...state, quotaAutoRefresh }
   // Chats never run in WSL.
   if (target.runtime !== 'host') {
-    return state
+    return accountState
   }
   // Found as a launch finds it (PATH, then Google's install folders), on the host, not in WSL.
   const input = await withTimeout(
@@ -107,12 +115,12 @@ export async function withAntigravityChatBackend(
     null
   )
   if (route === null) {
-    return { ...state, ...installed }
+    return { ...accountState, ...installed }
   }
   const agy = route.orcaHome ? false : route.agy
   const version = agy === 'signedIn' ? readyAntigravityHostAcpVersion() : null
   return {
-    ...state,
+    ...accountState,
     ...installed,
     chatUsesAgy: agy === 'signedIn',
     chatAgySignedOut: agy === 'signedOut',
@@ -143,4 +151,35 @@ export function restartIdleAgyChats(target: AntigravityAccountTarget): void {
       })
     }
   }
+}
+
+function antigravityOrcaHomeCatalogFingerprints(): string[] {
+  const data = getProfileUserDataPath()
+  return [
+    antigravityAgyOrcaAccountHome(data),
+    { variable: 'GEMINI_HOME', path: join(data, ANTIGRAVITY_CHAT_HOME_FOLDER) }
+  ].map((accountHome) =>
+    agentModelCatalogFingerprint({ agent: 'antigravity', accountHome, wslDistro: null })
+  )
+}
+
+/** What agy's own login served: the model lists taken with it, the chats running on it, and the
+ *  checks that vouched for it. The catalog of the HOME chats launch with goes once that is known. */
+export function forgetAgyLogin(runtime: OrcaRuntimeService): void {
+  runtime.getUsageRateLimits()?.antigravityCliQuotaSettingChanged()
+  noteAgyLoginChanged()
+  const launchHome = sharedAgyLaunchHome(runtime)
+  // Orca's homes list with agy's Google login too (Enterprise, the retired server's chats).
+  const own = [...antigravityHostCatalogFingerprints(), ...antigravityOrcaHomeCatalogFingerprints()]
+  agentModelCatalogStore.forgetSeenRows(own)
+  // A listing started after the change, such as a Refresh, is already the new login's.
+  const before = agentModelCatalogStore.runningListings()
+  void launchHome.then((home) => {
+    const launch = home ? antigravityHostCatalogFingerprints(home) : []
+    agentModelCatalogStore.forgetSeenRows(
+      launch.filter((key) => !own.includes(key)),
+      before
+    )
+  })
+  restartIdleAgyChats({ runtime: 'host' })
 }

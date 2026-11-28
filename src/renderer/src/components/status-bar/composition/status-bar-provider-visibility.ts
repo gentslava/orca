@@ -20,6 +20,7 @@ export type UsageProviderSettings = Pick<
 type UsageProviderSnapshots = {
   claude: ProviderRateLimits | null | undefined
   codex: ProviderRateLimits | null | undefined
+  antigravityCli?: ProviderRateLimits | null
   opencodeGo: ProviderRateLimits | null | undefined
   kimi: ProviderRateLimits | null | undefined
   minimax: ProviderRateLimits | null | undefined
@@ -153,6 +154,7 @@ export function isUsageEmptyState(
     !hasUsageProviderSettings(settings) &&
     !isProviderConfigured(providers.claude) &&
     !isProviderConfigured(providers.codex) &&
+    !isProviderConfigured(providers.antigravityCli) &&
     !isProviderConfigured(providers.opencodeGo) &&
     !isProviderConfigured(providers.kimi) &&
     !isProviderConfigured(providers.minimax) &&

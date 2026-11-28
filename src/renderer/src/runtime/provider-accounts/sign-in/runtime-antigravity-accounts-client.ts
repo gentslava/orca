@@ -33,7 +33,14 @@ export async function callAntigravityAccounts(
   owner: RuntimeClientTarget,
   target: AntigravityAccountTarget,
   /** `ReadCurrent` only where a List answered `currentAccount.unread`, so the host has it. */
-  action: 'List' | 'ReadCurrent' | 'AddCurrent' | 'Select' | 'Remove',
+  action:
+    | 'List'
+    | 'ReadCurrent'
+    | 'AddCurrent'
+    | 'Select'
+    | 'Remove'
+    | 'EnableQuota'
+    | 'DisableQuota',
   accountId?: string
 ): Promise<AntigravityAccountState> {
   if (owner.kind === 'environment') {
@@ -43,6 +50,10 @@ export async function callAntigravityAccounts(
       'This execution host does not support native Antigravity Accounts yet. Update Orca on that host.'
     )
   }
+  if (action === 'EnableQuota' || action === 'DisableQuota') {
+    await setAntigravityQuotaAutoRefresh(owner, action === 'EnableQuota')
+    return callAntigravityAccounts(owner, target, 'List')
+  }
   return callRuntimeRpc(
     owner,
     `accounts.antigravity${action}`,
@@ -50,6 +61,25 @@ export async function callAntigravityAccounts(
     // Every action but List may wait on the keychain dialog that reading agy's login can raise.
     { timeoutMs: action === 'List' ? 20_000 : ANTIGRAVITY_ACCOUNT_ACTION_TIMEOUT_MS }
   )
+}
+
+export async function setAntigravityQuotaAutoRefresh(
+  owner: RuntimeClientTarget,
+  enabled: boolean
+): Promise<void> {
+  await callRuntimeRpc(
+    owner,
+    'accounts.antigravitySetQuotaAutoRefresh',
+    { enabled },
+    { timeoutMs: 10_000 }
+  )
+}
+
+export async function refreshAntigravityQuota(
+  owner: RuntimeClientTarget,
+  target?: AntigravityAccountTarget
+): Promise<void> {
+  await callRuntimeRpc(owner, 'accounts.antigravityRefreshQuota', target, { timeoutMs: 60_000 })
 }
 
 async function assertChatSignInHost(owner: RuntimeClientTarget): Promise<void> {

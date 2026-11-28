@@ -1,4 +1,4 @@
-import { isAbsolute, join } from 'node:path'
+import { isAbsolute } from 'node:path'
 import { defineMethod, defineStreamingMethod, type RpcContext } from '../../core'
 import { rpcCallerOperationKey } from '../../callers/rpc-caller-identity'
 import type { OrcaRuntimeService } from '../../../orca-runtime'
@@ -12,26 +12,18 @@ import {
 } from '../../../../../shared/rpc-contract/accounts/antigravity-accounts-params'
 import { AntigravityChatAuthConfigSchema } from '../../../../../shared/agent-accounts/antigravity/antigravity-chat-auth-config'
 import { getAntigravityAccountService } from '../../../../antigravity/native-account-host'
-import { antigravityAgyOrcaAccountHome } from '../../../../antigravity/antigravity-agy-orca-home'
-import { ANTIGRAVITY_CHAT_HOME_FOLDER } from '../../../../antigravity/antigravity-chat-home'
-import { agentModelCatalogFingerprint } from '../../../../native-chat/agent-model-catalog/agent-model-catalog-fingerprint'
-import { agentModelCatalogStore } from '../../../../native-chat/agent-model-catalog/agent-model-catalog-store'
 import {
+  forgetAgyLogin,
   readAgySignInInBackground,
   restartIdleAgyChats,
-  sharedAgyLaunchHome,
   withAntigravityChatBackend
 } from './antigravity-chat-backend'
 import {
   lastAntigravityAgySignedOut,
-  noteAgyLoginChanged,
   onAntigravityChatApiKeyChanged,
   savedChatAuthUsesGeminiApiKey
 } from '../../../../antigravity/antigravity-chat-route'
-import {
-  antigravityHostCatalogFingerprints,
-  readyAntigravityHostAcpVersion
-} from '../../../../antigravity/antigravity-host-acp'
+import { readyAntigravityHostAcpVersion } from '../../../../antigravity/antigravity-host-acp'
 import {
   cancelAntigravityChatSignIn,
   completeAntigravityChatSignIn,
@@ -91,36 +83,6 @@ function detectChatAuth(runtime: OrcaRuntimeService) {
     agyVersion: readyAntigravityHostAcpVersion,
     agySignedOut: lastAntigravityAgySignedOut
   })
-}
-
-function antigravityOrcaHomeCatalogFingerprints(): string[] {
-  const data = getProfileUserDataPath()
-  return [
-    antigravityAgyOrcaAccountHome(data),
-    { variable: 'GEMINI_HOME', path: join(data, ANTIGRAVITY_CHAT_HOME_FOLDER) }
-  ].map((accountHome) =>
-    agentModelCatalogFingerprint({ agent: 'antigravity', accountHome, wslDistro: null })
-  )
-}
-
-/** What agy's own login served: the model lists taken with it, the chats running on it, and the
- *  checks that vouched for it. The catalog of the HOME chats launch with goes once that is known. */
-function forgetAgyLogin(runtime: OrcaRuntimeService): void {
-  noteAgyLoginChanged()
-  const launchHome = sharedAgyLaunchHome(runtime)
-  // Orca's homes list with agy's Google login too (Enterprise, the retired server's chats).
-  const own = [...antigravityHostCatalogFingerprints(), ...antigravityOrcaHomeCatalogFingerprints()]
-  agentModelCatalogStore.forgetSeenRows(own)
-  // A listing started after the change, such as a Refresh, is already the new login's.
-  const before = agentModelCatalogStore.runningListings()
-  void launchHome.then((home) => {
-    const launch = home ? antigravityHostCatalogFingerprints(home) : []
-    agentModelCatalogStore.forgetSeenRows(
-      launch.filter((key) => !own.includes(key)),
-      before
-    )
-  })
-  restartIdleAgyChats({ runtime: 'host' })
 }
 
 /** Signs agy in where chats on agy's own home run it, with their environment. */
@@ -215,6 +177,9 @@ export const ANTIGRAVITY_ACCOUNT_METHODS = [
       if (target.runtime === 'host' && switched) {
         forgetAgyLogin(ctx.runtime)
       } else {
+        if (switched) {
+          ctx.runtime.getUsageRateLimits()?.antigravityCliQuotaSettingChanged()
+        }
         restartIdleAgyChats(target)
       }
       return withAntigravityChatBackend(ctx.runtime, target, state)

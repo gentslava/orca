@@ -25,6 +25,7 @@ const PROVIDER_DISPLAY_NAMES: Readonly<Record<string, string>> = {
   codex: 'Codex',
   'opencode-go': 'OpenCode Go',
   kimi: 'Kimi',
+  antigravity: 'Antigravity',
   minimax: 'MiniMax',
   grok: 'Grok',
   zcode: 'ZCode',
@@ -52,7 +53,7 @@ export function hasUsageData(provider: ProviderUsageWindows): boolean {
 /** The usage windows a provider shows, in order; session and weekly stay as null placeholders. */
 export function getUsageWindowSections(p: ProviderUsageWindows): UsageWindowSection[] {
   if (p.buckets?.length) {
-    // Drop the rollup only when it repeats a listed weekly pool.
+    // Drop the rollup only when it repeats a listed weekly pool, as Antigravity's most-used one does.
     const { weekly } = p
     const weeklyDuplicatesBucket =
       weekly !== null &&
