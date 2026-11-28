@@ -84,7 +84,7 @@ export function MobileNativeChatTurnDiffRollup({
   const styles = useThemedStyles(stylesSheet)
   const colors = useMobileColors()
   const t = useMobileTranslation()
-  const turnKey = diff.files[0]?.edits[0]?.target.messageId
+  const turnKey = diff.turnKey
   const [open, setOpen] = useMobileNativeChatDisclosure(`turn-diff-open:${turnKey}`, false)
   const [showAll, setShowAll] = useMobileNativeChatDisclosure(`turn-diff-files:${turnKey}`, false)
   const files = showAll ? diff.files : diff.files.slice(0, NATIVE_CHAT_TURN_DIFF_FILE_LIMIT)
