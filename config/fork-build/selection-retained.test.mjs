@@ -108,6 +108,33 @@ test('pins a retained fork branch independently of GitHub frozen closed-PR metad
   assert.equal(result.lifecycle[0].head, 'b'.repeat(40))
 })
 
+test('pins a continuation while matching the original closed PR branch', async () => {
+  const source = {
+    ...retainedSource,
+    ref: 'refs/heads/refresh-handset',
+    originalRef: retainedSource.ref
+  }
+  const input = {
+    openOwn: [],
+    readPr: async () => closedBranch(),
+    readRetainedHead: async (received) => {
+      assert.equal(received.ref, source.ref)
+      return 'b'.repeat(40)
+    }
+  }
+  const options = { ...retainedConfig, retainedHeadSources: { 7: source } }
+  const result = await resolveSelection(options, input)
+  assert.equal(result.selections[0].head.sha, 'b'.repeat(40))
+  assert.equal(result.selections[0].retainedHeadSource.closedHeadSha, 'a'.repeat(40))
+  await assert.rejects(
+    resolveSelection(
+      { ...options, retainedHeadSources: { 7: { ...source, originalRef: 'refs/heads/other' } } },
+      input
+    ),
+    /identity/
+  )
+})
+
 test('a missing or mismatched retained branch never falls back to the closed PR head', async () => {
   await assert.rejects(
     resolveSelection(retainedConfig, {

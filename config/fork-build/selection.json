@@ -169,6 +169,14 @@
     {
       "number": 48773,
       "reason": "Persist manually collapsed project sections across relaunches in the desktop Sessions sidebar and Session History."
+    },
+    {
+      "number": 34480,
+      "reason": "Keep mobile chat attachments compact and preserve workspace-scoped image retries."
+    },
+    {
+      "number": 50365,
+      "reason": "Keep the Settings switch for reset countdowns in compact usage chips."
     }
   ],
   "exclude": {
@@ -274,7 +282,8 @@
   "retainedHeadSources": {
     "34365": {
       "repository": "gentslava/orca",
-      "ref": "refs/heads/integration/refresh-5d7416c-photo-diagnostics-34365"
+      "ref": "refs/heads/integration/refresh-5d7416c-photo-diagnostics-34365",
+      "originalRef": "refs/heads/gentslava/android-picker-refusal-diagnostics"
     },
     "36634": {
       "repository": "gentslava/orca",
@@ -377,6 +386,14 @@
     "50365": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-5d7416c-quota-countdown-50365"
+    },
+    "34480": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-5d7416c-mobile-chat-images-34480"
+    },
+    "48762": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-5d7416c-worker-kind-icons-48762"
     }
   },
   "foreignHeadSources": {

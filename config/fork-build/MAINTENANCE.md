@@ -32,19 +32,22 @@ Use the HTTPS upstream URL if the checkout has no `upstream` remote. Verify the 
 
 Run the audit below on the live source and compare its `plan.json` with the last successful release plan. The planner records the discovered author inventory in `authorInventory`, resolved decisions in `lifecycle`, source heads in `selections` and `forkFeatures`, and successful upstream ancestry checks in `result.suppliedByUpstream`.
 
-| Field                    | Decision                                                                                                                                                          |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `seed`                   | Track required historically selected PRs even after closure.                                                                                                      |
-| `include`                | Add community work explicitly with a reason. Compare its diff, tests, CI and overlap with the existing composition.                                               |
-| `exclude`                | Record why a tracked PR is retired, obsolete or superseded by an explicitly named fork feature.                                                                   |
-| `replacements`           | Record a verified successor for a PR whose merge has not supplied the function. Audit the successor's actual behavior and dependents.                             |
-| `dependencies`           | Declare required application order. Reconcile stacked work with the lifecycle of each prerequisite.                                                               |
-| `retainClosed`           | Keep a required closed PR with a product reason. Use `retainedHeadSources` for a refreshed branch belonging to the original PR.                                   |
-| `foreignHeadSources`     | Use a reviewed, owner-maintained branch that descends from the exact foreign PR head. Explicit retention is required after closure.                               |
-| `forkHeadSources`        | Use a reviewed refresh of our own PR from the same fork. Composition still verifies that it descends from the exact original PR head.                             |
+| Field          | Decision                                                                                                                              |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `seed`         | Track required historically selected PRs even after closure.                                                                          |
+| `include`      | Add community work explicitly with a reason. Compare its diff, tests, CI and overlap with the existing composition.                   |
+| `exclude`      | Record why a tracked PR is retired, obsolete or superseded by an explicitly named fork feature.                                       |
+| `replacements` | Record a verified successor for a PR whose merge has not supplied the function. Audit the successor's actual behavior and dependents. |
+| `dependencies` | Declare required application order. Reconcile stacked work with the lifecycle of each prerequisite.                                   |
+| `retainClosed` | Keep a required closed PR with a product reason. Use `retainedHeadSources` for a refreshed branch belonging to the original PR.       |
+
+A retained PR can use a reviewed continuation branch in the same fork. Record the original closed PR branch in `originalRef` and the continuation in `ref`. The planner still requires the fetched continuation to descend from the exact closed PR head.
+
+| `foreignHeadSources` | Use a reviewed, owner-maintained branch that descends from the exact foreign PR head. Explicit retention is required after closure. |
+| `forkHeadSources` | Use a reviewed refresh of our own PR from the same fork. Composition still verifies that it descends from the exact original PR head. |
 | `reviewedUpstreamMerges` | Record the original head, exact merge SHA, merged time and evidence for previously verified merges with missing metadata. A Git ancestry check remains mandatory. |
-| `forkFeatures`           | Name required fork-only branches without an upstream PR and record their purpose.                                                                                 |
-| `compatibilityPatches`   | List required integration corrections in application order. Keep each correction tied to a real difference between selected components.                           |
+| `forkFeatures` | Name required fork-only branches without an upstream PR and record their purpose. |
+| `compatibilityPatches` | List required integration corrections in application order. Keep each correction tied to a real difference between selected components. |
 
 The workflow discovers open main-targeted PRs by the configured author, including drafts, and tracks those PRs after closure. Review new discoveries as well as closed, merged and retargeted PRs. A new upstream merge requires verification of the relevant code after later refactors. Inspect relevant community PRs with `gh pr list -R stablyai/orca --state open --limit 100` and `gh pr view NUMBER -R stablyai/orca`. Give priority to regressions affecting required behavior and package compatibility. Record product choices without an established priority for owner review while working through unrelated changes.
 

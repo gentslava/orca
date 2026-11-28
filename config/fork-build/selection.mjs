@@ -109,7 +109,12 @@ export async function resolveSelection(
   }
   const retainedSources = config.retainedHeadSources || {}
   for (const [number, source] of Object.entries(retainedSources)) {
-    if (!retained[number] || !validBranchSource(source)) {
+    if (
+      !retained[number] ||
+      !validBranchSource(source) ||
+      (source.originalRef !== undefined &&
+        !validBranchSource({ ...source, ref: source.originalRef }))
+    ) {
       throw new Error(`Invalid retained PR branch source: PR ${number}`)
     }
   }
@@ -223,7 +228,7 @@ export async function resolveSelection(
       if (source) {
         if (
           pr.head.repo?.full_name !== source.repository ||
-          `refs/heads/${pr.head.ref}` !== source.ref ||
+          `refs/heads/${pr.head.ref}` !== (source.originalRef ?? source.ref) ||
           typeof readRetainedHead !== 'function'
         ) {
           throw new Error(`Retained PR branch identity cannot be verified: PR ${number}`)
