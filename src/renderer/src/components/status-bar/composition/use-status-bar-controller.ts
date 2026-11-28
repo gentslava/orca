@@ -282,6 +282,7 @@ export function useStatusBarController(floatingTerminalOpen: boolean) {
   }
 
   return {
+    antigravityQuotaEnabled: rateLimits.antigravityCliQuotaEnabled,
     anyFetching,
     anyVisible,
     canSignInFromUsageRow,

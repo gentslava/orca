@@ -9,6 +9,7 @@ import { fetchAntigravityRateLimits } from '../providers/antigravity/antigravity
 import { deriveMostConstrainedWindow } from '../rate-limit-bucket-summary'
 import { localAccountRuntimeTargetKey } from '../../../shared/agent-accounts/local-account-runtime'
 import { getAppEnvironment } from '../../../shared/app-lifecycle/app-environment'
+import { formatAgyErrorForDisplay } from '../providers/antigravity/antigravity-usage-error'
 import { hostShellEnvironment } from '../../runtime/agent-session/environment/structured-agent-shell-environment'
 
 const MAX_ANTIGRAVITY_USAGE_AGE_MS = 30 * 60_000
@@ -32,6 +33,8 @@ async function antigravityUsageEnvironment(): Promise<NodeJS.ProcessEnv> {
 
 export class AntigravityCliQuota {
   private antigravityUsage: AntigravityUsageReceipt | null = null
+  private lastFailure: ProviderRateLimits | null = null
+  private targetKey: string | undefined
   private expirationTimer: ReturnType<typeof setTimeout> | undefined
   private antigravityRead: {
     target: string
@@ -48,13 +51,36 @@ export class AntigravityCliQuota {
     if (this.antigravityRead?.target === targetKey) {
       return this.antigravityRead.work
     }
-    this.antigravityRead?.controller.abort()
+    if (targetKey !== this.targetKey) {
+      this.clear()
+      this.targetKey = targetKey
+    }
+    const previousFailure = this.lastFailure
     const controller = new AbortController()
-    const work = this.readAntigravityCli(target, controller.signal).finally(() => {
-      if (this.antigravityRead?.controller === controller) {
-        this.antigravityRead = null
-      }
-    })
+    const work = this.readAntigravityCli(target, controller.signal)
+      .catch((error: unknown) => {
+        if (!controller.signal.aborted) {
+          if (this.lastFailure === previousFailure) {
+            this.lastFailure = {
+              provider: 'antigravity',
+              session: null,
+              weekly: null,
+              updatedAt: Date.now(),
+              error:
+                formatAgyErrorForDisplay(error instanceof Error ? error.message : '') ??
+                'Antigravity quota could not be refreshed.',
+              status: 'error'
+            }
+          }
+          this.onChange()
+        }
+        throw error
+      })
+      .finally(() => {
+        if (this.antigravityRead?.controller === controller) {
+          this.antigravityRead = null
+        }
+      })
     this.antigravityRead = { target: targetKey, controller, work }
     return work
   }
@@ -87,8 +113,18 @@ export class AntigravityCliQuota {
       return
     }
     if (limits.status !== 'ok') {
+      this.lastFailure = {
+        provider: 'antigravity',
+        session: null,
+        weekly: null,
+        updatedAt: limits.updatedAt,
+        error: limits.error,
+        status: 'error',
+        usageMetadata: limits.usageMetadata
+      }
       throw new Error(limits.error ?? 'Antigravity did not return quota.')
     }
+    this.lastFailure = null
     this.antigravityUsage = { target, login, limits }
     clearTimeout(this.expirationTimer)
     this.expirationTimer = setTimeout(
@@ -108,24 +144,26 @@ export class AntigravityCliQuota {
     clearTimeout(this.expirationTimer)
     this.expirationTimer = undefined
     this.antigravityUsage = null
+    this.lastFailure = null
+    this.targetKey = undefined
   }
 
   async getCurrent(): Promise<ProviderRateLimits | null> {
     const reading = this.antigravityUsage
     if (!reading || Date.now() - reading.limits.updatedAt >= MAX_ANTIGRAVITY_USAGE_AGE_MS) {
-      return null
+      return this.lastFailure
     }
     const account = await getAntigravityAccountService(reading.target)
     const login = await account.readUsageLogin().catch(() => null)
     if (reading !== this.antigravityUsage || login !== reading.login) {
-      return null
+      return this.lastFailure
     }
     const now = Date.now()
     const buckets = reading.limits.buckets?.filter(
       (bucket) => bucket.resetsAt === null || bucket.resetsAt > now
     )
     if (!buckets?.length) {
-      return null
+      return this.lastFailure
     }
     return {
       ...reading.limits,
