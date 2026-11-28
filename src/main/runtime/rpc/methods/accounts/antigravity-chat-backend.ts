@@ -86,9 +86,11 @@ export async function withAntigravityChatBackend(
   target: AntigravityAccountTarget,
   state: AntigravityAccountState
 ): Promise<AntigravityAccountState> {
+  const quotaAutoRefresh = runtime.requireStore().getSettings().antigravityCliQuotaEnabled === true
+  const accountState = { ...state, quotaAutoRefresh }
   // Chats never run in WSL.
   if (target.runtime !== 'host') {
-    return state
+    return accountState
   }
   // Found as a launch finds it (PATH, then Google's install folders), on the host, not in WSL.
   const input = await withTimeout(
@@ -107,12 +109,12 @@ export async function withAntigravityChatBackend(
     null
   )
   if (route === null) {
-    return { ...state, ...installed }
+    return { ...accountState, ...installed }
   }
   const agy = route.orcaHome ? false : route.agy
   const version = agy === 'signedIn' ? readyAntigravityHostAcpVersion() : null
   return {
-    ...state,
+    ...accountState,
     ...installed,
     chatUsesAgy: agy === 'signedIn',
     chatAgySignedOut: agy === 'signedOut',

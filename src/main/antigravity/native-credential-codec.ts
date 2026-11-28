@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 const MAX_CREDENTIAL_BYTES = 64 * 1024
 
 function invalidCredential(): Error {
@@ -142,4 +143,16 @@ export function parseAntigravityNativeCredential(contents: string): AntigravityN
     refreshToken:
       typeof token.refresh_token === 'string' && token.refresh_token ? token.refresh_token : null
   })
+}
+
+export function antigravityUsageLoginFingerprint(
+  login: AntigravityNativeCredential | null
+): string | null {
+  return login
+    ? createHash('sha256')
+        .update(login.authMethod)
+        .update('\0')
+        .update(login.refreshToken ?? login.identity?.subject ?? login.contents)
+        .digest('hex')
+    : null
 }

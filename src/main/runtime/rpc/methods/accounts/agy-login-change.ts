@@ -28,6 +28,7 @@ function antigravityOrcaHomeCatalogFingerprints(): string[] {
 /** What agy's own login served: the model lists taken with it, the chats running on it, and the
  *  checks that vouched for it. The catalog of the HOME chats launch with goes once that is known. */
 export function forgetAgyLogin(runtime: OrcaRuntimeService): void {
+  runtime.getUsageRateLimits()?.antigravityCliQuotaSettingChanged()
   noteAgyLoginChanged()
   const launchHome = sharedAgyLaunchHome(runtime)
   // Orca's homes list with agy's Google login too (Enterprise, the retired server's chats).

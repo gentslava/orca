@@ -57,6 +57,7 @@ import { STATS_METHODS } from './host-management/stats'
 import { USAGE_ANALYTICS_METHODS } from './host-management/usage-analytics'
 import { ACCOUNT_METHODS } from './accounts/accounts'
 import { ANTIGRAVITY_ACCOUNT_METHODS } from './accounts/antigravity-accounts'
+import { ANTIGRAVITY_CLI_QUOTA_METHODS } from './accounts/antigravity-cli-quota'
 import { ORCA_ACCOUNT_METHODS } from './orca-account'
 import { USAGE_CREDENTIAL_METHODS } from './accounts/usage-credentials'
 import { GITHUB_METHODS } from './source-control/github/github'
@@ -160,6 +161,7 @@ const SERVICE_RPC_METHODS = [
   ...USAGE_ANALYTICS_METHODS,
   ...ACCOUNT_METHODS,
   ...ANTIGRAVITY_ACCOUNT_METHODS,
+  ...ANTIGRAVITY_CLI_QUOTA_METHODS,
   ...ORCA_ACCOUNT_METHODS,
   ...USAGE_CREDENTIAL_METHODS,
   ...GITHUB_METHODS,

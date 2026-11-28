@@ -33,8 +33,15 @@ vi.mock('../../../../antigravity/native-account-host', () => ({
 }))
 const { ANTIGRAVITY_ACCOUNT_METHODS } = await import('./antigravity-accounts')
 
-// oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: select reaches the runtime only to show the chat backend, which catches a failed read.
-const context: RpcContext = { runtime: {} as RpcContext['runtime'], caller: { kind: 'local-cli' } }
+const runtime = {
+  getUsageRateLimits: () => null,
+  requireStore: () => ({ getSettings: () => ({}) })
+}
+const context: RpcContext = {
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the account handlers only read settings and the optional quota service here.
+  runtime: runtime as RpcContext['runtime'],
+  caller: { kind: 'local-cli' }
+}
 const select = eraseRpcMethods(ANTIGRAVITY_ACCOUNT_METHODS).find(
   (method) => method.name === 'accounts.antigravitySelect'
 )!
@@ -88,19 +95,15 @@ it('a switch lists again a catalog under a launch HOME sharing the login, not on
     accountHome: antigravityHostAccountHome('/Users/shell-home'),
     wslDistro: null
   })
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: select reads only the settings from the runtime's store.
-  const runtime = {
-    requireStore: () => ({ getSettings: () => ({}) })
-  } as unknown as RpcContext['runtime']
   if ('stream' in select) {
     throw new Error('select streams')
   }
   saveCatalog(shellHome)
   login.shared = false
-  await select.handler({ target: { runtime: 'host' }, accountId: host.b }, { ...context, runtime })
+  await select.handler({ target: { runtime: 'host' }, accountId: host.b }, context)
   expect(store.shouldRefresh(shellHome)).toBe(false)
   login.shared = true
-  await select.handler({ target: { runtime: 'host' }, accountId: host.a }, { ...context, runtime })
+  await select.handler({ target: { runtime: 'host' }, accountId: host.a }, context)
   expect(store.shouldRefresh(shellHome)).toBe(true)
 })
 
@@ -112,10 +115,6 @@ it('a switch never waits for the launch environment, and still lists its HOME ag
     accountHome: antigravityHostAccountHome('/Users/shell-home'),
     wslDistro: null
   })
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: select reads only the settings from the runtime's store.
-  const runtime = {
-    requireStore: () => ({ getSettings: () => ({}) })
-  } as unknown as RpcContext['runtime']
   if ('stream' in select) {
     throw new Error('select streams')
   }
@@ -123,10 +122,7 @@ it('a switch never waits for the launch environment, and still lists its HOME ag
   vi.mocked(host.backend.read).mockClear()
   const held = Promise.withResolvers<NodeJS.ProcessEnv>()
   login.env = held.promise
-  const selecting = select.handler(
-    { target: { runtime: 'host' }, accountId: host.b },
-    { ...context, runtime }
-  )
+  const selecting = select.handler({ target: { runtime: 'host' }, accountId: host.b }, context)
   // Switched, reading agy's login only as the switch itself does.
   await vi.waitFor(() => expect(host.getNative()).toBe(credential('b')))
   expect(vi.mocked(host.backend.read).mock.calls.length).toBe(2)
@@ -144,10 +140,6 @@ it('a switch leaves a launch HOME with its own credential file alone, its listin
     accountHome: antigravityHostAccountHome('/Users/file-home'),
     wslDistro: null
   })
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: select reads only the settings from the runtime's store.
-  const runtime = {
-    requireStore: () => ({ getSettings: () => ({}) })
-  } as unknown as RpcContext['runtime']
   if ('stream' in select) {
     throw new Error('select streams')
   }
@@ -156,7 +148,7 @@ it('a switch leaves a launch HOME with its own credential file alone, its listin
   void store.refresh(fileHome, 'antigravity', () => new Promise(() => {}))
   login.shared = true
   login.env = Promise.resolve({ HOME: '/Users/file-home', SSH_TTY: '/dev/ttys001' })
-  await select.handler({ target: { runtime: 'host' }, accountId: host.b }, { ...context, runtime })
+  await select.handler({ target: { runtime: 'host' }, accountId: host.b }, context)
   expect(store.isListing(fileHome)).toBe(true)
   expect(store.get(fileHome)?.seen?.models.map((model) => model.id)).toEqual(['gemini-4-neon-high'])
 })
@@ -169,10 +161,6 @@ it("a Refresh started after a switch lists the new account, even as the launch H
     accountHome: antigravityHostAccountHome('/Users/shell-home'),
     wslDistro: null
   })
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: select reads only the settings from the runtime's store.
-  const runtime = {
-    requireStore: () => ({ getSettings: () => ({}) })
-  } as unknown as RpcContext['runtime']
   if ('stream' in select) {
     throw new Error('select streams')
   }
@@ -180,7 +168,7 @@ it("a Refresh started after a switch lists the new account, even as the launch H
   login.env = Promise.resolve({ HOME: '/Users/shell-home' })
   const check = Promise.withResolvers<boolean>()
   login.launchStore = check.promise
-  await select.handler({ target: { runtime: 'host' }, accountId: host.b }, { ...context, runtime })
+  await select.handler({ target: { runtime: 'host' }, accountId: host.b }, context)
   const b = parseAgyModelListing('gemini-5-b-high\tGemini 5 B (high)')
   const listed = Promise.withResolvers<{ models: typeof b; origin: 'probe' }>()
   let probes = 0

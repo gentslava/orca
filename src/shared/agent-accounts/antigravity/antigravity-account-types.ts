@@ -4,6 +4,11 @@ export const ANTIGRAVITY_KEYCHAIN_PROMPT_WAIT_MS = 60_000
 /** Clients wait this long for an account action that may read agy's login. */
 export const ANTIGRAVITY_ACCOUNT_ACTION_TIMEOUT_MS = ANTIGRAVITY_KEYCHAIN_PROMPT_WAIT_MS + 30_000
 
+export type AntigravityCliQuotaSettings = {
+  /** Fork opt-in for Antigravity CLI quota refresh on this execution host. */
+  antigravityCliQuotaEnabled?: boolean
+}
+
 export type AntigravityAccountSummary = {
   id: string
   email: string | null
@@ -30,6 +35,7 @@ export type AntigravityAccountState = {
   /** New agy launches put the selected account back when another saved one took agy's login.
    *  Absent from older hosts, Windows and WSL, where a moved login stays as it is. */
   restoresSelectionAtLaunch?: true
+  quotaAutoRefresh?: boolean
   /** Host only: new chats run on agy and its signed-in account; false runs them elsewhere, or on a
    *  signed-out agy (`chatAgySignedOut`). Absent from older hosts and WSL. */
   chatUsesAgy?: boolean

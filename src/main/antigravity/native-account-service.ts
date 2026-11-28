@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import type { AntigravityAccountState } from '../../shared/agent-accounts/antigravity/antigravity-account-types'
 import {
+  antigravityUsageLoginFingerprint,
   parseAntigravityNativeCredential,
   type AntigravityNativeCredential
 } from './native-credential-codec'
@@ -98,6 +99,10 @@ export class AntigravityAccountService {
   /** Reads agy's login even where that may raise a keychain dialog; only for an explicit request. */
   readCurrentAccount(): Promise<AntigravityAccountState> {
     return this.serialize(async () => this.state(await this.reconcile()))
+  }
+
+  readUsageLogin(): Promise<string | null> {
+    return this.serialize(async () => antigravityUsageLoginFingerprint(await this.backend.read()))
   }
 
   addCurrentAccount(): Promise<AntigravityAccountState> {

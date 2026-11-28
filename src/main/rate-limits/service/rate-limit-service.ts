@@ -24,11 +24,44 @@ import {
   normalizeClaudeAccountSelectionTarget
 } from '../../claude-accounts/selection/runtime-selection'
 import type { InactiveClaudeAccount } from '../providers/claude/claude-managed-account-usage'
-import type { RateLimitState } from '../../../shared/agent-usage/rate-limits/rate-limit-types'
+import type {
+  RateLimitRuntimeTarget,
+  RateLimitState
+} from '../../../shared/agent-usage/rate-limits/rate-limit-types'
 import type { NetworkProxySettings } from '../../../shared/network/network-proxy'
+import { AntigravityCliQuota } from './antigravity-cli-quota'
 
 export class RateLimitService extends RateLimitServiceTargetUsageRead {
   private lastOwnerReturnAt = Number.NEGATIVE_INFINITY
+  private readonly antigravityQuota = new AntigravityCliQuota(
+    () => this.networkProxySettingsResolver?.(),
+    () => this.pushToRenderer()
+  )
+  private antigravityTarget: (() => RateLimitRuntimeTarget | null) | undefined
+
+  setAntigravityCliQuotaTarget(resolve: () => RateLimitRuntimeTarget | null): void {
+    this.antigravityTarget = resolve
+    this.pollAntigravityCliQuota = () => {
+      const target = resolve()
+      if (target) {
+        void this.refreshAntigravityCliQuota(target).catch(() => {})
+      }
+    }
+  }
+
+  antigravityCliQuotaSettingChanged(): void {
+    this.antigravityQuota.clear()
+    this.pushToRenderer()
+    if (this.timer) {
+      this.pollAntigravityCliQuota?.()
+    }
+  }
+
+  refreshAntigravityCliQuota(target?: RateLimitRuntimeTarget): Promise<void> {
+    return this.antigravityQuota.refresh(
+      target ?? this.antigravityTarget?.() ?? { runtime: 'host', wslDistro: null }
+    )
+  }
 
   refreshOnOwnerReturn(): Promise<void> {
     const now = Date.now()
@@ -176,9 +209,11 @@ export class RateLimitService extends RateLimitServiceTargetUsageRead {
       }
     }
     this.startTimer()
+    this.pollAntigravityCliQuota?.()
   }
 
   stop(): void {
+    this.antigravityQuota.clear()
     this.publicationStopped = true
     this.abortActiveFetchCycle()
     this.clearQueuedFetches()
@@ -193,12 +228,23 @@ export class RateLimitService extends RateLimitServiceTargetUsageRead {
   }
 
   async getState(): Promise<RateLimitState> {
-    const [minimaxCookieConfigured, minimaxApiKeyConfigured, zcodePlanApiKeyConfigured] =
-      await Promise.all([hasMiniMaxSessionCookie(), hasMiniMaxApiKey(), hasZcodePlanApiKey()])
+    const [
+      minimaxCookieConfigured,
+      minimaxApiKeyConfigured,
+      zcodePlanApiKeyConfigured,
+      antigravityCli
+    ] = await Promise.all([
+      hasMiniMaxSessionCookie(),
+      hasMiniMaxApiKey(),
+      hasZcodePlanApiKey(),
+      this.antigravityQuota.getCurrent()
+    ])
     this.pruneInactiveClaudeState()
     this.pruneInactiveCodexState()
     return {
       ...this.state,
+      antigravityCli,
+      antigravityCliQuotaEnabled: this.antigravityTarget?.() != null,
       // Filesystem-stored cookie presence keeps MiniMax visible across renderer reloads.
       minimaxCookieConfigured,
       minimaxApiKeyConfigured,

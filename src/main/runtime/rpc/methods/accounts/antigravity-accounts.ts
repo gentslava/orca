@@ -190,6 +190,8 @@ export const ANTIGRAVITY_ACCOUNT_METHODS = [
         if (switched) {
           forgetAgyLogin(ctx.runtime)
         }
+      } else if (switched) {
+        ctx.runtime.getUsageRateLimits()?.antigravityCliQuotaSettingChanged()
       }
       return withAntigravityChatBackend(ctx.runtime, target, state)
     }

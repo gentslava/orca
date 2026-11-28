@@ -25754,7 +25754,12 @@
       "agyCli": "agy CLI",
       "agyUpdateAvailable": "v{{installed}} · v{{latest}} available",
       "agyNotInstalled": "Not installed on this host.",
-      "agyInstallLink": "Install it with Google's installer"
+      "agyInstallLink": "Install it with Google's installer",
+      "quotaAutoRefresh": "Refresh Antigravity quota in the background",
+      "quotaAutoRefreshDescription": "Show Gemini and other Antigravity quotas in the status bar. Orca checks the current CLI account every 15 minutes.",
+      "quotaRefreshFailed": "Antigravity quota could not be refreshed.",
+      "quotaSettingFailed": "Could not change Antigravity quota refresh.",
+      "quotaUsageMenu": "Antigravity Usage"
     },
     "claude": {
       "added": "Account added. Select it to use it for the next Claude you start.",
