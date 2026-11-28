@@ -25,6 +25,7 @@ import {
 } from './appearance-usage-percentage-search'
 
 import { LeftSidebarAppearanceSetting } from './LeftSidebarAppearanceSetting'
+import { SidebarViewSetting } from './SidebarViewSetting'
 import { getStatusBarUsageFormatEntry } from './appearance-status-bar-usage-format-search'
 import { getStatusBarMemoryEntry } from './appearance-status-bar-memory-search'
 import { StatusBarMemorySetting } from './StatusBarMemorySetting'
@@ -120,6 +121,7 @@ export function AppearanceWindowSidebarSection({
           />
         </SearchableSetting>
       )}
+      <SidebarViewSetting forceVisible={forceVisiblePrimary} />
       <SearchableSetting
         title={leftSidebarAppearanceEntry.title}
         description={leftSidebarAppearanceEntry.description}

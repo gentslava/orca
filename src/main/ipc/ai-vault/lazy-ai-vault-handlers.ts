@@ -20,7 +20,10 @@ export const AI_VAULT_IPC_CHANNELS = [
   'aiVault:clearSearchIndex'
 ] as const
 
+import type { OrchestrationDb } from '../../runtime/orchestration/db/orchestration-db'
+
 export type LazyAiVaultHandlerOptions = {
+  getExistingOrchestrationDb?: () => OrchestrationDb | null
   ensureStructuredSessionOwnership: () => Promise<void>
   getAdditionalCodexHomePaths?: () => readonly string[]
   prepareSessionResume?: AiVaultSessionResumePreparation
@@ -54,13 +57,15 @@ export function registerLazyAiVaultHandlers(options: LazyAiVaultHandlerOptions):
         resolveRuntimeAiVaultSessionTitles,
         scanRuntimeAiVaultSessions
       },
-      { callRuntimeSessionSearch }
+      { callRuntimeSessionSearch },
+      { aiVaultOrchestrationChildSessionIds }
     ] = await Promise.all([
       import('./ai-vault'),
       import('./ai-vault-search'),
       import('./ai-vault-delete'),
       import('../../ai-vault/runtime-hosts/runtime-session-scanner'),
-      import('../../ai-vault/runtime-hosts/runtime-session-search-call')
+      import('../../ai-vault/runtime-hosts/runtime-session-search-call'),
+      import('../../ai-vault/structured-conversation-navigation')
     ])
 
     registerAiVaultSearchHandlers(
@@ -79,6 +84,8 @@ export function registerLazyAiVaultHandlers(options: LazyAiVaultHandlerOptions):
     registerAiVaultHandlers(
       {
         getUserDataPath: () => app.getPath('userData'),
+        getOrchestrationChildSessionIds: () =>
+          aiVaultOrchestrationChildSessionIds(options.getExistingOrchestrationDb ?? null),
         ensureStructuredSessionOwnership: options.ensureStructuredSessionOwnership,
         getAdditionalCodexHomePaths: options.getAdditionalCodexHomePaths,
         prepareSessionResume: options.prepareSessionResume,

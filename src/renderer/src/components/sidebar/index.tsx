@@ -34,6 +34,12 @@ import { SeveredTerminalDaemonBanner } from '../maintenance/terminal-daemon/Seve
 import { StalledTerminalDaemonBanner } from '../maintenance/terminal-daemon/StalledTerminalDaemonBanner'
 import { SidebarBotsSplit, SidebarProjectsListSlot } from './SidebarBotsSplit'
 import { SidebarContentViewport } from './SidebarContentViewport'
+import { SidebarConversationsList } from './SidebarConversationsList'
+import { SidebarResizeSeam } from './chrome/SidebarResizeSeam'
+export {
+  WORKTREE_SIDEBAR_RESIZE_HANDLE_CLASS_NAME,
+  WORKTREE_SIDEBAR_RESIZE_HANDLE_LINE_CLASS_NAME
+} from './chrome/SidebarResizeSeam'
 import { SidebarSectionDragOverlay } from './SidebarSectionDragOverlay'
 import { PROJECTS_SECTION_GROUP_KEY } from '../../../../shared/sidebar-list/sections/group-keys'
 import { useBotsEnabled } from '@/lib/bot-catalog'
@@ -94,13 +100,6 @@ const sidebarSectionDragModifiers: Modifier[] = [
         : transform.y
   })
 ]
-// Why: start on the divider pixel so pointing at the visible seam resizes instead of scrolling the list.
-export const WORKTREE_SIDEBAR_RESIZE_HANDLE_CLASS_NAME =
-  'peer absolute -right-[9px] top-0 z-20 h-full w-[9px] cursor-col-resize'
-// Why: an open drawer covers the outer side of the seam, so keep the inner overlap wide enough to grab.
-const WORKTREE_SIDEBAR_RESIZE_HANDLE_UNDER_DRAWER_CLASS_NAME = '-right-1.5 w-3'
-export const WORKTREE_SIDEBAR_RESIZE_HANDLE_LINE_CLASS_NAME =
-  'pointer-events-none absolute -right-px top-0 z-20 h-full w-px bg-transparent transition-colors peer-hover:bg-ring/50 peer-active:bg-ring'
 
 type SidebarProps = {
   worktreeScrollOffsetRef: React.MutableRefObject<number>
@@ -214,7 +213,7 @@ function Sidebar({
   const drawerCoversSeam =
     workspaceBoardRenderedOpen || (showAgentDashboard && agentDashboardDrawerOpen)
 
-  useWorkspaceRevealBodyRedirect(sidebarOpen && sidebarBody === 'agents')
+  useWorkspaceRevealBodyRedirect(sidebarOpen && sidebarBody !== 'workspaces')
   const projectsFirst = useAppStore((s) => s.sidebarProjectsFirst)
   const setProjectsFirst = useAppStore((s) => s.setSidebarProjectsFirst)
   const sidebarSectionDragSensors = useSensors(
@@ -257,6 +256,13 @@ function Sidebar({
       />
       <SeveredTerminalDaemonBanner />
       <StalledTerminalDaemonBanner />
+      {sidebarBody === 'conversations' && (
+        <SidebarConversationsList
+          botsShown={botsShown}
+          collapsed={projectsCollapsed}
+          onOpen={closeWorkspaceBoard}
+        />
+      )}
       <React.Suspense
         fallback={sidebarBody === 'agents' ? <div className="min-h-0 flex-1" /> : null}
       >
@@ -275,7 +281,7 @@ function Sidebar({
           />
         </ActivityThreadCollapseContext.Provider>
       </React.Suspense>
-      {sidebarBody !== 'agents' && (
+      {sidebarBody === 'workspaces' && (
         <>
           {projectsCollapsed ? null : (
             <>
@@ -372,23 +378,11 @@ function Sidebar({
         </div>
 
         {sidebarOpen && (
-          <>
-            <div
-              data-sidebar-resize-handle=""
-              className={cn(
-                WORKTREE_SIDEBAR_RESIZE_HANDLE_CLASS_NAME,
-                drawerCoversSeam && WORKTREE_SIDEBAR_RESIZE_HANDLE_UNDER_DRAWER_CLASS_NAME,
-                isResizing && 'bg-ring/10'
-              )}
-              onMouseDown={onResizeStart}
-            />
-            <div
-              className={cn(
-                WORKTREE_SIDEBAR_RESIZE_HANDLE_LINE_CLASS_NAME,
-                isResizing && 'bg-ring'
-              )}
-            />
-          </>
+          <SidebarResizeSeam
+            covered={drawerCoversSeam}
+            resizing={isResizing}
+            onResizeStart={onResizeStart}
+          />
         )}
       </div>
 

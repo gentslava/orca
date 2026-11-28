@@ -172,6 +172,7 @@ export async function registerCoreHandlers(
     }
     registerLazyAiVaultHandlers({
       ensureStructuredSessionOwnership,
+      getExistingOrchestrationDb: () => runtime.getExistingOrchestrationDb(),
       getAdditionalCodexHomePaths: lifecycleOptions.getAdditionalAiVaultCodexHomePaths,
       prepareSessionResume: lifecycleOptions.prepareAiVaultSessionResume
     })

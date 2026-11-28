@@ -58,10 +58,7 @@ import {
   resolveAiVaultSessionTitlesByHost,
   type RuntimeAiVaultSessionTitleResolver
 } from './ai-vault-session-title-routing'
-import {
-  OPENS_EVERY_STRUCTURED_CHAT,
-  projectStructuredAiVaultSessions
-} from '../../ai-vault/structured-sessions/structured-session-ownership'
+import { projectLocalAiVaultConversationList } from './ai-vault-conversation-list-projection'
 import { allHostsRuntimeScanTimeoutMs } from './ai-vault-all-host-timeouts'
 import { registerAiVaultScanProgressBroadcast } from './ai-vault-scan-progress-broadcast'
 
@@ -73,6 +70,7 @@ type AiVaultHandlerOptions = AiVaultSessionSources &
       | Promise<readonly RuntimeAiVaultHostInfo[]>
     scanRuntimeAiVaultSessions?: RuntimeAiVaultScanner
     resolveRuntimeAiVaultSessionTitles?: RuntimeAiVaultSessionTitleResolver
+    getOrchestrationChildSessionIds?: () => ReadonlySet<string> | null
   }
 
 type AiVaultScanHostScope =
@@ -119,6 +117,7 @@ async function listAiVaultSessions(
         : scopePaths,
     executionHostScope,
     includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions === true,
+    includeStructuredSessions: args?.includeStructuredSessions === true,
     ...(args?.scopeOnly === true ? { scopeOnly: true } : {})
   })
   const depth = requestedAiVaultSessionDepth(args)
@@ -137,7 +136,7 @@ async function listAiVaultSessions(
       start: (scanSignal) => {
         const scan = () =>
           scanAiVaultSessionsByHostScope(args, hostScope, scanSignal, key, dependency)
-        if (executionHostScope === LOCAL_EXECUTION_HOST_ID) {
+        if (executionHostScope === LOCAL_EXECUTION_HOST_ID || args?.includeStructuredSessions) {
           return scan()
         }
         return scanHostLegWithCache({
@@ -171,25 +170,25 @@ async function scanAiVaultSessionsByHostScope(
     const runtimeResults = runtimeHosts.issue ? [runtimeHosts.issue] : []
     const scannedResults = await Promise.all([
       scanLocalAiVaultSessionsAsIssue(args, signal),
-      ...runtimeHosts.hostInfos.map((hostInfo) =>
-        scanHostLegWithCache({
-          cacheKey: `${cacheKey}|${hostInfo.executionHostId}`,
-          dependency: dependency?.forHost(hostInfo.environmentId),
-          depth,
-          scopePaths,
-          force: args?.force === true,
-          scan: () =>
-            scanRuntimeAiVaultSessions({
-              hostInfo,
-              scanner: handlerOptions.scanRuntimeAiVaultSessions,
-              listArgs: args ? { ...args, afterFingerprint: undefined } : undefined,
-              options: {
-                signal,
-                timeoutMs: allHostsRuntimeScanTimeoutMs(hostInfo)
-              }
+      ...runtimeHosts.hostInfos.map((hostInfo) => {
+        const scan = () =>
+          scanRuntimeAiVaultSessions({
+            hostInfo,
+            scanner: handlerOptions.scanRuntimeAiVaultSessions,
+            listArgs: args ? { ...args, afterFingerprint: undefined } : undefined,
+            options: { signal, timeoutMs: allHostsRuntimeScanTimeoutMs(hostInfo) }
+          })
+        return args?.includeStructuredSessions
+          ? scan()
+          : scanHostLegWithCache({
+              cacheKey: `${cacheKey}|${hostInfo.executionHostId}`,
+              dependency: dependency?.forHost(hostInfo.environmentId),
+              depth,
+              scopePaths,
+              force: args?.force === true,
+              scan
             })
-        })
-      )
+      })
     ])
     return mergeAiVaultListResults(
       [...scannedResults, ...runtimeResults],
@@ -245,8 +244,14 @@ export function registerAiVaultHandlers(
     const controller = listCancellations.begin(event, requestToken)
     try {
       await handlerOptions.ensureStructuredSessionOwnership?.()
-      const result = await listAiVaultSessions(args, { signal: controller?.signal })
-      return projectStructuredAiVaultSessions(result, OPENS_EVERY_STRUCTURED_CHAT)
+      const result = await listAiVaultSessions(args, {
+        signal: controller?.signal
+      })
+      return projectLocalAiVaultConversationList(
+        result,
+        args,
+        handlerOptions.getOrchestrationChildSessionIds
+      )
     } catch (error) {
       // Expected cancellation is a result so Electron does not log rejected IPC as an error.
       if (!isAiVaultScanCancelledError(error)) {

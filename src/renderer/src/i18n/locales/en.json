@@ -321,6 +321,9 @@
       "detailsRow": "Details row",
       "workspaceUnread": "Unread in this workspace",
       "unreadTab": "Unread tab"
+    },
+    "projectOrder": {
+      "saveFailed": "Could not save project order"
     }
   },
   "app": {
@@ -3594,9 +3597,6 @@
       }
     },
     "components": {
-      "railPage": {
-        "closeSearch": "Close search"
-      },
       "hostPicker": {
         "searchHosts": "Search hosts…",
         "noHostsMatch": "No hosts match.",
@@ -11510,6 +11510,15 @@
             "96e32c1118": "MiniMax usage",
             "e8d2710689": "Muse usage",
             "aff6e6afdf": "IDE font",
+            "sidebarView": {
+              "title": "Sidebar view",
+              "description": "What the left sidebar lists: projects and their workspaces, or agent sessions by project.",
+              "sessions": "sessions",
+              "chats": "chats",
+              "conversations": "conversations",
+              "projects": "projects",
+              "workspaces": "workspaces"
+            },
             "statusBarMemory": {
               "title": "Show memory in status bar",
               "description": "Show Orca’s app memory next to the Resource Manager icon. Updates every 30 seconds while the window is focused."
@@ -21048,6 +21057,9 @@
         "noWslDistros": "No WSL distros found",
         "wslDistro": "WSL distro",
         "wslDistroHint": "A Linux distro on this PC"
+      },
+      "railPage": {
+        "closeSearch": "Close search"
       }
     },
     "i18n": {
@@ -24638,6 +24650,7 @@
         "removing": "Removing…"
       }
     },
+    "tab-bar": {},
     "notes": {
       "sendButton": {
         "sendCommentsToAgent_one": "Send {{count}} comment to an agent",
@@ -24740,7 +24753,11 @@
       "openActivity": "View activity",
       "closeActivity": "Turn off activity view",
       "projects": "Projects",
-      "workspaces": "Workspaces"
+      "workspaces": "Workspaces",
+      "loadingChatAgents": "Loading chat agents…",
+      "noChatAgents": "No chat agents available on this host",
+      "activity": "Activity",
+      "sessions": "Sessions"
     }
   },
   "runtimeRpc": {
@@ -31370,6 +31387,35 @@
     "suggestionUse": "Use",
     "browseOnline": "Browse",
     "browseOnlineLabel": "Browse community translations on orca.dev (opens in your browser)"
+  },
+  "projectConversations": {
+    "defaultGroupName": "{{project}} group",
+    "hideProject": "Hide project from list",
+    "hiddenProjects": "Hidden projects",
+    "keepFiles": "Files and history are kept",
+    "restoreProject": "Restore {{project}}",
+    "projectOptionsFor": "Project options for {{project}}",
+    "visibilityFailed": "Could not save project visibility. Update Orca or try again.",
+    "search": "Search chats",
+    "projectOrder": "Project order",
+    "allChats": "Chats",
+    "archived": "Archived",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "noChats": "No chats yet",
+    "loading": "Loading chats…",
+    "noArchived": "No archived chats",
+    "noMatching": "No matching chats",
+    "untitled": "Untitled chat",
+    "unpin": "Unpin chat",
+    "pin": "Pin chat",
+    "restore": "Restore chat",
+    "archive": "Archive chat",
+    "working": "Working",
+    "needsYou": "Needs you",
+    "showMore": "Show more",
+    "newChatInProject": "New chat in {{project}}",
+    "saveFailed": "Could not save chat preferences. Update Orca or try again."
   },
   "agentCliUpdate": {
     "updating": "Updating…",

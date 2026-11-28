@@ -64,13 +64,15 @@ export function RepoHeaderProjectActionsMenuContent({
   hostRepos,
   label,
   projectGroups,
-  actions
+  actions,
+  children
 }: {
   repo: Repo
   hostRepos?: ReadonlyMap<string, Repo>
   label: string
   projectGroups: readonly ProjectGroup[]
   actions: RepoHeaderProjectActions
+  children?: React.ReactNode
 }): React.JSX.Element {
   const t = useTranslate()
   return (
@@ -132,6 +134,7 @@ export function RepoHeaderProjectActionsMenuContent({
           {t('auto.components.sidebar.WorktreeList.64e55f7f01', 'Remove from group')}
         </DropdownMenuItem>
       ) : null}
+      {children}
       <WslMoveProjectMenuItem repo={repo} />
       <WslMovedRepoUseHereMenuItem repo={repo} />
       <DropdownMenuSeparator />
