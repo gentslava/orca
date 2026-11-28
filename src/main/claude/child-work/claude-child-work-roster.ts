@@ -1,30 +1,33 @@
-import { record, taskAliasId, taskId } from '../background-tasks/claude-background-task-frames'
-import type { DecodedClaudeTask } from './claude-child-work-evidence'
+import { record } from '../background-tasks/claude-background-task-frames'
+import {
+  claudeRosterAliasId,
+  claudeRosterEntries,
+  type DecodedClaudeTask
+} from './claude-child-work-evidence'
 
-/** The roster entries a background-tasks frame starts or refreshes: a subagent's task, or one already
- *  running here that Claude has moved to the background. The decoder still checks each entry against
- *  the current invocation, so a stale roster cannot restart an older run or invent a live one. */
 export function claudeRosterStarts(
   message: Record<string, unknown>,
   known: {
     live: ReadonlyMap<string, DecodedClaudeTask>
     ended: ReadonlyMap<string, unknown>
     parentOf: (id: string, run?: string) => string | undefined
-  }
+  },
+  confirmRunning: (id: string, frame: Record<string, unknown>) => void
 ): [string, Record<string, unknown>][] {
   if (!Array.isArray(message.tasks)) {
     return []
   }
-  return message.tasks.flatMap((entry): [string, Record<string, unknown>][] => {
-    const task = record(entry)
-    const id = task && taskId(task)
-    return task &&
-      id &&
-      !known.ended.has(id) &&
-      (known.live.has(id) || known.parentOf(id, taskAliasId(task.tool_use_id)))
-      ? [[id, task]]
-      : []
-  })
+  return claudeRosterEntries(message.tasks).flatMap(
+    ({ live, id, task }): [string, Record<string, unknown>][] => {
+      if (live) {
+        confirmRunning(id, task)
+      }
+      return !known.ended.has(id) &&
+        (known.live.has(id) || known.parentOf(id, claudeRosterAliasId(task)))
+        ? [[id, task]]
+        : []
+    }
+  )
 }
 
 /** Whether this frame ends the lead's turn (`result`). A tool result instead marks the live tasks whose
