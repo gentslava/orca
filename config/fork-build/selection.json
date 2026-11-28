@@ -395,8 +395,8 @@
       "reason": "Activity rows name only the project; upstream 45027 keeps the workspace name."
     },
     "antigravity-cli-quota": {
-      "ref": "refs/heads/fix/fork-antigravity-cli-quota",
-      "reason": "Restore Gemini and other Antigravity quotas with opt-in background polling and manual refresh through the local Antigravity CLI."
+      "ref": "refs/heads/fix/antigravity-upstream-7da8de80",
+      "reason": "Read Gemini and other Antigravity quotas from Google's installed agy, with user-enabled background polling, manual refresh, and visible errors."
     },
     "android-fork-update-channel": {
       "ref": "refs/heads/integration/fork-android-update-c475",
