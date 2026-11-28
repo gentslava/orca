@@ -2,12 +2,56 @@
   "schemaVersion": 1,
   "upstream": "stablyai/orca",
   "base": "main",
-  "authors": ["gentslava"],
+  "authors": [
+    "gentslava"
+  ],
   "seed": [
-    33360, 33361, 33362, 33363, 33365, 33369, 33371, 33375, 33383, 33395, 33403, 33417, 33502,
-    33512, 33576, 34338, 34365, 34471, 34480, 34866, 34895, 34899, 36548, 36558, 36569, 36572,
-    36574, 36593, 36606, 36607, 36858, 36892, 37279, 37717, 40728, 40816, 44450, 44451, 44452,
-    44655, 44768, 45385, 45437, 46107, 46187, 46190
+    33360,
+    33361,
+    33362,
+    33363,
+    33365,
+    33369,
+    33371,
+    33375,
+    33383,
+    33395,
+    33403,
+    33417,
+    33502,
+    33512,
+    33576,
+    34338,
+    34365,
+    34471,
+    34480,
+    34866,
+    34895,
+    34899,
+    36548,
+    36558,
+    36569,
+    36572,
+    36574,
+    36593,
+    36606,
+    36607,
+    36858,
+    36892,
+    37279,
+    37717,
+    40728,
+    40816,
+    44450,
+    44451,
+    44452,
+    44655,
+    44768,
+    45385,
+    45437,
+    46107,
+    46187,
+    46190
   ],
   "include": [
     {
@@ -216,16 +260,39 @@
     }
   },
   "dependencies": {
-    "45437": [33363, 41166],
-    "38963": [34895, 36593],
-    "33383": [33361],
-    "33395": [33362, 44451],
-    "33502": [33361],
-    "33576": [44450],
-    "36593": [36634],
-    "46190": [48573],
-    "48773": [33361],
-    "34899": [33371]
+    "45437": [
+      33363,
+      41166
+    ],
+    "38963": [
+      34895,
+      36593
+    ],
+    "33383": [
+      33361
+    ],
+    "33395": [
+      33362,
+      44451
+    ],
+    "33502": [
+      33361
+    ],
+    "33576": [
+      44450
+    ],
+    "36593": [
+      36634
+    ],
+    "46190": [
+      48573
+    ],
+    "48773": [
+      33361
+    ],
+    "34899": [
+      33371
+    ]
   },
   "outputs": [
     "macos-arm64-dmg",
@@ -274,7 +341,7 @@
   "retainedHeadSources": {
     "34365": {
       "repository": "gentslava/orca",
-      "ref": "refs/heads/gentslava/android-picker-refusal-diagnostics"
+      "ref": "refs/heads/integration/refresh-5d7416c-photo-diagnostics-34365"
     },
     "36634": {
       "repository": "gentslava/orca",
@@ -304,7 +371,7 @@
     },
     "33361": {
       "repository": "gentslava/orca",
-      "ref": "refs/heads/integration/refresh-a7a-ai-vault-recovery-33361"
+      "ref": "refs/heads/integration/refresh-5d7416c-ai-vault-33361"
     },
     "33369": {
       "repository": "gentslava/orca",
@@ -364,7 +431,7 @@
     },
     "43124": {
       "repository": "gentslava/orca",
-      "ref": "refs/heads/integration/refresh-a7a-file-changes-43124"
+      "ref": "refs/heads/integration/refresh-5d7416c-turn-diffs-43124"
     },
     "33371": {
       "repository": "gentslava/orca",
@@ -373,6 +440,10 @@
     "37744": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-9a5a-session-links-ui-37744"
+    },
+    "50365": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-5d7416c-quota-countdown-50365"
     }
   },
   "foreignHeadSources": {
@@ -382,7 +453,7 @@
     },
     "40298": {
       "repository": "gentslava/orca",
-      "ref": "refs/heads/integration/rename-saved-server-40298"
+      "ref": "refs/heads/integration/refresh-5d7416c-rename-host-40298"
     },
     "41578": {
       "repository": "gentslava/orca",
@@ -395,7 +466,7 @@
       "reason": "Activity rows name only the project; upstream 45027 keeps the workspace name."
     },
     "antigravity-cli-quota": {
-      "ref": "refs/heads/fix/antigravity-upstream-7da8de80",
+      "ref": "refs/heads/fix/antigravity-upstream-5d7416c",
       "reason": "Read Gemini and other Antigravity quotas from Google's installed agy, with user-enabled background polling, manual refresh, and visible errors."
     },
     "android-fork-update-channel": {

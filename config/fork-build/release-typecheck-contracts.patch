@@ -1,22 +1,3 @@
-diff --git a/src/main/ai-vault/structured-conversation-navigation.test.ts b/src/main/ai-vault/structured-conversation-navigation.test.ts
---- a/src/main/ai-vault/structured-conversation-navigation.test.ts
-+++ b/src/main/ai-vault/structured-conversation-navigation.test.ts
-@@ -144,7 +144,14 @@
-       db.settleDeadWorkerTerminalRelease({
-         requestingDispatchId: started.dispatch.id,
-         resourceId: resource.id,
--        processIncarnation: resource.process_incarnation!
-+        processIncarnation: resource.process_incarnation!,
-+        expected: resource,
-+        output: () => ({
-+          kind: 'terminal_tail',
-+          content: '',
-+          archiveSource: 'terminal',
-+          archiveStatus: 'unavailable'
-+        })
-       })
-       const successor = testOrcaSessionId('561bb50e-6281-43a7-a761-4e15dc4c730a')
-       const records: AgentSessionRecord[] = [parent, worker, successor].map((sessionId) => ({
 diff --git a/src/main/runtime/orchestration/structured-session-child-metadata.test.ts b/src/main/runtime/orchestration/structured-session-child-metadata.test.ts
 --- a/src/main/runtime/orchestration/structured-session-child-metadata.test.ts
 +++ b/src/main/runtime/orchestration/structured-session-child-metadata.test.ts
