@@ -42,12 +42,7 @@ export async function callAntigravityAccounts(
     )
   }
   if (action === 'EnableQuota' || action === 'DisableQuota') {
-    await callRuntimeRpc(
-      owner,
-      'accounts.antigravitySetQuotaAutoRefresh',
-      { enabled: action === 'EnableQuota' },
-      { timeoutMs: 10_000 }
-    )
+    await setAntigravityQuotaAutoRefresh(owner, action === 'EnableQuota')
     return callAntigravityAccounts(owner, target, 'List')
   }
   return callRuntimeRpc(
@@ -55,6 +50,18 @@ export async function callAntigravityAccounts(
     `accounts.antigravity${action}`,
     action === 'List' || action === 'AddCurrent' ? target : { target, accountId },
     { timeoutMs: 20_000 }
+  )
+}
+
+export async function setAntigravityQuotaAutoRefresh(
+  owner: RuntimeClientTarget,
+  enabled: boolean
+): Promise<void> {
+  await callRuntimeRpc(
+    owner,
+    'accounts.antigravitySetQuotaAutoRefresh',
+    { enabled },
+    { timeoutMs: 10_000 }
   )
 }
 

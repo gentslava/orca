@@ -10,23 +10,40 @@ import { AgentIcon } from '@/components/agent/icons/AgentIcon'
 import { ClaudeIcon, MiniMaxIcon, OpenAIIcon, OpenCodeGoIcon } from '../accounts/provider-icons'
 import { useTranslate } from '@/i18n/use-translate'
 import { isStatusBarItemAvailable } from './status-bar-agent-gating'
+import { getUsageOwnerHostScope } from '../usage/use-owner-usage-rate-limits'
+import { setAntigravityQuotaAutoRefresh } from '@/runtime/provider-accounts/sign-in/runtime-antigravity-accounts-client'
+import { toast } from 'sonner'
 import type { StatusBarController } from './use-status-bar-controller'
 
 export function StatusBarVisibilityMenu({
   controller
 }: {
-  controller: StatusBarController
+  controller: Pick<
+    StatusBarController,
+    | 'antigravityQuotaEnabled'
+    | 'detectedAgentIds'
+    | 'menuOpen'
+    | 'menuPoint'
+    | 'recordFeatureInteraction'
+    | 'remoteOwner'
+    | 'setMenuOpen'
+    | 'statusBarItems'
+    | 'toggleStatusBarItem'
+  >
 }): React.JSX.Element {
   const t = useTranslate()
   const {
+    antigravityQuotaEnabled,
     detectedAgentIds,
     menuOpen,
     menuPoint,
     recordFeatureInteraction,
+    remoteOwner,
     setMenuOpen,
     statusBarItems,
     toggleStatusBarItem
   } = controller
+  const host = remoteOwner?.wslDistro ? null : getUsageOwnerHostScope(remoteOwner)
 
   return (
     <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen} modal={false}>
@@ -61,6 +78,25 @@ export function StatusBarVisibilityMenu({
           >
             <OpenAIIcon size={14} />
             {t('auto.components.status.bar.StatusBar.c0909c686e', 'Codex Usage')}
+          </DropdownMenuCheckboxItem>
+        )}
+        {host && antigravityQuotaEnabled !== undefined && (
+          <DropdownMenuCheckboxItem
+            checked={antigravityQuotaEnabled}
+            onCheckedChange={(checked) => {
+              recordFeatureInteraction('usage-tracking')
+              void setAntigravityQuotaAutoRefresh(host, checked).catch(() =>
+                toast.error(
+                  t(
+                    'accounts.antigravity.quotaSettingFailed',
+                    'Could not change Antigravity quota refresh.'
+                  )
+                )
+              )
+            }}
+          >
+            <AgentIcon agent="antigravity" size={14} />
+            {t('accounts.antigravity.quotaUsageMenu', 'Antigravity Usage')}
           </DropdownMenuCheckboxItem>
         )}
         <DropdownMenuCheckboxItem

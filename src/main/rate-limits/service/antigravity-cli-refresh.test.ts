@@ -69,6 +69,38 @@ it('rejects a reading if the CLI changes accounts midway', async () => {
   await expect(service.refreshAntigravityCliQuota(target)).rejects.toThrow(
     'The Antigravity account changed during refresh.'
   )
+  expect((await service.getState()).antigravityCli).toMatchObject({
+    status: 'error',
+    session: null,
+    weekly: null
+  })
+})
+
+it('publishes the CLI diagnostic when background usage cannot be read', async () => {
+  let enabled = true
+  const message = 'Antigravity is not available in your location.'
+  fetchAntigravityRateLimits.mockResolvedValueOnce({
+    provider: 'antigravity',
+    session: null,
+    weekly: null,
+    updatedAt: Date.now(),
+    status: 'unavailable',
+    error: message
+  })
+  service.setAntigravityCliQuotaTarget(() => (enabled ? target : null))
+  service.start({ fetchImmediately: false })
+  await vi.advanceTimersByTimeAsync(0)
+
+  expect((await service.getState()).antigravityCli).toMatchObject({
+    provider: 'antigravity',
+    status: 'error',
+    error: message,
+    session: null,
+    weekly: null
+  })
+
+  enabled = false
+  service.antigravityCliQuotaSettingChanged()
   expect((await service.getState()).antigravityCli).toBeNull()
 })
 
